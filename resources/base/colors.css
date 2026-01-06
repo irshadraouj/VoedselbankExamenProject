@@ -1,0 +1,51 @@
+@theme {
+  --color-*: initial;
+  /* =================================================================
+  // Colors
+  // =================================================================
+  //
+  // use https://www.tailwindshades.com/ to generate color hues
+  //
+  // ---------------------------------------------------------------*/
+  --color-white: var(--white);
+  --color-black: var(--black);
+  --color-light-grey: var(--light-grey);
+  --color-dark-grey: var(--dark-grey);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-text-color: var(--text-color);
+
+  --color-primary-200: rgb(var(--green-200));
+  --color-primary-400: rgb(var(--green-400));
+  --color-primary-500: rgb(var(--green-500));
+  --color-primary-500: var(--primary);
+  
+  --color-gray-50: oklch(0.984 0.003 247.858);
+  --color-gray-100: oklch(0.968 0.007 247.896);
+  --color-gray-200: oklch(0.929 0.013 255.508);
+  --color-gray-300: oklch(0.869 0.022 252.894);
+  --color-gray-400: oklch(0.704 0.04 256.788);
+  --color-gray-500: oklch(0.554 0.046 257.417);
+  --color-gray-600: oklch(0.446 0.043 257.281);
+  --color-gray-700: oklch(0.372 0.044 257.287);
+  --color-gray-800: oklch(0.279 0.041 260.031);
+  --color-gray-900: oklch(0.208 0.042 265.755);
+  --color-gray-950: oklch(0.129 0.042 264.695);
+
+  --color-red-50: oklch(100% 0 none);
+  --color-red-100: oklch(98.595% 0.00534 17.247);
+  --color-red-200: oklch(90.077% 0.045 18.019);
+  --color-red-300: oklch(81.905% 0.08846 19.144);
+  --color-red-400: oklch(74.521% 0.1331 20.741);
+  --color-red-500: var(--color-red);
+  --color-red-600: oklch(61.519% 0.22555 27.038);
+  --color-red-700: oklch(54.729% 0.21764 28.554);
+  --color-red-800: oklch(44.642% 0.17569 28.342);
+  --color-red-900: oklch(33.772% 0.12969 27.862);
+  --color-red-950: oklch(28.028% 0.10495 27.402);
+}
+
+body {
+  color: var(--text-color);
+  background-color: var(--white);
+}

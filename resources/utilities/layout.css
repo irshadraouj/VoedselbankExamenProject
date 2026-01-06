@@ -1,0 +1,18 @@
+@utility container-left {
+  @apply ps-4;
+  margin-left: max(0px, (100% - 1200px  - (calc(var(--spacing) * 4) * 2)) / 2);
+}
+
+@utility container-right {
+  @apply pe-4;
+  margin-right: max(0px, (100% - 1200px  - (calc(var(--spacing) * 4) * 2)) / 2);
+}
+
+@utility container {
+    @apply mx-auto px-4;
+    max-width: calc(1170px + 2 * calc(var(--spacing) * 4));
+}
+
+@utility max-w-body {
+    @apply max-w-[1920px] mx-auto;
+}

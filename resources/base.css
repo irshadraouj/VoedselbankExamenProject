@@ -1,0 +1,17 @@
+@layer root, theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme) source(none);
+@import "./base/index.css" layer(base) source(none);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+@import "./utilities/layout.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+/* *.group is required */
+@source "../website/system/user/templates/default_site/*.group/**/*.html";
+@source "../website/system/user/templates/default_site/_partials/**/*.html";
+@source "./components/**/*.css";
+
+
+/* ===== Auto-Generated Imports ===== */
+
+/* ===== End Auto-Generated Imports ===== */

@@ -1,0 +1,78 @@
+@use "unit";
+@use "sass:color";
+//-----------------------------------------------------------------------------
+// # Project variables
+//-----------------------------------------------------------------------------
+//
+// 	variables in the :root for core design properties that can be reused
+//	across various elements, components, or sections of your application.
+// 
+//  This approach helps keep your codebase maintainable and flexible.
+// 
+
+@layer root {
+  :root {
+    --light-grey: #F8F8F8;
+    --dark-grey: #333333;
+    --border: #DDDDDD;
+    --white: #FFFFFF;
+    --black: #000000;
+    --white-rgb: 255,255,255;
+    --black-rgb: 0, 0, 0;
+    // Colors
+    --green-500: #3a8b6e;
+    --green-400: #53bd8c;
+    --green-200: #ebf1e7;
+    --green-500-rgb: 58, 139, 110;
+    --orange-500: #e7aa71; 
+    --orange-700: #d3975e;
+    // Colors - Named
+    --primary: var(--green-500);
+    --accent: var(--orange-500);
+    --text-color: #333333;
+
+    // Colors - Default 
+    --red: oklch(67.937% 0.178 23.068);
+    --red-hover: oklch(61.519% 0.22555 27.038);
+
+    --font-family-primary: ff-dagny-web-pro, sans-serif;
+    --font-family-secondary: "Advent Pro", sans-serif;
+
+    --font-weight-normal: 300;
+    --font-weight-medium: 500;
+    --font-weight-bold: 600;
+    --font-size-14: #{unit.fluid(.75rem, .875rem)};
+    --font-size-18: #{unit.fluid(.75rem, 1.125rem)};
+    --font-size-20: #{unit.fluid(1.25rem, 1.25rem)};
+    --font-size-22: #{unit.fluid(1.25rem, 1.375rem)};
+    --font-size-26: #{unit.fluid(1.5rem, 1.625rem)};
+    --font-size-36: #{unit.fluid(1.75rem, 2.25rem)};
+    --font-size-42: #{unit.fluid(2rem, 2.625rem)};
+    --font-size-46: #{unit.fluid(2.125rem, 2.875rem)};
+    --font-size-48: #{unit.fluid(2.25rem, 3rem)};
+    --font-size-60: #{unit.fluid(2.5rem, 3.75rem)};
+    --font-size-120: #{unit.fluid(3.25rem, 7.5rem)};    
+   
+    --line-height-18: 1.1;
+    --line-height-20: 1.4;
+    --line-height-28: 1.5;
+    --line-height-42: 1.14;      
+    --line-height-46: 0.8;      
+  }
+}
+// :root {
+//   // Generates all font sizes
+//   @each $name, $value in $font-sizes {
+//     --fs-#{$name}: #{$value};
+//   }
+//   // Generate colors from defined color map
+//   @each $color, $color-map in $colors {
+//     @each $name, $value in map.get($colors, $color) {
+//       --#{$color}-#{$name}: #{$value};
+//     }
+//   }
+  
+//   --ff-primary: sans-serif;
+ 
+  
+// }

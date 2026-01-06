@@ -1,0 +1,57 @@
+@font-face {
+    font-family: "iconfont";
+    src: url("/fonts/iconfont.eot?caaa15239abf540a1ad4168a8a6b2f62#iefix") format("embedded-opentype"),
+url("/fonts/iconfont.woff2?caaa15239abf540a1ad4168a8a6b2f62") format("woff2"),
+url("/fonts/iconfont.woff?caaa15239abf540a1ad4168a8a6b2f62") format("woff");
+}
+
+i[class^="icon-"]:before, i[class*=" icon-"]:before {
+    font-family: iconfont !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-twitter-x:before {
+    content: "\f101";
+}
+.icon-times:before {
+    content: "\f102";
+}
+.icon-search:before {
+    content: "\f103";
+}
+.icon-phone:before {
+    content: "\f104";
+}
+.icon-mail:before {
+    content: "\f105";
+}
+.icon-linkedin:before {
+    content: "\f106";
+}
+.icon-instagram:before {
+    content: "\f107";
+}
+.icon-hamburger:before {
+    content: "\f108";
+}
+.icon-facebook:before {
+    content: "\f109";
+}
+.icon-danger:before {
+    content: "\f10a";
+}
+.icon-caret:before {
+    content: "\f10b";
+}
+.icon-arrow-right:before {
+    content: "\f10c";
+}
+.icon-arrow-left:before {
+    content: "\f10d";
+}
