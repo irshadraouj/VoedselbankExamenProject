@@ -1,0 +1,12 @@
+{
+    "name": "avboheemen/dunique",
+    "authors": [
+        {
+            "name": "Antwan van Boheemen",
+            "email": "avboheemen@dunique.nl"
+        }
+    ],
+    "require": {
+        "intervention/image": "^3.11"
+    }
+}

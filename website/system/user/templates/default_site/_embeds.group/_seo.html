@@ -1,0 +1,26 @@
+{exp:channel:entries
+    entry_id='{if "{structure:page:entry_id}" != ''}{structure:page:entry_id}{if:else}2{/if}'
+    limit="1"
+    dynamic="no"
+}
+<title>{if "{seo_title}" != ""}{seo_title}{if:elseif "{embed:title}" != ""}{embed:title}{if:else}{title}{/if} - {site_name}</title>
+        {!-- custom_fields order: seo_description | body_intro | body --}
+        <meta name="description" content='{if seo_description}{seo_description}{if:elseif "{body_intro}" != ""}{body_intro word_limit="80" strip_tags="yes"}{if:elseif "{body}" != ""}{body word_limit="80" strip_tags="yes"}{if:else}{embed:fallback_desc}{/if}'>
+        {if "{seo_author}" != ""}<meta name="author" content="{seo_author}" />{/if}
+        <link rel="canonical" href="{current_url}" />
+        {!-- FALLBACK TO NOINDEX,NOFOLLOW IF IT'S NOT A PRODUCTION SITE --}
+        <meta name="robots" content="{if global:env == 'production'}{if seo_robots}{seo_robots:value}{if:else}{embed:fallback_robots}{/if}{if:else}noindex,nofollow{/if}" />{/if}
+        
+        <!-- Open Graph -->
+        <meta property="og:site_name" content="{site_name}" />
+        <meta property="og:title" content='{if "{seo_title}" != ""}{seo_title}{if:elseif "{embed:title}" != ""}{embed:title}{if:elseif "{structure:page:entry_id}"  != ""}{title}{if:else}{title}{/if} - {site_name}' />
+        <meta property="og:description" content='{if seo_description}{seo_description}{if:elseif "{body_intro}" != ""}{body_intro word_limit="80" strip_tags="yes"}{if:elseif "{body}" != ""}{body word_limit="80" strip_tags="yes"}{if:else}{embed:fallback_desc}{/if}' />
+        <meta property="og:url" content="{current_url}" />
+        <meta property="og:image" content='{if "{seo_image:seo}" != ""}{seo_image:seo}{if:elseif "{image:seo}" != ""}{image:seo}{if:elseif gallery}{gallery limit="1"}{gallery:file:seo}{/gallery}{if:else}{embed:fallback_image}{/if}' />
+        
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="twitter:title" content='{if "{seo_title}" != ""}{seo_title}{if:elseif "{embed:title}" != ""}{embed:title}{if:elseif "{structure:page:entry_id}"  != ""}{title}{if:else}{title}{/if} - {site_name}' />
+        <meta property="twitter:description" content='{if seo_description}{seo_description}{if:elseif "{body_intro}" != ""}{body_intro word_limit="80" strip_tags="yes"}{if:elseif "{body}" != ""}{body word_limit="80" strip_tags="yes"}{if:else}{embed:fallback_desc}{/if}' />
+        <meta property="twitter:image" content='{if "{seo_image:seo}" != ""}{seo_image:seo}{if:elseif "{image:seo}" != ""}{image:seo}{if:elseif gallery}{gallery limit="1"}{gallery:file:seo}{/gallery}{if:else}{embed:fallback_image}{/if}' />
+{/exp:channel:entries}

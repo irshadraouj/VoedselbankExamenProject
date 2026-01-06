@@ -1,0 +1,153 @@
+<?php
+
+/**
+ * @author        Rein de Vries <support@reinos.nl>
+ * @link        http://addons.reinos.nl
+ * @copyright    Copyright (c) 2011 - 2025 Reinos.nl Internet Media
+ * @license     http://addons.reinos.nl/commercial-license
+ *
+ * Copyright (c) 2011 - 2025 Reinos.nl Internet Media
+ * All rights reserved.
+ *
+ * This source is commercial software. Use of this software requires a
+ * site license for each domain it is used on. Use of this software or any
+ * of its source code without express written permission in the form of
+ * a purchased commercial or other license is prohibited.
+ *
+ * THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+ * KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+ * PARTICULAR PURPOSE.
+ *
+ * As part of the license agreement for this software, all modifications
+ * to this source must be submitted to the original author for review and
+ * possible inclusion in future releases. No compensation will be provided
+ * for patches, although where possible we will attribute each contribution
+ * in file revision notes. Submitting such modifications constitutes
+ * assignment of copyright to the original author (Rein de Vries and
+ * Reinos.nl Internet Media) for such modifications. If you do not wish to assign
+ * copyright to the original author, your license to  use and modify this
+ * source is null and void. Use of this software constitutes your agreement
+ * to this clause.
+ */
+
+/**
+ * Include the config file
+ */
+require_once PATH_THIRD . 'wyvern/config.php';
+
+$lang = array(
+    WYVERN_MAP . "_module_name" => WYVERN_NAME,
+    WYVERN_MAP . '_module_description' => WYVERN_DESCRIPTION,
+    WYVERN_MAP . '_settings' => 'Settings',
+    WYVERN_MAP . '_setting' => 'Setting',
+    WYVERN_MAP . '_preference' => 'Perferences',
+    WYVERN_MAP . 'preferences_updated' => 'Perferences updated',
+    WYVERN_MAP . '_license_key' => 'License key',
+    WYVERN_MAP . '_nodata' => 'No data',
+    WYVERN_MAP . '_overview' => 'Overview',
+    WYVERN_MAP . '_documentation' => 'Documentation',
+    WYVERN_MAP . '_delete' => 'Delete',
+    WYVERN_MAP . '_delete_notice' => 'You`re about to permanently delete those records',
+    WYVERN_MAP . '_license_settings' => 'License setting',
+    'upload_dir_images' => 'Upload folder for the Images',
+    'upload_dir_files' => 'Upload folder for the Files',
+    'general_settings' => 'General Settings',
+    'display_height' => 'Display Height',
+    'upload_prefs' => 'Allowed upload directories',
+    'allow_img_urls' => 'Allow image URLs in Wyvern fields?',
+    'resize_enabled' => 'Is resizable',
+    'upload_dir' => 'Specify the upload directory',
+    'enter_mode' => 'Enter Mode',
+    'auto_grow' => 'Auto Grow content box',
+    'auto_grow_on_startup' => 'Auto grow on start (page load)',
+
+    WYVERN_MAP . '_default_toolbar' => 'Default Toolbar',
+    WYVERN_MAP . '_path_settings' => 'Path settings',
+    WYVERN_MAP . '_font_settings' => 'Font settings',
+    WYVERN_MAP . '_parse_settings' => 'Parse settings',
+    WYVERN_MAP . '_ckeditor_settings' => 'CKeditor settings',
+    WYVERN_MAP . '_toolbars' => 'Toolbars',
+    WYVERN_MAP . '_add_toolbar' => 'Add Toolbar',
+    WYVERN_MAP . '_no_buttons' => 'No buttons created yet',
+    WYVERN_MAP . '_add_buttons' => 'Add a button',
+    WYVERN_MAP . '_show_all_templates' => 'Show all templates',
+    WYVERN_MAP . '_select_template_groups' => 'Select a template group',
+    WYVERN_MAP . '_select_templates' => 'Select a template',
+    'toolbar_icon' => 'Icon',
+    'toolbar_type' => 'Button type',
+    'column_toolbar_name' => 'Name',
+    WYVERN_MAP . '_debug_mode' => 'Debug Mode',
+    WYVERN_MAP . '_assets' => 'Assets',
+    WYVERN_MAP . '_toolbar_name' => 'Name',
+    WYVERN_MAP . '_toolbar_buttons' => 'Buttons',
+    WYVERN_MAP . '_toolbar_buttons_desc' => 'Below you can create your own toolbar.',
+
+    WYVERN_MAP . "_css_path" => 'Path to custom CSS file',
+    WYVERN_MAP . "_css_path_desc" =>
+        "<p >This is the path to the CSS file used to define custom styles used within the CKEditor field.
+ <b>If you define a CSS file, a JavaScript file is required below.</b></p>
+<p>The default location is: <code>/themes/user/wyvern/assets/wysiwyg/wysiwyg.css</code></p>",
+
+    WYVERN_MAP . "_js_path" => 'Path to custom JS file',
+    WYVERN_MAP . "_js_path_desc" =>
+        "<p >This is the path to the JavaScript file used to create the select menu in the toolbar. It will normally contain definitions to the styles defined in the CSS file above.</p>
+<p >The default location is: <code>/themes/user/wyvern/assets/wysiwyg/wysiwyg.js</code></p>",
+
+    WYVERN_MAP . "_parse_ee_tags" => 'Parse EE tags',
+    WYVERN_MAP . "_parse_ee_tags_desc" =>
+        "Parse all EE tags like <code>{exp:channel:entries}</code>. <br><br>Remember, by default it will parse some global variables and the code generated by Wyvern like <b>{path='group/template'}, {filedir_N}</b>",
+
+    WYVERN_MAP . "_obfuscate_email" => 'Obfuscate email addresses',
+    WYVERN_MAP . "_obfuscate_email_desc" =>
+        "This will obfuscate (encode) email addresses when used within Wyvern fields. <b>This will automatically link email addresses too</b>.",
+
+    WYVERN_MAP . "_extra_config" => 'Extra CKEditor Config Options',
+    WYVERN_MAP . "_extra_config_desc" =>
+        "<p>Set any additional CKEditor configuration options here. A list of possible options can be <a href=\"http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.config.html\">found in the CKEditor API</a>. Set the options in the following format, one option per line and no quotes (the module will handle that for you). You can also use <code>{site_url}</code> or <code>{base_url}</code> as a variable to link extra files.</p>
+<p>
+<code>
+<pre>
+bodyClass: 'wysiwyg'
+basicEntities: true
+</pre>
+</code>
+</p>",
+
+    WYVERN_MAP . "_display_block" => 'Enable display blocks by default',
+    WYVERN_MAP . "_display_block_desc" =>
+        "This will add dashed borders and visual markers to HTML containers.",
+
+    WYVERN_MAP . "_image_settings" => 'Image Settings',
+    WYVERN_MAP . "_image_class" => 'image class',
+    WYVERN_MAP . "_image_class_desc" =>
+        "This will add a class to your image.",
+
+    WYVERN_MAP . "_default_link_type" => 'Default Link Type',
+    WYVERN_MAP . "_default_link_type_desc" =>
+        "Select what the default link type is in the CKEditor Link Dialog when it opens.",
+
+    WYVERN_MAP . "_file_manager" => 'File Manager',
+    WYVERN_MAP . "_file_manager_desc" =>
+        "Select which file manager to use. You can use the native EE File Manager, or Assets.",
+
+    WYVERN_MAP . "_linkable_dialog_template_type" => 'Linkable Templates',
+    WYVERN_MAP . "_linkable_dialog_template_type_desc" =>
+        "Select which templates you want to display in the Link Dialog Template list.",
+
+    WYVERN_MAP . "_linkable_dialog_template_templates" => 'Linkable Templates',
+    WYVERN_MAP . "_linkable_dialog_template_groups" => 'Linkable Templates Groups',
+
+    WYVERN_MAP . '_delete' => 'Delete',
+    WYVERN_MAP . '_delete_notice' => 'You`re about to permanently delete those records',
+    WYVERN_MAP . '_log' => 'Logging',
+    WYVERN_MAP . '_log_settings' => 'Logging Settings',
+    WYVERN_MAP . '_delete_all_logs' => 'Delete all logs',
+    WYVERN_MAP . '_license_settings' => 'License settings',
+    WYVERN_MAP . '_license' => 'License',
+    'column_log_id' => '#',
+    'column_severity' => 'Severity',
+    'column_time' => 'Time',
+    'column_message' => 'Message',
+);
+

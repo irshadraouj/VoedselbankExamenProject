@@ -1,0 +1,20 @@
+{paginate}
+	<nav aria-label="Page navigation">
+		{pagination_links}
+		<ul class="pagination justify-content-center">
+
+			{previous_page}
+			<li class="page-item previous"><a class="page-link" href="{pagination_url}" aria-label="Previous"><span class="custom-arrow custom-arrow--left" aria-hidden="true"><i class='icon-chevron-right'></i></span><span class="sr-only">Previous</span></a></li>
+			{/previous_page}
+
+			{page}
+			<li class="page-item {if current_page}active{/if}"><a class="page-link" href="{pagination_url}">{pagination_page_number}</a></li>
+			{/page}
+
+			{next_page}
+			<li class="page-item next"><a class="page-link" href="{pagination_url}" aria-label="Next"><span class="custom-arrow custom-arrow--right" aria-hidden="true"><i class='icon-chevron-right'></i></span><span class="sr-only">Next</span></a></li>
+			{/next_page}
+		</ul>
+		{/pagination_links}
+	</nav>
+{/paginate}

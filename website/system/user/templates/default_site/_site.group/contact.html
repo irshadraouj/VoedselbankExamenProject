@@ -1,0 +1,13 @@
+{layout="_layouts/.main"}
+
+{exp:channel:entries channel="contact" entry_id="{structure:page:entry_id}" dynamic="no"}
+{if no_results}
+{redirect="404"}
+{/if}
+
+<h1>{tp_page_title}</h1>
+
+{!-- Layout SET --}
+{layout:set name="title"}{tp_page_title}{/layout:set}
+
+{/exp:channel:entries}

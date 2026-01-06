@@ -1,0 +1,25 @@
+.reinos-license_status {
+    margin: 15px 0;
+    padding: 10px;
+    line-height: 18px;
+    background-color: #f5f5f5;
+    border: 1px solid #e8e8e8;
+}
+
+.reinos-license_status h4 {
+    font-weight: bold;
+}
+
+.reinos-license_status ul {
+    padding-left: 20px;
+    margin-top: 10px;
+}
+
+.reinos-license_status .reinos-license-info {
+    margin-bottom: 10px;
+}
+
+.button.duplicate:before,
+.ee5 .toolbar li.duplicate a:before{
+    content: "\f0c5";
+}
