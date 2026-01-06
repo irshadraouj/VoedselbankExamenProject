@@ -6,8 +6,8 @@ $config['site_license_key'] = '';
 // https://docs.expressionengine.com/latest/general/system-configuration-overrides.html
 
 $config['app_version'] = '7.5.6';
-$config['encryption_key'] = '6ed78d7545f63712b5f9860342e8e5a4589a0a86';
-$config['session_crypt_key'] = 'eece761d6a34938d7eda59b587f7d2ec6f4d7a0a';
+$config['encryption_key'] = 'e4d2f4d5dc5ab75d2cf151c3ae76b8b2a3ef1fb2';
+$config['session_crypt_key'] = 'eec73f96e6c8883acc9ec316b4d938cfa9bdae63';
 $config['database'] = array(
 	'expressionengine' => array(
 		'hostname' => 'db',
