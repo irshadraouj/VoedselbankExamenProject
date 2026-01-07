@@ -63,3 +63,4 @@ website/public_html/assets/manifest-*.webmanifest
 _backup/
 .unlighthouse/
 node_modules
+.gitattributes

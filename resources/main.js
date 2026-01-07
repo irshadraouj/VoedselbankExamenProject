@@ -6,6 +6,7 @@ Alpine.plugin(collapse);
 window.Alpine = Alpine;
 
 // ===== Auto-Generated Imports =====
+import '@components/login/login.js';
 // ===== End Auto-Generated Imports =====
 
 Alpine.start();
