@@ -1,0 +1,48 @@
+<section class="login" data-login>
+  <div class="login__card">
+    <h1 class="login__title">Inloggen</h1>
+    <p class="login__subtitle">Welkom terug. Log in om verder te gaan.</p>
+    {exp:member:login_form return="/" form_class="login__form" form_id="login-form"}
+      <div class="login__field">
+        <label class="login__label" for="login-username">E-mail of gebruikersnaam</label>
+          <input
+            class="login__input"
+            type="text"
+            id="login-username"
+            name="username"
+            autocomplete="off"
+            required
+            data-login-username
+          />
+      </div>
+      <div class="login__field">
+        <label class="login__label" for="login-password">Wachtwoord</label>
+        <div class="login__password">
+          <input
+            class="login__input"
+            type="password"
+            id="login-password"
+            name="password"
+            autocomplete="off"
+            required
+            data-login-password
+          />
+          <button
+            class="login__toggle"
+            type="button"
+            data-login-toggle
+            aria-pressed="false"
+            aria-controls="login-password"
+          >
+            Toon
+          </button>
+        </div>
+      </div>
+      <div class="login__options">
+        <a class="login__forgot" href="#">Wachtwoord vergeten?</a>
+      </div>
+      <p class="login__error" data-login-error role="alert" hidden></p>
+      <button class="login__submit" type="submit" data-login-submit>Inloggen</button>
+    {/exp:member:login_form}
+  </div>
+</section>
