@@ -1,4 +1,5 @@
 // JavaScript for login
+import './login.scss';
 
 (() => {
   const init = () => {
