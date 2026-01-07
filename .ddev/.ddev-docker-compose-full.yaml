@@ -15,7 +15,7 @@ services:
     container_name: ddev-VoedselbankExamenProject-db
     environment:
       BITNAMI_VOLUME_DIR: /bitnami/mysql
-      COLUMNS: "80"
+      COLUMNS: "192"
       DDEV_DATABASE: mysql:8.0
       DDEV_DATABASE_FAMILY: mysql
       DDEV_GID: "1000"
@@ -43,7 +43,7 @@ services:
       EE_VERSION: 7.5.6
       HOST_DOCKER_INTERNAL_IP: 172.17.0.1
       IS_DDEV_PROJECT: "true"
-      LINES: "24"
+      LINES: "7"
       MYSQL_HISTFILE: /mnt/ddev-global-cache/mysqlhistory/VoedselbankExamenProject-db/mysql_history
       NODE_VERSION: "23"
       PGDATABASE: db
@@ -77,7 +77,7 @@ services:
       - mode: ingress
         host_ip: 127.0.0.1
         target: 3306
-        published: "32783"
+        published: "0"
         protocol: tcp
     restart: "no"
     stop_grace_period: 1m0s
@@ -168,7 +168,7 @@ services:
       - /pre-start.sh
     container_name: ddev-VoedselbankExamenProject-web
     environment:
-      COLUMNS: "80"
+      COLUMNS: "192"
       COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
       COREPACK_HOME: /mnt/ddev-global-cache/corepack
       DDEV_APPROOT: /var/www/html
@@ -213,7 +213,7 @@ services:
       HTTP_EXPOSE: 80:80,8025:8025
       HTTPS_EXPOSE: 443:80,8026:8025
       IS_DDEV_PROJECT: "true"
-      LINES: "24"
+      LINES: "7"
       MYSQL_HISTFILE: /mnt/ddev-global-cache/mysqlhistory/VoedselbankExamenProject-web/mysql_history
       NODE_EXTRA_CA_CERTS: /mnt/ddev-global-cache/mkcert/rootCA.pem
       NODE_VERSION: "23"
@@ -250,12 +250,12 @@ services:
       - mode: ingress
         host_ip: 127.0.0.1
         target: 80
-        published: "32779"
+        published: "0"
         protocol: tcp
       - mode: ingress
         host_ip: 127.0.0.1
         target: 443
-        published: "32780"
+        published: "0"
         protocol: tcp
       - mode: ingress
         host_ip: 127.0.0.1
