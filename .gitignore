@@ -65,3 +65,4 @@ website/public_html/assets/uploads/files/*
 website/public_html/assets/manifest-*.webmanifest
 _backup/
 .unlighthouse/
+.gitattributes

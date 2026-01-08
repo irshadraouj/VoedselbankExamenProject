@@ -205,13 +205,16 @@
     "src": "resources/fonts/iconfont.woff2"
   },
   "resources/main.js": {
-    "file": "assets/js/main-C0vKuB5d.js",
+    "file": "assets/js/main-CEcYm3qB.js",
     "name": "main",
     "src": "resources/main.js",
-    "isEntry": true
+    "isEntry": true,
+    "css": [
+      "assets/css/main-BAJYgx5x.css"
+    ]
   },
   "resources/styles.scss": {
-    "file": "assets/css/styles-CSV_E2QH.css",
+    "file": "assets/css/styles-DVRiKvPr.css",
     "src": "resources/styles.scss",
     "isEntry": true
   }
