@@ -1,0 +1,113 @@
+{layout="_layouts/.main"}
+<main class="voorraad">
+  <div class="voorraad__wrap">
+    <header class="voorraad__header">
+      <div>
+        <p class="voorraad__eyebrow">Voorraadbeheer</p>
+        <h1 class="voorraad__title">Voorraadoverzicht</h1>
+        <p class="voorraad__subtitle">Filter producten op naam, categorie, aantal en EAN om sneller te zoeken.</p>
+      </div>
+      <div class="voorraad__summary" aria-live="polite">
+        <span class="voorraad__summary-label">Resultaten</span>
+        <span class="voorraad__summary-value">
+          {exp:channel:entries channel="producten" dynamic="no" limit="1" disable="categories|custom_fields|member_data|pagination"}
+            {total_results} producten
+            {if no_results}0 producten{/if}
+          {/exp:channel:entries}
+        </span>
+      </div>
+    </header>
+
+    <form class="voorraad__filters" action="#" method="get" aria-label="Filters voorraadoverzicht">
+      <div class="voorraad__field voorraad__field--span">
+        <label class="voorraad__label" for="voorraad-search">Productnaam</label>
+        <input
+          class="voorraad__input"
+          type="search"
+          id="voorraad-search"
+          name="product_name"
+          placeholder="Bijv. melk (1L)"
+        />
+      </div>
+
+      <div class="voorraad__field">
+        <label class="voorraad__label" for="voorraad-category">Categorie</label>
+        <select class="voorraad__input" id="voorraad-category" name="product_category">
+          <option value="">Alle categorieen</option>
+          <option value="zuivel">Zuivel</option>
+          <option value="brood">Brood</option>
+          <option value="droogwaren">Droogwaren</option>
+          <option value="fruit">Fruit</option>
+          <option value="vlees">Vlees</option>
+        </select>
+      </div>
+
+      <div class="voorraad__field">
+        <label class="voorraad__label" for="voorraad-ean">EAN</label>
+        <input
+          class="voorraad__input"
+          type="text"
+          id="voorraad-ean"
+          name="product_ean"
+          inputmode="numeric"
+          placeholder="Bijv. 8712345678901"
+        />
+      </div>
+
+      <div class="voorraad__field voorraad__field--span">
+        <span class="voorraad__label">Voorraad</span>
+        <div class="voorraad__range">
+          <input
+            class="voorraad__input"
+            type="number"
+            id="voorraad-min"
+            name="product_aantal_min"
+            min="0"
+            placeholder="Min"
+          />
+          <input
+            class="voorraad__input"
+            type="number"
+            id="voorraad-max"
+            name="product_aantal_max"
+            min="0"
+            placeholder="Max"
+          />
+        </div>
+      </div>
+
+      <div class="voorraad__actions">
+        <button class="voorraad__button voorraad__button--primary" type="submit">Filter</button>
+        <button class="voorraad__button" type="reset">Reset</button>
+      </div>
+    </form>
+
+    <section class="voorraad__table-wrap" aria-label="Producten">
+      <table class="voorraad__table">
+        <thead>
+          <tr>
+            <th>Productnaam</th>
+            <th>Categorie</th>
+            <th>EAN-nummer</th>
+            <th>Voorraad</th>
+          </tr>
+        </thead>
+        <tbody>
+          {exp:channel:entries channel="producten" dynamic="no"}
+            <tr>
+              <td>{product_name}</td>
+              <td>{product_cat}{item:label}{/product_cat}</td>
+              <td>{product_ean}</td>
+              <td>{product_amount}</td>
+            </tr>
+            {if no_results}
+              <tr>
+                <td colspan="4">Geen producten gevonden.</td>
+              </tr>
+            {/if}
+          {/exp:channel:entries}
+        </tbody>
+      </table>
+    </section>
+  </div>
+</main>
