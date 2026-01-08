@@ -17,11 +17,7 @@ ARG gid
 ARG DDEV_PHP_VERSION
 ARG DDEV_DATABASE
 RUN getent group tty || groupadd tty
-RUN (groupadd --gid "$gid" "$username" || groupadd "$username" || true) && \
-    (useradd -G tty -l -m -s "/bin/bash" --gid "$username" --comment '' --uid "$uid" "$username" || \
-    useradd -G tty -l -m -s "/bin/bash" --gid "$username" --comment '' "$username" || \
-    useradd -G tty -l -m -s "/bin/bash" --gid "$gid" --comment '' "$username" || \
-    useradd -G tty -l -m -s "/bin/bash" --comment '' "$username")
+RUN (groupadd --gid $gid "$username" || groupadd "$username" || true) && (useradd -G tty -l -m -s "/bin/bash" --gid "$username" --comment '' --uid $uid "$username" || useradd -G tty -l -m -s "/bin/bash" --gid "$username" --comment '' "$username" || useradd  -G tty -l -m -s "/bin/bash" --gid "$gid" --comment '' "$username" || useradd -G tty -l -m -s "/bin/bash" --comment '' $username )
 
 ### DDEV-injected extra content
 
@@ -30,7 +26,7 @@ ENV NVM_DIR=/home/$username/.nvm
 ENV N_PREFIX=/home/$username/.n
 ENV N_INSTALL_VERSION="23"
 
-RUN mysql-client-install.sh || true
+RUN START_SCRIPT_TIMEOUT=60 mysql-client-install.sh || true
 
 
 ### DDEV-injected composer update

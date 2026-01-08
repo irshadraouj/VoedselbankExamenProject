@@ -64,6 +64,9 @@ website/system/user/addons/*/cache/
 website/public_html/assets/uploads/images/*
 website/public_html/assets/uploads/files/*
 website/public_html/assets/manifest-*.webmanifest
+website/public_html/assets/css/.css
+website/public_html/assets/js/.js
+website/public_html/assets/manifest.json
 _backup/
 .unlighthouse/
 .gitattributes

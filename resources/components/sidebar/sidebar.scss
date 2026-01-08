@@ -2,12 +2,12 @@
 .sidebar {
   width: 260px;
   min-height: calc(100vh - 68px);
-  background: #0f1627;
+  background: var(--secondary);
   border-right: 1px solid #1c2538;
   padding: 20px 16px;
   box-sizing: border-box;
   position: relative;
-  color: #e8ecf5;
+  color: var(--primary);
   position: absolute;
   overflow: hidden;
   z-index: 9999999;
@@ -35,12 +35,12 @@
     color: #282829;
     text-decoration: none;
     border: 1px solid transparent;
-    background: #ffffff;
+    background: var(--button-bg);
     transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
     transition: ease-in-out 0.2s;
 
     &:hover {
-      background: #e5e5e5;
+      background: var(--button-bg-hover);
       border-color: #243354;
       box-shadow: 0 12px 32px rgba(7, 12, 24, 0.35);
     }
