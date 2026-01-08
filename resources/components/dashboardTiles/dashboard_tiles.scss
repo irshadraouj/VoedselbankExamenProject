@@ -1,0 +1,14 @@
+// Styles for dashboard_tiles
+
+.dashboardTiles {
+  margin-left: 80px;
+
+  @media (min-width: 1200px) {
+    margin-left: 260px;
+  }
+
+  &__tile{
+    height: 50px;
+    background-color: red;
+  }
+}

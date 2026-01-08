@@ -1,0 +1,14 @@
+<header class="topbar">
+	<div class="topbar__content container mx-auto max-w-7xl">
+		<div class="topbar__brand">
+			<div class="topbar__logo" aria-hidden="true"></div>
+			<span class="topbar__title">Voedselbank</span>
+		</div>
+
+		<div class="topbar__actions">
+			{exp:member:logout_form return="/" class="topbar__logout-form"}
+				<button class="topbar__logout" type="submit">Uitloggen</button>
+			{/exp:member:logout_form}
+		</div>
+	</div>
+</header>
