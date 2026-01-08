@@ -26,8 +26,12 @@
     --green-500-rgb: 58, 139, 110;
     --orange-500: #e7aa71; 
     --orange-700: #d3975e;
+    // buttons
+    --button-bg: #ffffff;
+    --button-bg-hover: #e5e5e5;
     // Colors - Named
-    --primary: var(--green-500);
+    --primary: var(--white);
+    --secondary: #0f1627;
     --accent: var(--orange-500);
     --text-color: #333333;
 
@@ -58,6 +62,11 @@
     --line-height-28: 1.5;
     --line-height-42: 1.14;      
     --line-height-46: 0.8;      
+
+    --border-radius: 12px;
+    --box-shadow-light: box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --border-color: border-color: #d1d5db;
+    
   }
 }
 // :root {
