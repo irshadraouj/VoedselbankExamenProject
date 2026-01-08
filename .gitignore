@@ -6,6 +6,7 @@
 # Node artifact files
 node_modules/
 .vite/
+.devv
 
 # Compiled Java class files
 *.class
