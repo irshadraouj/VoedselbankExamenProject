@@ -67,3 +67,8 @@ website/public_html/assets/manifest-*.webmanifest
 _backup/
 .unlighthouse/
 .gitattributes
+
+# Build artifacts (Vite/CSS/JS with hashes - regenerate with: npm run build)
+website/public_html/assets/css/*.css
+website/public_html/assets/js/*.js
+website/public_html/assets/manifest.json

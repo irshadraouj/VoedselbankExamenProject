@@ -1,0 +1,34 @@
+{layout="_layouts/.main"}
+    {embed="_embeds/_topbar"}
+    {embed="_embeds/_sidebar"}
+    <div class="dashboardTiles mt-10">
+        <div class="dashboard__intro">
+            <h1>Dashboard</h1>
+            <p>Welkom terug {if logged_in}{logged_in_screen_name}{if:else}Gast{/if}</p>
+        </div>
+        <div class="container">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Rij 1: Klanten, Producten, Leveranciers -->
+                <div class="dashboardTiles__tile">
+                    {embed="_embeds/_tile-klanten"}
+                </div>
+                <div class="dashboardTiles__tile">
+                    {embed="_embeds/_tile-producten"}
+                </div>
+                <div class="dashboardTiles__tile">
+                    {embed="_embeds/_tile-leveranciers"}
+                </div>
+
+                <!-- Rij 2: Pakketsamenstellen, Pakket Uitgifte, Raportage -->
+                <div class="dashboardTiles__tile">
+                    {embed="_embeds/_tile-pakketsamenstellen"}
+                </div>
+                <div class="dashboardTiles__tile">
+                    {embed="_embeds/_tile-pakketuitgifte"}
+                </div>
+                <div class="dashboardTiles__tile">
+                    {embed="_embeds/_tile-raportage"}
+                </div>
+            </div>
+        </div>
+    </div>
