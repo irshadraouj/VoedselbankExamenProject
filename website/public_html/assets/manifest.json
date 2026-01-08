@@ -188,7 +188,7 @@
     "src": "manifest.webmanifest"
   },
   "resources/base.css": {
-    "file": "assets/css/base-BqPrxmNx.css",
+    "file": "assets/css/base-DtnL00KF.css",
     "src": "resources/base.css",
     "isEntry": true
   },
@@ -214,7 +214,11 @@
     ]
   },
   "resources/styles.scss": {
+<<<<<<< HEAD
     "file": "assets/css/styles-DVRiKvPr.css",
+=======
+    "file": "assets/css/styles-y4olCuYX.css",
+>>>>>>> feature/martijn
     "src": "resources/styles.scss",
     "isEntry": true
   }
