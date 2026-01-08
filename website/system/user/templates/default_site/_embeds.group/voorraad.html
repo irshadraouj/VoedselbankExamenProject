@@ -54,6 +54,15 @@
           <option value="desc">Hoog naar laag</option>
         </select>
       </div>
+
+      <div class="voorraad__field">
+        <label class="voorraad__label" for="voorraad-expiration-sort">Houdbaarheidsdatum sorteren</label>
+        <select class="voorraad__input" id="voorraad-expiration-sort" name="expiration_date_sort">
+          <option value="">Geen sortering</option>
+          <option value="asc">Oud naar nieuw</option>
+          <option value="desc">Nieuw naar oud</option>
+        </select>
+      </div>
     </form>
 
     <section class="voorraad__table-wrap" aria-label="Producten">
@@ -64,6 +73,7 @@
             <th>Categorie</th>
             <th>EAN-nummer</th>
             <th>Voorraad</th>
+            <th>Houdbaarheidsdatum</th>
           </tr>
         </thead>
         <tbody>
@@ -81,10 +91,11 @@
               </td>
               <td>{product_ean}</td>
               <td>{product_amount}</td>
+              <td data-expiration="{expiration_date}">{expiration_date format="%d-%m-%Y"}</td>
             </tr>
             {if no_results}
               <tr>
-                <td colspan="4">Geen producten gevonden.</td>
+                <td colspan="5">Geen producten gevonden.</td>
               </tr>
             {/if}
           {/exp:channel:entries}
@@ -105,6 +116,7 @@
     const categorySelect = document.getElementById('voorraad-category');
     const eanInput = document.getElementById('voorraad-ean');
     const amountSort = document.getElementById('voorraad-sort');
+    const expirationSort = document.getElementById('voorraad-expiration-sort');
     const rows = Array.from(table.querySelectorAll('tbody tr'));
     const tbody = table.querySelector('tbody');
     const countEl = document.getElementById('voorraad-count');
@@ -139,7 +151,7 @@
       let visibleCount = 0;
       rows.forEach((row) => {
         const cells = row.querySelectorAll('td');
-        if (cells.length < 4) {
+        if (cells.length < 5) {
           return;
         }
 
@@ -167,16 +179,80 @@
         return;
       }
 
-      const order = (amountSort?.value || '').trim();
-      if (!order) {
+      const amountOrder = (amountSort?.value || '').trim();
+      const expirationOrder = (expirationSort?.value || '').trim();
+      if (!amountOrder && !expirationOrder) {
         return;
       }
 
       const visibleRows = rows.filter((row) => !row.hidden);
+
+      const parseDateValue = (cell) => {
+        if (!cell) {
+          return 0;
+        }
+
+        const dataValue = (cell.getAttribute('data-expiration') || '').trim();
+        if (dataValue) {
+          const numeric = Number(dataValue);
+          return Number.isNaN(numeric) ? 0 : numeric * 1000;
+        }
+
+        const trimmed = (cell.textContent || '').trim();
+        if (!trimmed) {
+          return 0;
+        }
+
+        const isoParsed = Date.parse(trimmed);
+        if (!Number.isNaN(isoParsed)) {
+          return isoParsed;
+        }
+
+        const parts = trimmed.split(/[./-]/).map((part) => part.trim());
+        if (parts.length !== 3) {
+          return 0;
+        }
+
+        const [part1, part2, part3] = parts;
+        if (part3.length === 4) {
+          const day = parseInt(part1, 10);
+          const month = parseInt(part2, 10);
+          const year = parseInt(part3, 10);
+          if (!Number.isNaN(day) && !Number.isNaN(month) && !Number.isNaN(year)) {
+            return new Date(year, month - 1, day).getTime();
+          }
+        }
+
+        if (part1.length === 4) {
+          const year = parseInt(part1, 10);
+          const month = parseInt(part2, 10);
+          const day = parseInt(part3, 10);
+          if (!Number.isNaN(day) && !Number.isNaN(month) && !Number.isNaN(year)) {
+            return new Date(year, month - 1, day).getTime();
+          }
+        }
+
+        return 0;
+      };
+
       visibleRows.sort((a, b) => {
-        const aValue = parseFloat((a.querySelectorAll('td')[3]?.textContent || '').trim()) || 0;
-        const bValue = parseFloat((b.querySelectorAll('td')[3]?.textContent || '').trim()) || 0;
-        return order === 'asc' ? aValue - bValue : bValue - aValue;
+        if (amountOrder) {
+          const aValue = parseFloat((a.querySelectorAll('td')[3]?.textContent || '').trim()) || 0;
+          const bValue = parseFloat((b.querySelectorAll('td')[3]?.textContent || '').trim()) || 0;
+          if (aValue !== bValue) {
+            return amountOrder === 'asc' ? aValue - bValue : bValue - aValue;
+          }
+        }
+
+        if (expirationOrder) {
+          const aDate = parseDateValue(a.querySelectorAll('td')[4]);
+          const bDate = parseDateValue(b.querySelectorAll('td')[4]);
+          if (aDate !== bDate) {
+            return expirationOrder === 'asc' ? aDate - bDate : bDate - aDate;
+          }
+        }
+
+        return 0;
       });
 
       visibleRows.forEach((row) => {
@@ -184,7 +260,7 @@
       });
     };
 
-    [nameInput, categorySelect, eanInput, amountSort].forEach((el) => {
+    [nameInput, categorySelect, eanInput, amountSort, expirationSort].forEach((el) => {
       if (!el) {
         return;
       }
