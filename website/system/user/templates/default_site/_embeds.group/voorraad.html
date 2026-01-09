@@ -104,6 +104,65 @@
     </section>
   </div>
 </main>
+<section class="voorraad__add-product">
+  <h2 class="voorraad__add-title">Product toevoegen</h2>
+  <form id="add-product-form" action="/api/add-product" method="post">
+    <div class="voorraad__field">
+      <label class="voorraad__label" for="add-product-name">Productnaam</label>
+      <input type="text" id="add-product-name" name="product_name" required />
+    </div>
+    <div class="voorraad__field">
+      <label class="voorraad__label" for="add-product-category">Categorie</label>
+      <select id="add-product-category" name="product_category" required>
+        <option value="">Selecteer een categorie</option>
+      </select>
+    </div>
+    <div class="voorraad__field">
+      <label class="voorraad__label" for="add-product-ean">EAN</label>
+      <input type="text" id="add-product-ean" name="product_ean" pattern="^\d{13}$" required />
+    </div>
+    <div class="voorraad__field">
+      <label class="voorraad__label" for="add-product-amount">Aantal</label>
+      <input type="number" id="add-product-amount" name="product_amount" min="1" required />
+    </div>
+    <div class="voorraad__field">
+      <label class="voorraad__label" for="add-product-expiration">Houdbaarheidsdatum</label>
+      <input type="date" id="add-product-expiration" name="expiration_date" required />
+    </div>
+    <button type="submit">Product toevoegen</button>
+    <p class="voorraad__message" id="add-product-message"></p>
+  </form>
+</section>
+
+<script>
+  document.getElementById('add-product-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const formData = new FormData(this);
+    const messageEl = document.getElementById('add-product-message');
+
+    fetch(this.action, {
+      method: 'POST',
+      body: formData,
+    })
+    .then(response => {
+      if (response.ok) {
+        messageEl.textContent = 'Product succesvol toegevoegd!';
+        messageEl.style.color = 'green';
+        this.reset();
+      } else {
+        return response.json().then(error => {
+          messageEl.textContent = error.message;
+          messageEl.style.color = 'red';
+        });
+      }
+    })
+    .catch(error => {
+      messageEl.textContent = 'Er is een fout opgetreden: ' + error.message;
+      messageEl.style.color = 'red';
+    });
+  });
+</script>
 <script>
   (() => {
     const form = document.querySelector('.voorraad__filters');
