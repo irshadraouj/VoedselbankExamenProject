@@ -19,6 +19,10 @@ class Vite extends AbstractRoute
 
         $srcs = explode('|', $srcs);
         $isDev = Config::item('vite_dev');
+        $forceManifest = ee()->config->item('dunique_vite_force_manifest');
+        if ($forceManifest === 'y' || $forceManifest === true || $forceManifest === 1) {
+            $isDev = false;
+        }
         $base = rtrim(Config::item('base_url'), '/');
         $manifestPath = Config::item('vite_manifest_path');
 
