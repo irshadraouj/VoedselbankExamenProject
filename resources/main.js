@@ -6,6 +6,7 @@ Alpine.plugin(collapse);
 window.Alpine = Alpine;
 
 // ===== Auto-Generated Imports =====
+import '@components/customers/customers.js';
 import '@components/dashboardTiles/dashboard_tiles.js';
 import '@components/login/login.js';
 import '@components/sidebar/sidebar.js';
