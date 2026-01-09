@@ -188,7 +188,7 @@
     "src": "manifest.webmanifest"
   },
   "resources/base.css": {
-    "file": "assets/css/base-P96jE9ty.css",
+    "file": "assets/css/base-BlhiVG8p.css",
     "src": "resources/base.css",
     "isEntry": true
   },
@@ -205,16 +205,16 @@
     "src": "resources/fonts/iconfont.woff2"
   },
   "resources/main.js": {
-    "file": "assets/js/main-CEcYm3qB.js",
+    "file": "assets/js/main-DMSCZ5kO.js",
     "name": "main",
     "src": "resources/main.js",
     "isEntry": true,
     "css": [
-      "assets/css/main-BAJYgx5x.css"
+      "assets/css/main-DjUG_ul-.css"
     ]
   },
   "resources/styles.scss": {
-    "file": "assets/css/styles-CDBn_0BR.css",
+    "file": "assets/css/styles-B-HHhUMU.css",
     "src": "resources/styles.scss",
     "isEntry": true
   }

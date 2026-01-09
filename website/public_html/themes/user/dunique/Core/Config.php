@@ -39,7 +39,10 @@ class Config
     // Method to dynamically generate the 'vite_dev' setting
     public static function isDevServerRunning(): bool
     {
-        $port = self::$settings['vite_port'];
+        $port = (int) self::$settings['vite_port'];
+        if ($port < 1) {
+            return false;
+        }
         return @fsockopen('localhost', $port) !== false;
     }
     public static function override(string $key, mixed $default): mixed
