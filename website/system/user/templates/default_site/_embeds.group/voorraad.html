@@ -139,39 +139,10 @@
       <input type="date" id="add-product-expiration" name="expiration_date" required />
     </div>
     <button type="submit">Product toevoegen</button>
-     {/exp:channel:form}
+    {/exp:channel:form}
   </form>
 </section>
 
-<script>
-  document.getElementById('add-product-form').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const formData = new FormData(this);
-    const messageEl = document.getElementById('add-product-message');
-
-    fetch(this.action, {
-      method: 'POST',
-      body: formData,
-    })
-    .then(response => {
-      if (response.ok) {
-        messageEl.textContent = 'Product succesvol toegevoegd!';
-        messageEl.style.color = 'green';
-        this.reset();
-      } else {
-        return response.json().then(error => {
-          messageEl.textContent = error.message;
-          messageEl.style.color = 'red';
-        });
-      }
-    })
-    .catch(error => {
-      messageEl.textContent = 'Er is een fout opgetreden: ' + error.message;
-      messageEl.style.color = 'red';
-    });
-  });
-</script>
 <script>
   (() => {
     const form = document.querySelector('.voorraad__filters');
