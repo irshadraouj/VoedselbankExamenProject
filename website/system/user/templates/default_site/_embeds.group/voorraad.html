@@ -81,6 +81,9 @@
             channel="producten"
             dynamic="no"
             disable="categories|member_data|pagination"
+            search:product_name="*{get:product_name}*"
+            search:product_category="{get:product_category}"
+            search:product_ean="{get:product_ean}"
           }
             <tr>
               <td>{product_name}</td>
