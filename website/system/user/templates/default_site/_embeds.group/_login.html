@@ -1,19 +1,26 @@
-<section class="login" data-login>
-  <div class="login__card">
-    <h1 class="login__title">Inloggen</h1>
-    <p class="login__subtitle">Welkom terug. Log in om verder te gaan.</p>
-    {exp:member:login_form return="/" form_class="login__form" form_id="login-form"}
+<main class="login" data-login>
+  <div class="login__wrap">
+    <div class="login__card">
+    <header class="login__header">
+      <div>
+        <p class="login__eyebrow">Welkom terug</p>
+        <h1 class="login__title">Inloggen</h1>
+        <p class="login__subtitle">Log in om verder te gaan in het voorraadbeheer.</p>
+      </div>
+    </header>
+
+    {exp:member:login_form return="/_site/dashboard" form_class="login__form" form_id="login-form"}
       <div class="login__field">
         <label class="login__label" for="login-username">E-mail of gebruikersnaam</label>
-          <input
-            class="login__input"
-            type="text"
-            id="login-username"
-            name="username"
-            autocomplete="off"
-            required
-            data-login-username
-          />
+        <input
+          class="login__input"
+          type="text"
+          id="login-username"
+          name="username"
+          autocomplete="off"
+          required
+          data-login-username
+        />
       </div>
       <div class="login__field">
         <label class="login__label" for="login-password">Wachtwoord</label>
@@ -38,11 +45,14 @@
           </button>
         </div>
       </div>
-      <div class="login__options">
-        <a class="login__forgot" href="#">Wachtwoord vergeten?</a>
-      </div>
       <p class="login__error" data-login-error role="alert" hidden></p>
-      <button class="login__submit" type="submit" data-login-submit>Inloggen</button>
+      <div class="login__actions">
+        <button class="login__submit" type="submit" data-login-submit>
+          Inloggen
+        </button>
+        <a class="login__change" href="#">Wachtwoord wijzigen</a>
+      </div>
     {/exp:member:login_form}
+    </div>
   </div>
-</section>
+</main>
