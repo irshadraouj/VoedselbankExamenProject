@@ -106,7 +106,7 @@
 </main>
 <section class="voorraad__add-product">
   <h2 class="voorraad__add-title">Product toevoegen</h2>
-  <form id="add-product-form" action="/api/add-product" method="post">
+   {exp:channel:form channel="producten" return="voorraad"}
     <div class="voorraad__field">
       <label class="voorraad__label" for="add-product-name">Productnaam</label>
       <input type="text" id="add-product-name" name="product_name" required />
@@ -124,7 +124,6 @@
         <option value="categorie1"> 7. Soepen, sauzen, kruiden en olie</option>
         <option value="categorie2"> 8. Snoep, koek, chips en chocolade</option>
         <option value="categorie3"> 9. Baby, verzorging en hygiëne</option>
-             
       </select>
     </div>
     <div class="voorraad__field">
@@ -140,7 +139,7 @@
       <input type="date" id="add-product-expiration" name="expiration_date" required />
     </div>
     <button type="submit">Product toevoegen</button>
-    <p class="voorraad__message" id="add-product-message"></p>
+     {/exp:channel:form}
   </form>
 </section>
 
