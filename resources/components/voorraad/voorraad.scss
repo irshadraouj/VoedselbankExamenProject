@@ -1,17 +1,17 @@
 .voorraad {
-  --voorraad-bg: #f6f1e9;
-  --voorraad-surface: #ffffff;
-  --voorraad-panel: #fdf7ec;
-  --voorraad-ink: #1a1a1a;
-  --voorraad-muted: #5b5b5b;
-  --voorraad-accent: #1b6a5f;
-  --voorraad-accent-2: #d16a2c;
+  --voorraad-bg: var(--light-grey);
+  --voorraad-surface: var(--white);
+  --voorraad-panel: var(--white);
+  --voorraad-ink: #1f2937;
+  --voorraad-muted: #6b7280;
+  --voorraad-accent: var(--secondary);
+  --voorraad-accent-2: var(--accent);
 
   min-height: 100vh;
   padding: clamp(24px, 4vw, 56px);
   color: var(--voorraad-ink);
-  font-family: "Space Grotesk", "Segoe UI", sans-serif;
-  background: radial-gradient(1200px 800px at 10% 10%, #fbe8c5 0%, #f6f1e9 45%, #e8f1ee 100%);
+  font-family: var(--font-family-primary);
+  background: var(--voorraad-bg);
 }
 
 .voorraad__wrap {
@@ -38,21 +38,24 @@
 
 .voorraad__title {
   margin: 0;
-  font-size: clamp(32px, 4vw, 44px);
+  font-size: 32px;
+  font-weight: 700;
+  color: #1f2937;
 }
 
 .voorraad__subtitle {
   margin: 8px 0 0;
-  color: var(--voorraad-muted);
+  color: #6b7280;
   max-width: 520px;
+  font-size: 16px;
 }
 
 .voorraad__summary {
   background: var(--voorraad-surface);
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 14px 18px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   text-align: right;
 }
 
@@ -71,13 +74,13 @@
 
 .voorraad__filters {
   background: var(--voorraad-panel);
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 24px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 18px 40px rgba(39, 24, 12, 0.12);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .voorraad__field {
@@ -96,8 +99,8 @@
 
 .voorraad__input {
   appearance: none;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
   padding: 12px 14px;
   font-size: 14px;
   background: var(--voorraad-surface);
@@ -108,7 +111,7 @@
 .voorraad__input:focus {
   outline: none;
   border-color: var(--voorraad-accent);
-  box-shadow: 0 0 0 3px rgba(27, 106, 95, 0.2);
+  box-shadow: 0 0 0 3px rgba(15, 22, 39, 0.15);
 }
 
 .voorraad__range {
@@ -124,8 +127,8 @@
 }
 
 .voorraad__button {
-  border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
   padding: 10px 20px;
   font-weight: 600;
   background: var(--voorraad-surface);
@@ -135,21 +138,21 @@
 
 .voorraad__button--primary {
   background: var(--voorraad-accent);
-  color: #ffffff;
+  color: var(--white);
   border-color: transparent;
-  box-shadow: 0 12px 24px rgba(27, 106, 95, 0.25);
+  box-shadow: 0 4px 12px rgba(15, 22, 39, 0.18);
 }
 
 .voorraad__button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
 .voorraad__table-wrap {
   background: var(--voorraad-surface);
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 20px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
   overflow-x: auto;
 }
 
@@ -172,6 +175,14 @@
   text-transform: uppercase;
   font-size: 12px;
   letter-spacing: 0.08em;
+}
+
+.voorraad {
+  margin-left: 80px;
+
+  @media (min-width: 1200px) {
+    margin-left: 260px;
+  }
 }
 
 @media (max-width: 900px) {

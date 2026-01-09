@@ -1,0 +1,194 @@
+{layout="_layouts/.main"}
+<main class="pakket">
+  <div class="pakket-screen">
+    <h1 class="pakket-screen__title">Stel een pakket samen voor een klant</h1>
+
+    <div class="pakket-screen__grid">
+      <section class="pakket-card">
+        <h2 class="pakket-card__title">Klantgegevens</h2>
+        <div class="pakket-card__divider"></div>
+
+        <div class="pakket-info">
+          <div class="pakket-info__group">
+            <span class="pakket-info__label">Naam</span>
+            <span class="pakket-info__value">Jan de Vries</span>
+          </div>
+
+          <div class="pakket-info__group">
+            <span class="pakket-info__label">Adres</span>
+            <span class="pakket-info__value">Hoofdstraat 123, 1234 AB Amsterdam</span>
+          </div>
+
+          <div class="pakket-info__divider"></div>
+
+          <span class="pakket-info__label">Gezinssamenstelling</span>
+          <ul class="pakket-info__list">
+            <li>Volwassenen: 2</li>
+            <li>Kinderen: 1</li>
+            <li>Baby's: 0</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="pakket-card">
+        <h2 class="pakket-card__title">Pakket overzicht</h2>
+        <div class="pakket-card__divider"></div>
+
+        <div class="pakket-overview">
+          <p class="pakket-overview__empty" id="pakket-empty">Geen producten geselecteerd</p>
+          <ul class="pakket-overview__list" id="pakket-list"></ul>
+          <p class="pakket-overview__total" id="pakket-total">Totaal aantal producten: 0</p>
+          <button class="pakket-overview__button" type="button" id="pakket-save">PAKKET OPSLAAN</button>
+          <p class="pakket-overview__message" id="pakket-message" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="pakket-card">
+        <h2 class="pakket-card__title">Beschikbare producten</h2>
+        <div class="pakket-card__divider"></div>
+
+        <div class="pakket-products" id="pakket-products">
+          {exp:channel:entries channel="producten" dynamic="no" disable="categories|member_data|pagination"}
+            <div class="pakket-product" data-stock="{product_amount}" data-ean="{product_ean}" data-name="{product_name}">
+              <div class="pakket-product__info">
+                <span class="pakket-product__name">{product_name}</span>
+                <span class="pakket-product__stock">Voorraad: {product_amount}</span>
+              </div>
+              <div class="pakket-product__actions">
+                <button class="pakket-product__remove" type="button" aria-label="Verwijder {product_name}">-</button>
+                <button class="pakket-product__add" type="button" aria-label="Voeg {product_name} toe">+</button>
+              </div>
+            </div>
+            {if no_results}
+              <p class="pakket-products__empty">Geen producten gevonden.</p>
+            {/if}
+          {/exp:channel:entries}
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+<script>
+  (() => {
+    const root = document.querySelector('.pakket');
+    if (!root) {
+      return;
+    }
+
+    const cards = Array.from(root.querySelectorAll('.pakket-product'));
+    const listEl = document.getElementById('pakket-list');
+    const emptyEl = document.getElementById('pakket-empty');
+    const totalEl = document.getElementById('pakket-total');
+    const saveBtn = document.getElementById('pakket-save');
+    const messageEl = document.getElementById('pakket-message');
+    const storageKey = 'pakketConceptV2';
+    const selections = new Map();
+
+    const getKey = (card) => card.getAttribute('data-ean') || card.getAttribute('data-name') || '';
+
+    const updateOverview = () => {
+      if (!listEl || !emptyEl || !totalEl) {
+        return;
+      }
+
+      listEl.innerHTML = '';
+      let total = 0;
+
+      cards.forEach((card) => {
+        const key = getKey(card);
+        const qty = selections.get(key) || 0;
+        if (!qty) {
+          card.classList.remove('pakket-product--selected');
+          return;
+        }
+
+        total += qty;
+        card.classList.add('pakket-product--selected');
+
+        const name = card.getAttribute('data-name') || 'Product';
+        const li = document.createElement('li');
+        li.className = 'pakket-overview__item';
+        li.textContent = `${name} (${qty})`;
+        listEl.appendChild(li);
+      });
+
+      emptyEl.hidden = total > 0;
+      totalEl.textContent = `Totaal aantal producten: ${total}`;
+    };
+
+    cards.forEach((card) => {
+      const addButton = card.querySelector('.pakket-product__add');
+      const removeButton = card.querySelector('.pakket-product__remove');
+      if (!addButton) {
+        return;
+      }
+
+      addButton.addEventListener('click', () => {
+        const key = getKey(card);
+        if (!key) {
+          return;
+        }
+        const stock = parseInt(card.getAttribute('data-stock'), 10) || 0;
+        const current = selections.get(key) || 0;
+
+        if (current + 1 > stock) {
+          if (messageEl) {
+            messageEl.textContent = 'Niet genoeg voorraad beschikbaar.';
+          }
+          return;
+        }
+
+        selections.set(key, current + 1);
+        if (messageEl) {
+          messageEl.textContent = '';
+        }
+        updateOverview();
+      });
+
+      if (removeButton) {
+        removeButton.addEventListener('click', () => {
+          const key = getKey(card);
+          if (!key) {
+            return;
+          }
+          const current = selections.get(key) || 0;
+          if (current <= 1) {
+            selections.delete(key);
+          } else {
+            selections.set(key, current - 1);
+          }
+          updateOverview();
+        });
+      }
+    });
+
+    if (saveBtn) {
+      saveBtn.addEventListener('click', () => {
+        const items = cards
+          .map((card) => {
+            const key = getKey(card);
+            return {
+              key,
+              name: card.getAttribute('data-name') || '',
+              qty: selections.get(key) || 0,
+              stock: parseInt(card.getAttribute('data-stock'), 10) || 0,
+            };
+          })
+          .filter((item) => item.qty > 0);
+
+        try {
+          localStorage.setItem(storageKey, JSON.stringify({ items }));
+          if (messageEl) {
+            messageEl.textContent = 'Pakket opgeslagen in deze browser.';
+          }
+        } catch (error) {
+          if (messageEl) {
+            messageEl.textContent = 'Opslaan is niet gelukt.';
+          }
+        }
+      });
+    }
+
+    updateOverview();
+  })();
+</script>
