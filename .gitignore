@@ -66,7 +66,17 @@ website/public_html/assets/manifest-*.webmanifest
 _backup/
 .unlighthouse/
 .gitattributes
+<<<<<<< HEAD
 website/public_html/assets/css/base-BlhiVG8p.css
 website/public_html/assets/css/main-BsdtIH_w.css
 website/public_html/assets/css/styles-B5_QbSdQ.css
 website/public_html/assets/js/main-BZV0u29Z.js
+=======
+
+# Build artifacts (Vite/CSS/JS with hashes - regenerate with: npm run build)
+website/public_html/assets/css/*.css
+website/public_html/assets/js/*.js
+
+
+website/public_html/assets/manifest.json
+>>>>>>> origin/feature/martijn

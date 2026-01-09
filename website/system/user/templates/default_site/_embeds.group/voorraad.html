@@ -1,0 +1,273 @@
+{layout="_layouts/.main"}
+<main class="voorraad">
+  <div class="voorraad__wrap">
+    <header class="voorraad__header">
+      <div>
+        <p class="voorraad__eyebrow">Voorraadbeheer</p>
+        <h1 class="voorraad__title">Voorraadoverzicht</h1>
+        <p class="voorraad__subtitle">Filter producten op naam, categorie, aantal en EAN om sneller te zoeken.</p>
+      </div>
+      <div class="voorraad__summary" aria-live="polite">
+        <span class="voorraad__summary-label">Resultaten</span>
+        <span class="voorraad__summary-value" id="voorraad-count">0 producten</span>
+      </div>
+    </header>
+
+    <form class="voorraad__filters" action="" method="get" aria-label="Filters voorraadoverzicht">
+      <div class="voorraad__field voorraad__field--span">
+        <label class="voorraad__label" for="voorraad-search">Productnaam</label>
+        <input
+          class="voorraad__input"
+          type="search"
+          id="voorraad-search"
+          name="product_name"
+          placeholder="Bijv. melk (1L)"
+          {if get:product_name}value="{get:product_name}"{/if}
+        />
+      </div>
+
+      <div class="voorraad__field">
+        <label class="voorraad__label" for="voorraad-category">Categorie</label>
+        <select class="voorraad__input" id="voorraad-category" name="product_category">
+          <option value="">Alle categorieen</option>
+        </select>
+      </div>
+
+      <div class="voorraad__field">
+        <label class="voorraad__label" for="voorraad-ean">EAN</label>
+        <input
+          class="voorraad__input"
+          type="text"
+          id="voorraad-ean"
+          name="product_ean"
+          inputmode="numeric"
+          placeholder="Bijv. 8712345678901"
+          {if get:product_ean}value="{get:product_ean}"{/if}
+        />
+      </div>
+
+      <div class="voorraad__field">
+        <label class="voorraad__label" for="voorraad-sort">Voorraad sorteren</label>
+        <select class="voorraad__input" id="voorraad-sort" name="product_amount_sort">
+          <option value="">Geen sortering</option>
+          <option value="asc">Laag naar hoog</option>
+          <option value="desc">Hoog naar laag</option>
+        </select>
+      </div>
+
+      <div class="voorraad__field">
+        <label class="voorraad__label" for="voorraad-expiration-sort">Houdbaarheidsdatum sorteren</label>
+        <select class="voorraad__input" id="voorraad-expiration-sort" name="expiration_date_sort">
+          <option value="">Geen sortering</option>
+          <option value="asc">Oud naar nieuw</option>
+          <option value="desc">Nieuw naar oud</option>
+        </select>
+      </div>
+    </form>
+
+    <section class="voorraad__table-wrap" aria-label="Producten">
+      <table class="voorraad__table">
+        <thead>
+          <tr>
+            <th>Productnaam</th>
+            <th>Categorie</th>
+            <th>EAN-nummer</th>
+            <th>Voorraad</th>
+            <th>Houdbaarheidsdatum</th>
+          </tr>
+        </thead>
+        <tbody>
+          {exp:channel:entries
+            channel="producten"
+            dynamic="no"
+            disable="categories|member_data|pagination"
+          }
+            <tr>
+              <td>{product_name}</td>
+              <td>
+                {product_cat}
+                  <span class="voorraad__cat" data-cat="{item:value}">{item:label}</span>{if item:count < item:total}, {/if}
+                {/product_cat}
+              </td>
+              <td>{product_ean}</td>
+              <td>{product_amount}</td>
+              <td data-expiration="{expiration_date}">{expiration_date format="%d-%m-%Y"}</td>
+            </tr>
+            {if no_results}
+              <tr>
+                <td colspan="5">Geen producten gevonden.</td>
+              </tr>
+            {/if}
+          {/exp:channel:entries}
+        </tbody>
+      </table>
+    </section>
+  </div>
+</main>
+<script>
+  (() => {
+    const form = document.querySelector('.voorraad__filters');
+    const table = document.querySelector('.voorraad__table');
+    if (!form || !table) {
+      return;
+    }
+
+    const nameInput = document.getElementById('voorraad-search');
+    const categorySelect = document.getElementById('voorraad-category');
+    const eanInput = document.getElementById('voorraad-ean');
+    const amountSort = document.getElementById('voorraad-sort');
+    const expirationSort = document.getElementById('voorraad-expiration-sort');
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+    const tbody = table.querySelector('tbody');
+    const countEl = document.getElementById('voorraad-count');
+    const categories = new Map();
+
+    rows.forEach((row) => {
+      row.querySelectorAll('.voorraad__cat').forEach((span) => {
+        const value = (span.getAttribute('data-cat') || '').trim();
+        const label = span.textContent.trim();
+        if (value) {
+          categories.set(value, label || value);
+        }
+      });
+    });
+
+    if (categorySelect) {
+      categorySelect.innerHTML = '';
+      categorySelect.appendChild(new Option('Alle categorieen', ''));
+      Array.from(categories.entries())
+        .sort((a, b) => a[1].localeCompare(b[1], 'nl'))
+        .forEach(([value, label]) => {
+          categorySelect.appendChild(new Option(label, value));
+        });
+    }
+
+    const normalize = (value) => value.toLowerCase().trim();
+
+    const applyFilter = () => {
+      const nameValue = normalize(nameInput?.value || '');
+      const categoryValue = (categorySelect?.value || '').trim();
+      const eanValue = normalize(eanInput?.value || '');
+      let visibleCount = 0;
+      rows.forEach((row) => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 5) {
+          return;
+        }
+
+        const nameText = normalize(cells[0].textContent || '');
+        const eanText = normalize(cells[2].textContent || '');
+        const categories = Array.from(row.querySelectorAll('.voorraad__cat'))
+          .map((span) => (span.getAttribute('data-cat') || '').trim())
+          .filter(Boolean);
+
+        const matchesName = !nameValue || nameText.includes(nameValue);
+        const matchesCategory = !categoryValue || categories.includes(categoryValue);
+        const matchesEan = !eanValue || eanText.includes(eanValue);
+        const isVisible = matchesName && matchesCategory && matchesEan;
+        row.hidden = !isVisible;
+        if (isVisible) {
+          visibleCount += 1;
+        }
+      });
+
+      if (countEl) {
+        countEl.textContent = `${visibleCount} producten`;
+      }
+
+      if (!tbody) {
+        return;
+      }
+
+      const amountOrder = (amountSort?.value || '').trim();
+      const expirationOrder = (expirationSort?.value || '').trim();
+      if (!amountOrder && !expirationOrder) {
+        return;
+      }
+
+      const visibleRows = rows.filter((row) => !row.hidden);
+
+      const parseDateValue = (cell) => {
+        if (!cell) {
+          return 0;
+        }
+
+        const dataValue = (cell.getAttribute('data-expiration') || '').trim();
+        if (dataValue) {
+          const numeric = Number(dataValue);
+          return Number.isNaN(numeric) ? 0 : numeric * 1000;
+        }
+
+        const trimmed = (cell.textContent || '').trim();
+        if (!trimmed) {
+          return 0;
+        }
+
+        const isoParsed = Date.parse(trimmed);
+        if (!Number.isNaN(isoParsed)) {
+          return isoParsed;
+        }
+
+        const parts = trimmed.split(/[./-]/).map((part) => part.trim());
+        if (parts.length !== 3) {
+          return 0;
+        }
+
+        const [part1, part2, part3] = parts;
+        if (part3.length === 4) {
+          const day = parseInt(part1, 10);
+          const month = parseInt(part2, 10);
+          const year = parseInt(part3, 10);
+          if (!Number.isNaN(day) && !Number.isNaN(month) && !Number.isNaN(year)) {
+            return new Date(year, month - 1, day).getTime();
+          }
+        }
+
+        if (part1.length === 4) {
+          const year = parseInt(part1, 10);
+          const month = parseInt(part2, 10);
+          const day = parseInt(part3, 10);
+          if (!Number.isNaN(day) && !Number.isNaN(month) && !Number.isNaN(year)) {
+            return new Date(year, month - 1, day).getTime();
+          }
+        }
+
+        return 0;
+      };
+
+      visibleRows.sort((a, b) => {
+        if (amountOrder) {
+          const aValue = parseFloat((a.querySelectorAll('td')[3]?.textContent || '').trim()) || 0;
+          const bValue = parseFloat((b.querySelectorAll('td')[3]?.textContent || '').trim()) || 0;
+          if (aValue !== bValue) {
+            return amountOrder === 'asc' ? aValue - bValue : bValue - aValue;
+          }
+        }
+
+        if (expirationOrder) {
+          const aDate = parseDateValue(a.querySelectorAll('td')[4]);
+          const bDate = parseDateValue(b.querySelectorAll('td')[4]);
+          if (aDate !== bDate) {
+            return expirationOrder === 'asc' ? aDate - bDate : bDate - aDate;
+          }
+        }
+
+        return 0;
+      });
+
+      visibleRows.forEach((row) => {
+        tbody.appendChild(row);
+      });
+    };
+
+    [nameInput, categorySelect, eanInput, amountSort, expirationSort].forEach((el) => {
+      if (!el) {
+        return;
+      }
+      const eventName = el.tagName === 'SELECT' ? 'change' : 'input';
+      el.addEventListener(eventName, applyFilter);
+    });
+
+    applyFilter();
+  })();
+</script>
