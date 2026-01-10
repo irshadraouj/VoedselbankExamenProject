@@ -58,9 +58,9 @@ if (isset($config)) {
 				'time_interval' 			=> 	'0',
 				'debug'								=> '2',
 				'show_profiler'				=> 'y',
-				// Disable Vite dev server assets; always use manifest builds.
-				'dunique_vite_port'		=> 	0,
-				'dunique_vite_force_manifest' => 'y',
+				// Enable Vite dev server for live reload
+				'dunique_vite_port'		=> 	5173,
+				'dunique_vite_force_manifest' => 'n',
 			];
 			
 			// Local database credentials 

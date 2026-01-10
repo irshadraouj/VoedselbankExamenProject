@@ -36,7 +36,11 @@ class Vite extends AbstractRoute
 
         // Add the vite client only once
         if ($isDev && !ee()->session->cache('dunique', 'dunique:vite')) {
-            $tags = "<script type=\"module\" src=\"{$base}:".Config::item('vite_port')."/@vite/client\"></script>";
+            $vitePort = Config::item('vite_port');
+            $viteHost = parse_url($base, PHP_URL_HOST) ?: 'localhost';
+            $scheme = parse_url($base, PHP_URL_SCHEME) ?: 'https';
+            $viteUrl = "{$scheme}://{$viteHost}:{$vitePort}/@vite/client";
+            $tags = "<script type=\"module\" src=\"{$viteUrl}\"></script>";
             ee()->session->set_cache('dunique', 'dunique:vite', 1);
         }
 
