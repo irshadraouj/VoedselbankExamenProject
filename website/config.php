@@ -108,6 +108,7 @@ if (isset($config)) {
 		// ----------------------------------------------------------------
 		'new_version_check'				=> 	'n',
 		'show_ee_news'						=> 	'n',
+		'license_contact'					=> 	'n',
 		'default_site_timezone' 	=> 	"Europe/Amsterdam",
 		'date_format'           	=> 	'%j-%n-%Y',
 		'time_format'           	=> 	'24',
