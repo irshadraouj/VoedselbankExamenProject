@@ -11,12 +11,16 @@
 
         <nav class="leveranciers__tabs customers__tabs">
             <button class="leveranciers__tab leveranciers__tab--active customers__tab customers__tab--active" data-tab="list">Leveranciers</button>
+            <button class="leveranciers__tab customers__tab" data-tab="add">Nieuwe leverancier</button>
+            <button class="leveranciers__tab customers__tab" data-tab="deliveries">Leveringen</button>
         </nav>
 
         <section class="leveranciers__panel customers__section" id="tab-list" role="tabpanel">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                 <h2 class="customers__section-title" style="margin: 0;">Leveranciers</h2>
-                <button class="leveranciers__primary customers__button customers__button--primary" data-tab="add">Nieuwe leverancier</button>
+                <button class="leveranciers__primary customers__button customers__button--primary" type="button" data-action="create-modal">
+                    Nieuwe leverancier
+                </button>
             </div>
 
             <div class="leveranciers__table-wrap customers__table-wrap">
@@ -41,7 +45,7 @@
                                 <td>{supplier_name}</td>
                                 <td>{supplier_phone}</td>
                                 <td><a href="mailto:{supplier_email}">{supplier_email}</a></td>
-                                <td>{if supplier_deliverdate}{supplier_deliverdate format="%F %d %Y"}{/if}{if !supplier_deliverdate}n.v.t{/if}</td>
+                                <td class="supplier-next-delivery">{if supplier_deliverdate}{supplier_deliverdate format="%d-%m-%Y"}{if:else}n.v.t{/if}</td>
                                 <td>{supplier_kvk}</td>
                                 <td>
                                     <button class="leveranciers__button leveranciers__button--small customers__button customers__button--small" data-action="edit-modal" data-entry-id="{entry_id}" data-entry-name="{title}" type="button">Bewerken</button>
@@ -109,6 +113,84 @@
             {/exp:channel:form}
         </section>
 
+        <section class="leveranciers__panel customers__section" id="tab-deliveries" role="tabpanel" style="display: none;">
+            <h2 class="customers__section-title">Leveringen deze maand</h2>
+            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Wat komt er deze maand binnen voor de planning</p>
+
+            <div class="leveranciers__panel-actions" style="margin-bottom: 20px;">
+                <button class="leveranciers__primary customers__button customers__button--primary" type="button" data-action="add-delivery">
+                    Nieuwe levering
+                </button>
+            </div>
+
+            <div class="leveranciers__table-wrap customers__table-wrap">
+                <table class="leveranciers__table customers__table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Leverancier</th>
+                            <th>Producten</th>
+                            <th>Totaal aantal</th>
+                            <th>Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leveringen-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="leveringen__modal" id="leveringen-modal" aria-hidden="true" role="dialog" aria-modal="true" style="display: none;">
+            <div class="leveringen__modal-overlay" data-action="close"></div>
+            <div class="leveringen__modal-content" role="document" style="max-width: 800px;">
+                <div class="leveringen__modal-header">
+                    <h2 class="leveringen__modal-title" id="leveringen-modal-title">Nieuwe levering</h2>
+                    <button class="leveringen__modal-close" type="button" data-action="close" aria-label="Sluiten">X</button>
+                </div>
+                <form class="leveringen__form" id="leveringen-form">
+                    <!-- STAP 1: LEVERANCIER SELECTIE -->
+                    <div class="leveringen__field">
+                        <label for="leveringen-leverancier-select">Leverancier *</label>
+                        <select id="leveringen-leverancier-select" name="leverancier_id" required>
+                            <option value="">-- Selecteer een leverancier --</option>
+                            {exp:channel:entries channel="supplier" dynamic="no" disable="categories|member_data" status="open"}
+                                <option value="{entry_id}">{title}</option>
+                            {/exp:channel:entries}
+                        </select>
+                    </div>
+
+                    <div class="leveringen__field">
+                        <label for="leveringen-datum">Datum *</label>
+                        <input id="leveringen-datum" name="datum" type="date" required />
+                    </div>
+
+                    <!-- STAP 2: PRODUCTEN GRID (ZOALS BIJ PAKKET) -->
+                    <div class="leveringen__items">
+                        <div class="leveringen__items-header">
+                            <span style="font-weight: 600; font-size: 16px;">Producten</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
+                            {exp:channel:entries channel="producten" dynamic="no" disable="categories|member_data|pagination"}
+                                <div class="leveringen__product-item" style="border: 1px solid #e5e7eb; padding: 12px; border-radius: 6px; background: #f9fafb;" data-product-id="{entry_id}" data-product-name="{product_name}">
+                                    <div style="font-weight: 500; margin-bottom: 4px;">{product_name}</div>
+                                    <div style="font-size: 12px; color: #999; margin-bottom: 8px;">{product_cat}</div>
+                                    <input type="number" min="0" placeholder="Aantal" class="leveringen__product-amount" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;" />
+                                </div>
+                            {/exp:channel:entries}
+                        </div>
+                    </div>
+
+                    <div class="leveringen__form-actions" style="margin-top: 24px;">
+                        <button class="leveringen__primary" type="submit" id="leveringen-save" style="padding: 10px 24px; background: #2e7d32; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Opslaan
+                        </button>
+                        <button class="leveringen__secondary" type="button" data-action="close" style="padding: 10px 24px; background: #e5e7eb; color: #333; border: none; border-radius: 4px; cursor: pointer;">
+                            Annuleren
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div id="cms-editor-modal" class="customers__modal" style="display: none;">
             <div class="customers__modal-overlay"></div>
             <div class="customers__modal-content">
@@ -120,21 +202,4 @@
             </div>
         </div>
     </div>
-
-    </div>
-    <script>
-        // (() => {
-        //     const toggle = document.querySelector('[data-open="leveranciers-adder"]');
-        //     const closeButtons = document.querySelectorAll('[data-close="leveranciers-adder"]');
-        //     const formSection = document.getElementById('leveranciers-adder');
-
-        //     const toggleSection = (show) => {
-        //         if (!formSection) return;
-        //         formSection.hidden = !show;
-        //     };
-
-        //     toggle?.addEventListener('click', () => toggleSection(true));
-        //     closeButtons.forEach(button => button.addEventListener('click', () => toggleSection(false)));
-        // })();
-    </script>
 </div>
