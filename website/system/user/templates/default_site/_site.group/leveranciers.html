@@ -12,6 +12,7 @@
         <nav class="leveranciers__tabs customers__tabs">
             <button class="leveranciers__tab leveranciers__tab--active customers__tab customers__tab--active" data-tab="list">Leveranciers</button>
             <button class="leveranciers__tab customers__tab" data-tab="deliveries">Leveringen</button>
+            <button class="leveranciers__tab customers__tab" data-tab="add-delivery" style="display: none;">Levering aanmaken</button>
         </nav>
 
         <section class="leveranciers__panel customers__section" id="tab-list" role="tabpanel">
@@ -107,7 +108,10 @@
         </section>
 
         <section class="leveranciers__panel customers__section" id="tab-deliveries" role="tabpanel" style="display: none;">
-            <h2 class="customers__section-title">Leveringen</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 class="customers__section-title" style="margin: 0;">Leveringen</h2>
+                <button class="leveranciers__primary customers__button customers__button--primary" data-tab="add-delivery">Levering aanmaken</button>
+            </div>
 
             <div class="leveranciers__table-wrap customers__table-wrap">
                 <table class="leveranciers__table customers__table">
@@ -127,6 +131,114 @@
                     </tbody>
                 </table>
             </div>
+        </section>
+
+        <!-- Supplier data as JavaScript -->
+        <script>
+            window.supplierData = [
+            {exp:channel:entries channel="supplier" dynamic="no" disable="categories|member_data" status="open"}
+                {
+                    id: "{entry_id}",
+                    name: "{title}"
+                }{if count != total},{/if}
+            {/exp:channel:entries}
+            ];
+        </script>
+
+        <section class="leveranciers__panel leveranciers__panel--form customers__section" id="tab-add-delivery" role="tabpanel" style="display: none;">
+            <h2 class="customers__section-title">Levering toevoegen</h2>
+            {exp:channel:form channel="suppliers_order" return="_site/leveranciers" id="leveranciers-delivery-form" multipart="yes"}
+                <input type="hidden" name="title" id="delivery-form-title" />
+                <input type="hidden" name="url_title" id="delivery-form-url-title" />
+
+                <div class="customers__form-group">
+                    <h3>Leveringsgegevens</h3>
+                    <div class="customers__form-row">
+                        <div class="customers__form-field">
+                            <label for="delivery-supplier">Leverancier *</label>
+                            <select id="delivery-supplier" name="supplier_id" required>
+                                <option value="">-- Selecteer leverancier --</option>
+                            </select>
+                        </div>
+                        <div class="customers__form-field">
+                            <label for="delivery-date">Leverings datum *</label>
+                            <input id="delivery-date" name="supplie_date" type="date" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="customers__form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="margin: 0;">Producten</h3>
+                        <button type="button" id="add-custom-product-btn" class="customers__button customers__button--secondary" style="font-size: 12px; padding: 6px 12px;">+ Eigen product</button>
+                    </div>
+                    <div id="delivery-products-grid" class="delivery-products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px;">
+                        {exp:channel:entries channel="producten" dynamic="no" disable="all" status="open"}
+                            <div class="delivery-product-card" style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 16px;">
+                                <h4 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600;">{product_name}</h4>
+                                <p style="margin: 0 0 4px 0; font-size: 12px; color: #666;">
+                                    <strong>EAN:</strong> {product_ean}
+                                </p>
+                                <p style="margin: 0 0 12px 0; font-size: 12px; color: #666;">
+                                    <strong>Categorie:</strong> {product_cat}
+                                </p>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label for="product-amount-{entry_id}" style="font-size: 12px;">Aantal:</label>
+                                    <input type="number" 
+                                           id="product-amount-{entry_id}" 
+                                           class="delivery-product-amount" 
+                                           name="products[{entry_id}][amount]" 
+                                           min="0" 
+                                           value="0" 
+                                           style="width: 60px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;" />
+                                </div>
+                            </div>
+                        {if no_results}
+                            <p style="grid-column: 1 / -1; text-align: center; color: #999;">Er zijn geen producten beschikbaar.</p>
+                        {/if}
+                        {/exp:channel:entries}
+                    </div>
+                    <div id="custom-products-container" style="margin-top: 16px;"></div>
+                </div>
+
+                <div id="custom-product-form" style="display: none; border: 1px solid #e0e0e0; border-radius: 4px; padding: 16px; margin-top: 16px; background-color: #fafafa;">
+                    <h4 style="margin: 0 0 16px 0;">Eigen product toevoegen</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label style="font-size: 12px; display: block; margin-bottom: 4px;">Productnaam *</label>
+                            <input type="text" id="custom-product-name" placeholder="Bijv. Biologische appels" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;" />
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; display: block; margin-bottom: 4px;">EAN code</label>
+                            <input type="text" id="custom-product-ean" placeholder="Bijv. 5410228003333" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;" />
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; display: block; margin-bottom: 4px;">Categorie *</label>
+                            <select id="custom-product-cat" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">
+                                <option value="">-- Selecteer categorie --</option>
+                                {exp:channel:entries channel="producten" dynamic="no" disable="all" status="open"}
+                                    {product_cat}
+                                        <option value="{label}">{label}</option>
+                                    {/product_cat}
+                                {/exp:channel:entries}
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; display: block; margin-bottom: 4px;">Aantal *</label>
+                            <input type="number" id="custom-product-amount" placeholder="0" min="0" value="0" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;" />
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" id="add-custom-product-confirm" class="customers__button customers__button--primary" style="font-size: 12px; padding: 8px 16px;">Toevoegen</button>
+                        <button type="button" id="add-custom-product-cancel" class="customers__button customers__button--secondary" style="font-size: 12px; padding: 8px 16px;">Annuleren</button>
+                    </div>
+                </div>
+
+                <div class="customers__form-actions">
+                    <button class="customers__button customers__button--primary" type="submit">Levering opslaan</button>
+                    <button class="customers__button customers__button--secondary" type="reset">Wissen</button>
+                </div>
+            {/exp:channel:form}
         </section>
 
         <div id="cms-editor-modal" class="customers__modal" style="display: none;">
