@@ -1,102 +1,231 @@
-{layout="_layouts/.main"}
-<main class="pakket">
+<div class="pakket">
   <div class="pakket-screen">
-    <h1 class="pakket-screen__title">Stel een pakket samen voor een klant</h1>
+    <h1 class="pakket-screen__title">Pakket samenstellen</h1>
 
-    <div class="pakket-screen__grid">
-      <section class="pakket-card">
-        <h2 class="pakket-card__title">Klantgegevens</h2>
-        <div class="pakket-card__divider"></div>
+    <!-- SECTION 1: KLANT SELECTIE -->
+    <section class="pakket-card">
+      <h2 class="pakket-card__title">Stap 1: Selecteer een klant</h2>
+      <div class="pakket-card__divider"></div>
 
+      <div class="pakket-select-group">
+        <label for="pakket-klant-search" class="pakket-label">Zoeken op klant</label>
+        <input 
+          type="text" 
+          id="pakket-klant-search" 
+          class="pakket-search"
+          placeholder="Typ een naam..."
+          aria-label="Zoeken op klant naam"
+        />
+        
+        <label for="pakket-klant-select" class="pakket-label">Selecteer klant</label>
+        <select id="pakket-klant-select" class="pakket-select">
+          <option value="">-- Selecteer een klant --</option>
+          {exp:channel:entries channel="customers" dynamic="no" disable="categories|member_data" status="open" limit="100" account_ban="no"}
+            <option value="{entry_id}" data-name="{customers_name}" data-adult="{customers_adult}" data-child="{customers_child}" data-baby="{customers_baby}" data-email="{customers_email}" data-phone="{customers_phone}">
+              {customers_name}
+            </option>
+          {/exp:channel:entries}
+        </select>
+      </div>
+
+      <div id="pakket-klant-info" class="pakket-customer-info" style="display: none;">
         <div class="pakket-info">
           <div class="pakket-info__group">
             <span class="pakket-info__label">Naam</span>
-            <span class="pakket-info__value">Jan de Vries</span>
+            <span class="pakket-info__value" id="pakket-klant-naam">-</span>
           </div>
 
           <div class="pakket-info__group">
-            <span class="pakket-info__label">Adres</span>
-            <span class="pakket-info__value">Hoofdstraat 123, 1234 AB Amsterdam</span>
+            <span class="pakket-info__label">Email</span>
+            <span class="pakket-info__value" id="pakket-klant-email">-</span>
+          </div>
+
+          <div class="pakket-info__group">
+            <span class="pakket-info__label">Telefoon</span>
+            <span class="pakket-info__value" id="pakket-klant-phone">-</span>
           </div>
 
           <div class="pakket-info__divider"></div>
 
           <span class="pakket-info__label">Gezinssamenstelling</span>
-          <ul class="pakket-info__list">
-            <li>Volwassenen: 2</li>
-            <li>Kinderen: 1</li>
-            <li>Baby's: 0</li>
-          </ul>
+          <div class="pakket-family-composition">
+            <div class="pakket-family-item">
+              <span class="pakket-family-label">Volwassenen (>18)</span>
+              <span class="pakket-family-value" id="pakket-klant-adult">0</span>
+            </div>
+            <div class="pakket-family-item">
+              <span class="pakket-family-label">Kinderen (2-18)</span>
+              <span class="pakket-family-value" id="pakket-klant-child">0</span>
+            </div>
+            <div class="pakket-family-item">
+              <span class="pakket-family-label">Baby's (≤2)</span>
+              <span class="pakket-family-value" id="pakket-klant-baby">0</span>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section class="pakket-card">
-        <h2 class="pakket-card__title">Pakket overzicht</h2>
-        <div class="pakket-card__divider"></div>
+    <!-- SECTION 2: PAKKET SAMENSTELLEN -->
+    <section class="pakket-card" id="pakket-compose-section" style="display: none;">
+      <h2 class="pakket-card__title">Stap 2: Stel het pakket samen</h2>
+      <div class="pakket-card__divider"></div>
 
-        <div class="pakket-overview">
-          <p class="pakket-overview__empty" id="pakket-empty">Geen producten geselecteerd</p>
-          <ul class="pakket-overview__list" id="pakket-list"></ul>
-          <p class="pakket-overview__total" id="pakket-total">Totaal aantal producten: 0</p>
-          <button class="pakket-overview__button" type="button" id="pakket-save">PAKKET OPSLAAN</button>
-          <p class="pakket-overview__message" id="pakket-message" role="status" aria-live="polite"></p>
-        </div>
-      </section>
-
-      <section class="pakket-card">
-        <h2 class="pakket-card__title">Beschikbare producten</h2>
-        <div class="pakket-card__divider"></div>
-
-        <div class="pakket-products" id="pakket-products">
-          {exp:channel:entries channel="producten" dynamic="no" disable="categories|member_data|pagination"}
-            <div class="pakket-product" data-stock="{product_amount}" data-ean="{product_ean}" data-name="{product_name}">
-              <div class="pakket-product__info">
-                <span class="pakket-product__name">{product_name}</span>
-                <span class="pakket-product__stock">Voorraad: {product_amount}</span>
+      <div class="pakket-compose-grid">
+        <!-- PRODUCTEN BESCHIKBAAR -->
+        <div class="pakket-products-section">
+          <h3 class="pakket-products-section__title">Beschikbare producten</h3>
+          <div class="pakket-products" id="pakket-products">
+            {exp:channel:entries channel="producten" dynamic="no" disable="categories|member_data|pagination"}
+              <div class="pakket-product" data-stock="{product_amount}" data-ean="{product_ean}" data-name="{product_name}" data-entry-id="{entry_id}">
+                <div class="pakket-product__info">
+                  <span class="pakket-product__name">{product_name}</span>
+                  <span class="pakket-product__stock">Voorraad: {product_amount}</span>
+                </div>
+                <div class="pakket-product__actions">
+                  <button class="pakket-product__remove" type="button" aria-label="Verwijder {product_name}">−</button>
+                  <button class="pakket-product__add" type="button" aria-label="Voeg {product_name} toe">+</button>
+                </div>
               </div>
-              <div class="pakket-product__actions">
-                <button class="pakket-product__remove" type="button" aria-label="Verwijder {product_name}">-</button>
-                <button class="pakket-product__add" type="button" aria-label="Voeg {product_name} toe">+</button>
+              {if no_results}
+                <p class="pakket-products__empty">Geen producten gevonden.</p>
+              {/if}
+            {/exp:channel:entries}
+          </div>
+        </div>
+
+        <!-- PAKKET OVERZICHT -->
+        <div class="pakket-overview-section">
+          <h3 class="pakket-overview-section__title">Pakket overzicht</h3>
+          
+          <div class="pakket-overview">
+            <p class="pakket-overview__empty" id="pakket-empty">Geen producten geselecteerd</p>
+            <ul class="pakket-overview__list" id="pakket-list"></ul>
+            
+            <div class="pakket-overview__summary" id="pakket-summary" style="display: none;">
+              <div class="pakket-summary-item">
+                <span class="pakket-summary-label">Totaal producten:</span>
+                <span class="pakket-summary-value" id="pakket-total">0</span>
               </div>
             </div>
-            {if no_results}
-              <p class="pakket-products__empty">Geen producten gevonden.</p>
-            {/if}
-          {/exp:channel:entries}
+
+            <p class="pakket-overview__message" id="pakket-message" role="status" aria-live="polite"></p>
+            
+            <div class="pakket-overview__actions">
+              <button class="pakket-overview__button pakket-overview__button--primary" type="button" id="pakket-save">Pakket opslaan</button>
+              <button class="pakket-overview__button pakket-overview__button--secondary" type="button" id="pakket-clear">Wissen</button>
+            </div>
+          </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: SAMENGESTELDE PAKKETTEN -->
+    <section class="pakket-card" id="pakket-saved-section" style="display: none;">
+      <h2 class="pakket-card__title">Samengestelde pakketten</h2>
+      <div class="pakket-card__divider"></div>
+
+      <div id="pakket-saved-list" class="pakket-saved-list">
+        <p class="pakket-saved-list__empty">Nog geen pakketten opgeslagen.</p>
+      </div>
+    </section>
   </div>
-</main>
+</div>
+
 <script>
   (() => {
     const root = document.querySelector('.pakket');
-    if (!root) {
-      return;
-    }
+    if (!root) return;
 
-    const cards = Array.from(root.querySelectorAll('.pakket-product'));
+    // ===== ELEMENTS =====
+    const klantSelect = document.getElementById('pakket-klant-select');
+    const klantSearch = document.getElementById('pakket-klant-search');
+    const klantInfo = document.getElementById('pakket-klant-info');
+    const composeSection = document.getElementById('pakket-compose-section');
+    const savedSection = document.getElementById('pakket-saved-section');
+    const savedList = document.getElementById('pakket-saved-list');
+    
+    const products = Array.from(root.querySelectorAll('.pakket-product'));
     const listEl = document.getElementById('pakket-list');
     const emptyEl = document.getElementById('pakket-empty');
     const totalEl = document.getElementById('pakket-total');
+    const summaryEl = document.getElementById('pakket-summary');
     const saveBtn = document.getElementById('pakket-save');
+    const clearBtn = document.getElementById('pakket-clear');
     const messageEl = document.getElementById('pakket-message');
-    const storageKey = 'pakketConceptV2';
-    const selections = new Map();
 
+    const selections = new Map();
+    let selectedCustomerId = null;
+
+    // ===== KLANT ZOEKEN =====
+    if (klantSearch) {
+      klantSearch.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const options = klantSelect.querySelectorAll('option');
+
+        options.forEach((option) => {
+          if (option.value === '') return; // Skip placeholder
+
+          const name = option.dataset.name.toLowerCase();
+          const matches = name.includes(searchTerm);
+          
+          option.style.display = matches || searchTerm === '' ? '' : 'none';
+        });
+
+        // Filter visible options
+        const visibleOptions = Array.from(options).filter(opt => opt.style.display !== 'none');
+        if (visibleOptions.length > 1) {
+          // Auto-select eerste resultaat als er maar 1 is
+          if (visibleOptions.length === 2 && visibleOptions[0].value === '') {
+            klantSelect.value = visibleOptions[1].value;
+            klantSelect.dispatchEvent(new Event('change'));
+          }
+        }
+      });
+    }
+
+    // ===== KLANT SELECTIE =====
+    klantSelect.addEventListener('change', (e) => {
+      const option = e.target.selectedOptions[0];
+      selectedCustomerId = option.value;
+
+      if (!selectedCustomerId) {
+        klantInfo.style.display = 'none';
+        composeSection.style.display = 'none';
+        selections.clear();
+        updateOverview();
+        return;
+      }
+
+      // Toon klantgegevens
+      document.getElementById('pakket-klant-naam').textContent = option.dataset.name || '-';
+      document.getElementById('pakket-klant-email').textContent = option.dataset.email || '-';
+      document.getElementById('pakket-klant-phone').textContent = option.dataset.phone || '-';
+      document.getElementById('pakket-klant-adult').textContent = option.dataset.adult || '0';
+      document.getElementById('pakket-klant-child').textContent = option.dataset.child || '0';
+      document.getElementById('pakket-klant-baby').textContent = option.dataset.baby || '0';
+
+      klantInfo.style.display = 'block';
+      composeSection.style.display = 'block';
+      
+      // Wis vorige selectie
+      selections.clear();
+      updateOverview();
+    });
+
+    // ===== PRODUCT SELECTIE =====
     const getKey = (card) => card.getAttribute('data-ean') || card.getAttribute('data-name') || '';
 
     const updateOverview = () => {
-      if (!listEl || !emptyEl || !totalEl) {
-        return;
-      }
+      if (!listEl || !emptyEl || !totalEl) return;
 
       listEl.innerHTML = '';
       let total = 0;
 
-      cards.forEach((card) => {
+      products.forEach((card) => {
         const key = getKey(card);
         const qty = selections.get(key) || 0;
+        
         if (!qty) {
           card.classList.remove('pakket-product--selected');
           return;
@@ -113,44 +242,38 @@
       });
 
       emptyEl.hidden = total > 0;
-      totalEl.textContent = `Totaal aantal producten: ${total}`;
+      if (summaryEl) summaryEl.style.display = total > 0 ? 'block' : 'none';
+      totalEl.textContent = total;
     };
 
-    cards.forEach((card) => {
+    products.forEach((card) => {
       const addButton = card.querySelector('.pakket-product__add');
       const removeButton = card.querySelector('.pakket-product__remove');
-      if (!addButton) {
-        return;
-      }
 
-      addButton.addEventListener('click', () => {
-        const key = getKey(card);
-        if (!key) {
-          return;
-        }
-        const stock = parseInt(card.getAttribute('data-stock'), 10) || 0;
-        const current = selections.get(key) || 0;
+      if (addButton) {
+        addButton.addEventListener('click', () => {
+          const key = getKey(card);
+          if (!key) return;
 
-        if (current + 1 > stock) {
-          if (messageEl) {
-            messageEl.textContent = 'Niet genoeg voorraad beschikbaar.';
+          const stock = parseInt(card.getAttribute('data-stock'), 10) || 0;
+          const current = selections.get(key) || 0;
+
+          if (current + 1 > stock) {
+            if (messageEl) messageEl.textContent = 'Niet genoeg voorraad beschikbaar.';
+            return;
           }
-          return;
-        }
 
-        selections.set(key, current + 1);
-        if (messageEl) {
-          messageEl.textContent = '';
-        }
-        updateOverview();
-      });
+          selections.set(key, current + 1);
+          if (messageEl) messageEl.textContent = '';
+          updateOverview();
+        });
+      }
 
       if (removeButton) {
         removeButton.addEventListener('click', () => {
           const key = getKey(card);
-          if (!key) {
-            return;
-          }
+          if (!key) return;
+
           const current = selections.get(key) || 0;
           if (current <= 1) {
             selections.delete(key);
@@ -162,33 +285,110 @@
       }
     });
 
+    // ===== PAKKET OPSLAAN =====
     if (saveBtn) {
       saveBtn.addEventListener('click', () => {
-        const items = cards
+        if (!selectedCustomerId) {
+          if (messageEl) messageEl.textContent = 'Selecteer eerst een klant.';
+          return;
+        }
+
+        const items = products
           .map((card) => {
             const key = getKey(card);
             return {
-              key,
               name: card.getAttribute('data-name') || '',
               qty: selections.get(key) || 0,
-              stock: parseInt(card.getAttribute('data-stock'), 10) || 0,
+              entryId: card.getAttribute('data-entry-id') || '',
             };
           })
           .filter((item) => item.qty > 0);
 
+        if (items.length === 0) {
+          if (messageEl) messageEl.textContent = 'Voeg eerst producten toe aan het pakket.';
+          return;
+        }
+
+        // Toon opslag feedback
+        if (messageEl) {
+          messageEl.textContent = 'Pakket wordt opgeslagen...';
+        }
+
+        // Hier zou je een API call doen naar het CMS om het pakket op te slaan
+        // Voor nu slaan we het lokaal op en tonen in de saved list
+        const pakket = {
+          customerId: selectedCustomerId,
+          customerName: klantSelect.selectedOptions[0].dataset.name,
+          items: items,
+          savedAt: new Date().toLocaleString('nl-NL'),
+        };
+
         try {
-          localStorage.setItem(storageKey, JSON.stringify({ items }));
-          if (messageEl) {
-            messageEl.textContent = 'Pakket opgeslagen in deze browser.';
-          }
+          const saved = JSON.parse(localStorage.getItem('pakketten') || '[]');
+          saved.push(pakket);
+          localStorage.setItem('pakketten', JSON.stringify(saved));
+
+          if (messageEl) messageEl.textContent = '✓ Pakket succesvol opgeslagen!';
+          setTimeout(() => {
+            if (messageEl) messageEl.textContent = '';
+          }, 3000);
+
+          // Update saved list
+          displaySavedPackets();
+          selections.clear();
+          updateOverview();
         } catch (error) {
-          if (messageEl) {
-            messageEl.textContent = 'Opslaan is niet gelukt.';
-          }
+          if (messageEl) messageEl.textContent = '✗ Fout bij opslaan.';
         }
       });
     }
 
+    // ===== PAKKET WISSEN =====
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        selections.clear();
+        updateOverview();
+        if (messageEl) messageEl.textContent = '';
+      });
+    }
+
+    // ===== TOON OPGESLAGEN PAKKETTEN =====
+    const displaySavedPackets = () => {
+      const saved = JSON.parse(localStorage.getItem('pakketten') || '[]');
+      
+      if (saved.length === 0) {
+        savedList.innerHTML = '<p class="pakket-saved-list__empty">Nog geen pakketten opgeslagen.</p>';
+        savedSection.style.display = 'none';
+        return;
+      }
+
+      savedSection.style.display = 'block';
+      savedList.innerHTML = saved.map((pakket, index) => `
+        <div class="pakket-saved-item">
+          <div class="pakket-saved-item__header">
+            <h4 class="pakket-saved-item__customer">${pakket.customerName}</h4>
+            <span class="pakket-saved-item__date">${pakket.savedAt}</span>
+          </div>
+          <ul class="pakket-saved-item__products">
+            ${pakket.items.map(item => `<li>${item.name} (${item.qty}x)</li>`).join('')}
+          </ul>
+          <button class="pakket-saved-item__delete" data-index="${index}" type="button">Verwijderen</button>
+        </div>
+      `).join('');
+
+      // Delete handlers
+      savedList.querySelectorAll('.pakket-saved-item__delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const index = parseInt(e.target.dataset.index);
+          saved.splice(index, 1);
+          localStorage.setItem('pakketten', JSON.stringify(saved));
+          displaySavedPackets();
+        });
+      });
+    };
+
+    // Init
+    displaySavedPackets();
     updateOverview();
   })();
 </script>

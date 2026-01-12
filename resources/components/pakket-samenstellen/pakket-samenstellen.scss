@@ -1,5 +1,5 @@
 .pakket {
-  background: #ffffff;
+  background: #f9fafb;
   color: #1f2937;
   font-family: var(--font-family-primary);
   min-height: 100vh;
@@ -14,160 +14,218 @@
 }
 
 .pakket-screen {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 .pakket-screen__title {
-  margin: 6px 0 24px;
-  text-align: center;
-  font-size: 18px;
-  font-weight: 500;
+  margin: 0 0 32px;
+  font-size: 28px;
+  font-weight: 700;
   color: #1f2937;
 }
 
-.pakket-screen__grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-}
-
+/* ===== CARD LAYOUT ===== */
 .pakket-card {
-  border: 1px solid #cbd5e1;
   background: #ffffff;
-  padding: 18px 20px 22px;
-  min-height: 520px;
-  display: flex;
-  flex-direction: column;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .pakket-card__title {
-  margin: 0;
-  font-size: 15px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  margin: 0 0 16px;
+  font-size: 16px;
   font-weight: 600;
   color: #111827;
 }
 
 .pakket-card__divider {
-  margin: 12px 0 18px;
-  border-top: 1px solid #cbd5e1;
+  border-top: 1px solid #e5e7eb;
+  margin: 0 0 20px;
+}
+
+/* ===== KLANT SELECTIE ===== */
+.pakket-select-group {
+  display: grid;
+  gap: 8px;
+}
+
+.pakket-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.pakket-select {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #ffffff;
+  color: #1f2937;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    border-color: #9ca3af;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(15, 22, 39, 0.1);
+  }
+}
+
+.pakket-search {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #ffffff;
+  color: #1f2937;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+
+  &:hover {
+    border-color: #9ca3af;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(15, 22, 39, 0.1);
+  }
+}
+
+/* ===== KLANT INFO ===== */
+.pakket-customer-info {
+  margin-top: 16px;
 }
 
 .pakket-info {
   display: grid;
-  gap: 14px;
-  font-size: 14px;
-  color: #1f2937;
+  gap: 12px;
 }
 
 .pakket-info__group {
   display: grid;
-  gap: 4px;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
 }
 
 .pakket-info__label {
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 600;
   color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .pakket-info__value {
-  font-weight: 500;
+  font-size: 14px;
   color: #111827;
 }
 
 .pakket-info__divider {
-  border-top: 1px solid #cbd5e1;
-  margin: 4px 0 2px;
+  border-top: 1px solid #e5e7eb;
+  margin: 8px 0;
 }
 
-.pakket-info__list {
-  list-style: none;
-  padding: 0;
-  margin: 4px 0 0;
+/* ===== GEZINSSAMENSTELLING ===== */
+.pakket-family-composition {
   display: grid;
-  gap: 6px;
-}
-
-.pakket-overview {
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px;
-  height: 100%;
+  margin-top: 8px;
 }
 
-.pakket-overview__empty {
-  margin: 10px 0 0;
-  text-align: center;
+.pakket-family-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: #f3f4f6;
+  border-radius: 6px;
+}
+
+.pakket-family-label {
+  font-size: 13px;
   color: #6b7280;
-  font-size: 14px;
 }
 
-.pakket-overview__list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.pakket-family-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--secondary);
+}
+
+/* ===== COMPOSE GRID ===== */
+.pakket-compose-grid {
   display: grid;
-  gap: 8px;
-  min-height: 120px;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
 }
 
-.pakket-overview__item {
+/* ===== PRODUCTEN SECTIE ===== */
+.pakket-products-section {
+}
+
+.pakket-products-section__title {
+  margin: 0 0 16px;
   font-size: 14px;
-  color: #111827;
-}
-
-.pakket-overview__total {
-  margin: 4px 0 0;
-  font-size: 14px;
-  color: #111827;
-}
-
-.pakket-overview__button {
-  margin-top: 6px;
-  padding: 12px 16px;
-  border: none;
-  background: #1f2a3a;
-  color: #ffffff;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-}
-
-.pakket-overview__message {
-  margin: 0;
-  font-size: 12px;
-  color: #6b7280;
-  min-height: 16px;
+  color: #374151;
 }
 
 .pakket-products {
   display: grid;
-  gap: 10px;
+  gap: 8px;
+  max-height: 600px;
   overflow-y: auto;
-  padding-right: 6px;
-  max-height: 520px;
+  padding-right: 4px;
 }
 
 .pakket-products__empty {
+  padding: 20px;
+  text-align: center;
   color: #6b7280;
   font-size: 14px;
+  background: #f9fafb;
+  border-radius: 6px;
 }
 
 .pakket-product {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
   padding: 12px 14px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #e5e7eb;
   background: #ffffff;
+  border-radius: 6px;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  &.pakket-product--selected {
+    background: #eff6ff;
+    border-color: var(--secondary);
+  }
 }
 
 .pakket-product__info {
   display: grid;
   gap: 4px;
+  flex: 1;
 }
 
 .pakket-product__name {
@@ -181,57 +239,253 @@
   color: #6b7280;
 }
 
-.pakket-product__add {
-  width: 34px;
-  height: 34px;
-  border: 1px solid #94a3b8;
-  background: #ffffff;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
 .pakket-product__actions {
-  display: inline-flex;
-  gap: 8px;
+  display: flex;
+  gap: 6px;
   align-items: center;
 }
 
+.pakket-product__add,
 .pakket-product__remove {
-  width: 34px;
-  height: 34px;
-  border: 1px solid #94a3b8;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #d1d5db;
   background: #ffffff;
-  font-size: 18px;
+  border-radius: 4px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  display: inline-flex;
+  transition: all 0.2s;
+  display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s ease;
+  color: #6b7280;
+
+  &:hover {
+    border-color: var(--secondary);
+    color: var(--secondary);
+  }
 }
 
-.pakket-product--selected {
-  border-color: #64748b;
+/* ===== OVERVIEW SECTIE ===== */
+.pakket-overview-section {
 }
 
-.pakket-product--selected .pakket-product__remove {
-  opacity: 1;
-  pointer-events: auto;
+.pakket-overview-section__title {
+  margin: 0 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
 }
 
-@media (max-width: 1100px) {
-  .pakket-screen__grid {
+.pakket-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.pakket-overview__empty {
+  margin: 0;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+  padding: 20px 0;
+}
+
+.pakket-overview__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.pakket-overview__item {
+  padding: 8px 0;
+  font-size: 13px;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.pakket-overview__summary {
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+.pakket-summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pakket-summary-label {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.pakket-summary-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--secondary);
+}
+
+.pakket-overview__message {
+  margin: 0;
+  padding: 8px;
+  font-size: 12px;
+  color: #0ea5e9;
+  text-align: center;
+  min-height: 16px;
+}
+
+.pakket-overview__actions {
+  display: grid;
+  gap: 8px;
+}
+
+.pakket-overview__button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &--primary {
+    background: var(--secondary);
+    color: #ffffff;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  &--secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+
+    &:hover {
+      background: #e5e7eb;
+    }
+  }
+}
+
+/* ===== SAVED PAKKETTEN ===== */
+.pakket-saved-list {
+  display: grid;
+  gap: 16px;
+}
+
+.pakket-saved-list__empty {
+  padding: 24px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 14px;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.pakket-saved-item {
+  padding: 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.pakket-saved-item__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.pakket-saved-item__customer {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.pakket-saved-item__date {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.pakket-saved-item__products {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.pakket-saved-item__products li {
+  font-size: 13px;
+  color: #374151;
+  padding-left: 16px;
+  position: relative;
+
+  &:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+  }
+}
+
+.pakket-saved-item__delete {
+  padding: 6px 12px;
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #fecaca;
+  }
+}
+
+@media (max-width: 1024px) {
+  .pakket-compose-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .pakket {
+    margin-left: 0;
+    padding: 16px;
+  }
+
+  .pakket-screen__title {
+    font-size: 20px;
   }
 
   .pakket-card {
-    min-height: auto;
+    padding: 16px;
   }
 
-  .pakket-products {
-    max-height: none;
+  .pakket-info__group {
+    grid-template-columns: 1fr;
+  }
+
+  .pakket-family-composition {
+    grid-template-columns: 1fr;
   }
 }
