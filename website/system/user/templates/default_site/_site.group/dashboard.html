@@ -1,16 +1,35 @@
 {layout="_layouts/.main"}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Dyslexic&display=swap" rel="stylesheet">
+    
+    <style>
+        .dyslexia-font {
+            font-family: 'Open Dyslexic', Arial, sans-serif;
+            line-height: 1.5;
+            font-size: 18px; 
+        }
+
+        .dyslexia-background {
+            background-color: #f0e68c; 
+            color: #000; 
+        }
+    </style>
+</head>
+<body>
     <div class="dashboard mt-10">
         <div class="dashboard__intro my-15">
             <div class="container">
                 <h1>Dashboard</h1>
                 <p>Welkom terug {if logged_in}{logged_in_screen_name}{if:else}Gast{/if}</p>
+                <button id="dyslexia-toggle">Toggle Dyslexia Mode</button>
             </div>
         </div>
         <div class="container mt-15">
             <div class="dashboard__tiles">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                    <!-- Rij 1: Klanten, Producten, Leveranciers -->
                     <div class="dashboard__tile">
                         <a href="{path='_site/customers'}">
                             <div class="dashboard__icon dashboard__icon--klanten">
