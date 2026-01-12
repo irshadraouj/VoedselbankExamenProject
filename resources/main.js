@@ -11,8 +11,7 @@ import '@components/dashboardTiles/dashboard_tiles.js';
 import '@components/leveranciers/leveranciers.js';
 import '@components/leveringen/leveringen.js';
 import '@components/login/login.js';
-import '@components/sidebar/sidebar.js';
-import '@components/topbar/topbar.js';
+import '@components/pakket-samenstellen/pakket-samenstellen.js';
 // ===== End Auto-Generated Imports =====
 
 Alpine.start();

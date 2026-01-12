@@ -59,6 +59,10 @@ class Config
     public static function item($key): mixed
     {
         self::load();
+        // Always check vite_dev fresh in case dev server started after page load
+        if ($key === 'vite_dev') {
+            return self::isDevServerRunning();
+        }
         return self::$settings[$key] ?? null;
     }
 }

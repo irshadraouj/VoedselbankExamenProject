@@ -22,7 +22,7 @@
           <option value="">-- Selecteer een klant --</option>
           {exp:channel:entries channel="customers" dynamic="no" disable="categories|member_data" status="open" limit="100" orderby="customers_name" sort="asc"}
             {if !account_ban}
-              <option value="{entry_id}" data-name="{customers_name}" data-adult="{customers_adult}" data-child="{customers_child}" data-baby="{customers_baby}" data-email="{customers_email}" data-phone="{customers_phone}">
+              <option value="{entry_id}" data-name="{customers_name}" data-adult="{customers_adult}" data-child="{customers_child}" data-baby="{customers_baby}" data-email="{customers_email}" data-phone="{customers_phone}" data-bsn="{customers_bsn}">
                 {customers_name}
               </option>
             {/if}
@@ -73,6 +73,8 @@
       <h2 class="pakket__card-title">Stap 2: Stel het pakket samen</h2>
       <div class="pakket__card-divider"></div>
 
+      {exp:channel:form channel="createdorders" return="_site/pakket-samenstellen" id="pakket-form" allow_guest_posts="no"}
+
       <div class="pakket__compose-grid">
         <!-- PRODUCTEN BESCHIKBAAR -->
         <div class="pakket__products-section">
@@ -115,27 +117,68 @@
             <p class="pakket__message" id="pakket-message" role="status" aria-live="polite"></p>
             
             <div class="pakket__actions">
+              <div class="pakket__date">
+                <label for="pakket-expiration-picker" class="pakket__label">Uitgiftedatum (alleen vrijdag)</label>
+                <input type="date" id="pakket-expiration-picker" class="pakket__date-input">
+              </div>
+
+              <input type="hidden" name="order_name" id="cf-order-name" value="">
+              <input type="hidden" name="order_bsnconect" id="cf-order-bsn" value="">
+              <input type="hidden" name="order_items" id="cf-order-items" value="">
+              <input type="hidden" name="expiration_date" id="cf-expiration-date" value="">
+              <input type="hidden" name="title" id="cf-title" value="">
+              <input type="hidden" name="url_title" id="cf-url-title" value="">
+
               <button class="pakket__button pakket__button--primary" type="button" id="pakket-save">Pakket opslaan</button>
               <button class="pakket__button pakket__button--secondary" type="button" id="pakket-clear">Wissen</button>
             </div>
           </div>
         </div>
       </div>
+      {/exp:channel:form}
     </section>
 
-    <!-- SECTION 3: SAMENGESTELDE PAKKETTEN -->
-    <section class="pakket__card" id="pakket-saved-section" style="display: none;">
+    <!-- SECTION 3: SAMENGESTELDE PAKKETTEN (OVERZICHT VAN AANGEMAAKTE ORDERS) -->
+    <section class="pakket__card">
       <h2 class="pakket__card-title">Samengestelde pakketten</h2>
-      <div class="pakket__card-divider"></div>
 
-      <div id="pakket-saved-list" class="pakket__saved-list">
+      {exp:channel:entries channel="createdorders" dynamic="no" disable="categories|member_data" sort="desc" orderby="entry_date"}
+        <article class="pakket__saved-item my-3" data-entry-id="{entry_id}">
+          <div class="pakket__saved-item-dates flex justify-between">
+            <h4 class="pakket__saved-item-customer">{order_name} - {url_title}</h4>
+            <div class="div">
+              <span class="pakket__saved-item-date">Aangemaakt: {entry_date format="%d-%m-%Y"}</span>
+              <span class="pakket__saved-item-date">Uitgifte: {expiration_date format="%d-%m-%Y"}</span>
+            </div>
+          </div>
+          {if order_items:total_rows}
+            <ul class="pakket__saved-item-products">
+              {order_items}
+                {if order_items:count <= 3}
+                  <li class="pakket__saved-item-product">{order_items:order_item_name} ({order_items:order_item_total}x)</li>
+                {if:else}
+                  <li class="pakket__saved-item-product pakket__saved-item-product--extra" style="display:none;">{order_items:order_item_name} ({order_items:order_item_total}x)</li>
+                {/if}
+              {/order_items}
+            </ul>
+
+            {if order_items:total_rows > 3}
+              <button type="button" class="pakket__saved-item-toggle">Toon alle producten</button>
+            {/if}
+          {if:else}
+            <p class="pakket__saved-item-empty">Geen producten geregistreerd voor dit pakket.</p>
+          {/if}
+        </article>
+
+      {if no_results}
         <p class="pakket__saved-list-empty">Nog geen pakketten opgeslagen.</p>
-      </div>
+      {/if}
+      {/exp:channel:entries}
     </section>
   </div>
 </div>
 
-<script>
+<!-- <script>
   (() => {
     const root = document.querySelector('.pakket');
     if (!root) return;
@@ -145,19 +188,89 @@
     const klantSearch = document.getElementById('pakket-klant-search');
     const klantInfo = document.getElementById('pakket-klant-info');
     const composeSection = document.getElementById('pakket-compose-section');
-    const savedSection = document.getElementById('pakket-saved-section');
-    const savedList = document.getElementById('pakket-saved-list');
     
     const products = Array.from(root.querySelectorAll('.pakket__product'));
     const listEl = document.getElementById('pakket-list');
     const emptyEl = document.getElementById('pakket-empty');
     const totalEl = document.getElementById('pakket-total');
     const summaryEl = document.getElementById('pakket-summary');
+    const summaryEl = document.getElementById('pakket-summary');
     const saveBtn = document.getElementById('pakket-save');
+    const clearBtn = document.getElementById('pakket-clear');
     const clearBtn = document.getElementById('pakket-clear');
     const messageEl = document.getElementById('pakket-message');
 
+
     const selections = new Map();
+    let selectedCustomerId = null;
+
+    // ===== KLANT ZOEKEN =====
+    if (klantSearch) {
+      klantSearch.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const options = klantSelect.querySelectorAll('option');
+
+        options.forEach((option) => {
+          if (option.value === '') return; // Skip placeholder
+
+          const name = option.dataset.name.toLowerCase();
+          const matches = name.includes(searchTerm);
+          
+          option.style.display = matches || searchTerm === '' ? '' : 'none';
+        });
+
+        // Filter visible options
+        const visibleOptions = Array.from(options).filter(opt => opt.style.display !== 'none' && opt.value !== '');
+        if (visibleOptions.length > 1) {
+          // Auto-select eerste resultaat als er maar 1 is
+          if (visibleOptions.length === 1) {
+            klantSelect.value = visibleOptions[0].value;
+            klantSelect.dispatchEvent(new Event('change'));
+          }
+        }
+      });
+    }
+
+    // Hide archived customers from dropdown on page load
+    const klantOptions = klantSelect.querySelectorAll('option');
+    klantOptions.forEach((option) => {
+      if (option.value === '') return;
+      // Check if this option has any data attributes - if not, it might be archived
+      if (!option.dataset.name) {
+        option.style.display = 'none';
+      }
+    });
+
+    // ===== KLANT SELECTIE =====
+    klantSelect.addEventListener('change', (e) => {
+      const option = e.target.selectedOptions[0];
+      selectedCustomerId = option.value;
+
+      if (!selectedCustomerId) {
+        klantInfo.style.display = 'none';
+        composeSection.style.display = 'none';
+        selections.clear();
+        updateOverview();
+        return;
+      }
+
+      // Toon klantgegevens
+      document.getElementById('pakket-klant-naam').textContent = option.dataset.name || '-';
+      document.getElementById('pakket-klant-email').textContent = option.dataset.email || '-';
+      document.getElementById('pakket-klant-phone').textContent = option.dataset.phone || '-';
+      document.getElementById('pakket-klant-adult').textContent = option.dataset.adult || '0';
+      document.getElementById('pakket-klant-child').textContent = option.dataset.child || '0';
+      document.getElementById('pakket-klant-baby').textContent = option.dataset.baby || '0';
+
+      klantInfo.style.display = 'block';
+      composeSection.style.display = 'block';
+      
+      // Wis vorige selectie
+      selections.clear();
+      updateOverview();
+    });
+
+    // ===== PRODUCT SELECTIE =====
     let selectedCustomerId = null;
 
     // ===== KLANT ZOEKEN =====
@@ -231,24 +344,30 @@
 
     const updateOverview = () => {
       if (!listEl || !emptyEl || !totalEl) return;
+      if (!listEl || !emptyEl || !totalEl) return;
 
       listEl.innerHTML = '';
       let total = 0;
 
       products.forEach((card) => {
+      products.forEach((card) => {
         const key = getKey(card);
         const qty = selections.get(key) || 0;
         
+        
         if (!qty) {
+          card.classList.remove('pakket__product--selected');
           card.classList.remove('pakket__product--selected');
           return;
         }
 
         total += qty;
         card.classList.add('pakket__product--selected');
+        card.classList.add('pakket__product--selected');
 
         const name = card.getAttribute('data-name') || 'Product';
         const li = document.createElement('li');
+        li.className = 'pakket__overview-item';
         li.className = 'pakket__overview-item';
         li.textContent = `${name} (${qty})`;
         listEl.appendChild(li);
@@ -257,8 +376,21 @@
       emptyEl.hidden = total > 0;
       if (summaryEl) summaryEl.style.display = total > 0 ? 'block' : 'none';
       totalEl.textContent = total;
+      if (summaryEl) summaryEl.style.display = total > 0 ? 'block' : 'none';
+      totalEl.textContent = total;
     };
 
+    products.forEach((card) => {
+      const addButton = card.querySelector('.pakket__product-add');
+      const removeButton = card.querySelector('.pakket__product-remove');
+
+      if (addButton) {
+        addButton.addEventListener('click', () => {
+          const key = getKey(card);
+          if (!key) return;
+
+          const stock = parseInt(card.getAttribute('data-stock'), 10) || 0;
+          const current = selections.get(key) || 0;
     products.forEach((card) => {
       const addButton = card.querySelector('.pakket__product-add');
       const removeButton = card.querySelector('.pakket__product-remove');
@@ -275,7 +407,16 @@
             if (messageEl) messageEl.textContent = 'Niet genoeg voorraad beschikbaar.';
             return;
           }
+          if (current + 1 > stock) {
+            if (messageEl) messageEl.textContent = 'Niet genoeg voorraad beschikbaar.';
+            return;
+          }
 
+          selections.set(key, current + 1);
+          if (messageEl) messageEl.textContent = '';
+          updateOverview();
+        });
+      }
           selections.set(key, current + 1);
           if (messageEl) messageEl.textContent = '';
           updateOverview();
@@ -285,6 +426,8 @@
       if (removeButton) {
         removeButton.addEventListener('click', () => {
           const key = getKey(card);
+          if (!key) return;
+
           if (!key) return;
 
           const current = selections.get(key) || 0;
@@ -299,8 +442,16 @@
     });
 
     // ===== PAKKET OPSLAAN =====
+    const expirationPicker = document.getElementById('pakket-expiration-picker');
+
     if (saveBtn) {
       saveBtn.addEventListener('click', () => {
+        if (!selectedCustomerId) {
+          if (messageEl) messageEl.textContent = 'Selecteer eerst een klant.';
+          return;
+        }
+
+        const items = products
         if (!selectedCustomerId) {
           if (messageEl) messageEl.textContent = 'Selecteer eerst een klant.';
           return;
@@ -313,6 +464,7 @@
               name: card.getAttribute('data-name') || '',
               qty: selections.get(key) || 0,
               entryId: card.getAttribute('data-entry-id') || '',
+              entryId: card.getAttribute('data-entry-id') || '',
             };
           })
           .filter((item) => item.qty > 0);
@@ -322,35 +474,49 @@
           return;
         }
 
+        // Controleer uitgiftedatum (moet vrijdag zijn)
+        if (!expirationPicker || !expirationPicker.value) {
+          if (messageEl) messageEl.textContent = 'Kies een uitgiftedatum (alleen vrijdag).';
+          return;
+        }
+
+        const expValue = expirationPicker.value; // YYYY-MM-DD
+        const expDate = new Date(expValue + 'T00:00:00');
+        const day = expDate.getDay(); // 0 = zondag, 5 = vrijdag
+        if (Number.isNaN(day) || day !== 5) {
+          if (messageEl) messageEl.textContent = 'De uitgiftedatum moet op een vrijdag vallen.';
+          return;
+        }
+
         // Toon opslag feedback
         if (messageEl) {
           messageEl.textContent = 'Pakket wordt opgeslagen...';
         }
 
-        // Hier zou je een API call doen naar het CMS om het pakket op te slaan
-        // Voor nu slaan we het lokaal op en tonen in de saved list
-        const pakket = {
-          customerId: selectedCustomerId,
-          customerName: klantSelect.selectedOptions[0].dataset.name,
-          items: items,
-          savedAt: new Date().toLocaleString('nl-NL'),
-        };
-
+        // Vul Channel Form hidden velden en submit het formulier
         try {
-          const saved = JSON.parse(localStorage.getItem('pakketten') || '[]');
-          saved.push(pakket);
-          localStorage.setItem('pakketten', JSON.stringify(saved));
+          const customerOption = klantSelect.selectedOptions[0];
+          const customerName = customerOption.dataset.name || '';
+          const customerBsn = customerOption.dataset.bsn || '';
+          document.getElementById('cf-order-name').value = customerName;
+          document.getElementById('cf-order-bsn').value = customerBsn;
+          document.getElementById('cf-order-items').value = JSON.stringify(items);
+          // uitgiftedatum vanuit date-picker (reeds gevalideerd op vrijdag)
+          document.getElementById('cf-expiration-date').value = expValue;
 
-          if (messageEl) messageEl.textContent = '✓ Pakket succesvol opgeslagen!';
-          setTimeout(() => {
-            if (messageEl) messageEl.textContent = '';
-          }, 3000);
+          // Set required title and url_title to satisfy Channel Form validation
+          document.getElementById('cf-title').value = `${customerName} ${customerBsn}`.trim();
+          const slugBase = customerName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'order';
+          document.getElementById('cf-url-title').value = `${slugBase}-${Date.now()}`;
 
-          // Update saved list
-          displaySavedPackets();
-          selections.clear();
-          updateOverview();
+          const form = document.getElementById('pakket-form');
+          if (form) {
+            form.submit();
+          } else {
+            throw new Error('Formulier niet gevonden');
+          }
         } catch (error) {
+          if (messageEl) messageEl.textContent = '✗ Fout bij opslaan.';
           if (messageEl) messageEl.textContent = '✗ Fout bij opslaan.';
         }
       });
@@ -362,46 +528,29 @@
         selections.clear();
         updateOverview();
         if (messageEl) messageEl.textContent = '';
+        if (expirationPicker) expirationPicker.value = '';
       });
     }
 
-    // ===== TOON OPGESLAGEN PAKKETTEN =====
-    const displaySavedPackets = () => {
-      const saved = JSON.parse(localStorage.getItem('pakketten') || '[]');
-      
-      if (saved.length === 0) {
-        savedList.innerHTML = '<p class="pakket-saved-list__empty">Nog geen pakketten opgeslagen.</p>';
-        savedSection.style.display = 'none';
-        return;
-      }
+    // ===== UITKLAPBARE PRODUCTLIJST IN OVERZICHT =====
+    root.addEventListener('click', (event) => {
+      const toggleBtn = event.target.closest('.pakket__saved-item-toggle');
+      if (!toggleBtn) return;
 
-      savedSection.style.display = 'block';
-      savedList.innerHTML = saved.map((pakket, index) => `
-        <div class="pakket__saved-item">
-          <div class="pakket__saved-item-header">
-            <h4 class="pakket__saved-item-customer">${pakket.customerName}</h4>
-            <span class="pakket__saved-item-date">${pakket.savedAt}</span>
-          </div>
-          <ul class="pakket__saved-item-products">
-            ${pakket.items.map(item => `<li>${item.name} (${item.qty}x)</li>`).join('')}
-          </ul>
-          <button class="pakket__saved-item-delete" data-index="${index}" type="button">Verwijderen</button>
-        </div>
-      `).join('');
+      const container = toggleBtn.closest('.pakket__saved-item');
+      if (!container) return;
 
-      // Delete handlers
-      savedList.querySelectorAll('.pakket__saved-item-delete').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const index = parseInt(e.target.dataset.index);
-          saved.splice(index, 1);
-          localStorage.setItem('pakketten', JSON.stringify(saved));
-          displaySavedPackets();
-        });
+      const extraItems = container.querySelectorAll('.pakket__saved-item-product--extra');
+      const isHidden = extraItems.length && extraItems[0].style.display === 'none';
+
+      extraItems.forEach((item) => {
+        item.style.display = isHidden ? '' : 'none';
       });
-    };
+
+      toggleBtn.textContent = isHidden ? 'Verberg extra producten' : 'Toon alle producten';
+    });
 
     // Init
-    displaySavedPackets();
     updateOverview();
   })();
-</script>
+</script> -->
