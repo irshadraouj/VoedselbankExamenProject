@@ -194,11 +194,83 @@
     const emptyEl = document.getElementById('pakket-empty');
     const totalEl = document.getElementById('pakket-total');
     const summaryEl = document.getElementById('pakket-summary');
+    const summaryEl = document.getElementById('pakket-summary');
     const saveBtn = document.getElementById('pakket-save');
+    const clearBtn = document.getElementById('pakket-clear');
     const clearBtn = document.getElementById('pakket-clear');
     const messageEl = document.getElementById('pakket-message');
 
+
     const selections = new Map();
+    let selectedCustomerId = null;
+
+    // ===== KLANT ZOEKEN =====
+    if (klantSearch) {
+      klantSearch.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const options = klantSelect.querySelectorAll('option');
+
+        options.forEach((option) => {
+          if (option.value === '') return; // Skip placeholder
+
+          const name = option.dataset.name.toLowerCase();
+          const matches = name.includes(searchTerm);
+          
+          option.style.display = matches || searchTerm === '' ? '' : 'none';
+        });
+
+        // Filter visible options
+        const visibleOptions = Array.from(options).filter(opt => opt.style.display !== 'none' && opt.value !== '');
+        if (visibleOptions.length > 1) {
+          // Auto-select eerste resultaat als er maar 1 is
+          if (visibleOptions.length === 1) {
+            klantSelect.value = visibleOptions[0].value;
+            klantSelect.dispatchEvent(new Event('change'));
+          }
+        }
+      });
+    }
+
+    // Hide archived customers from dropdown on page load
+    const klantOptions = klantSelect.querySelectorAll('option');
+    klantOptions.forEach((option) => {
+      if (option.value === '') return;
+      // Check if this option has any data attributes - if not, it might be archived
+      if (!option.dataset.name) {
+        option.style.display = 'none';
+      }
+    });
+
+    // ===== KLANT SELECTIE =====
+    klantSelect.addEventListener('change', (e) => {
+      const option = e.target.selectedOptions[0];
+      selectedCustomerId = option.value;
+
+      if (!selectedCustomerId) {
+        klantInfo.style.display = 'none';
+        composeSection.style.display = 'none';
+        selections.clear();
+        updateOverview();
+        return;
+      }
+
+      // Toon klantgegevens
+      document.getElementById('pakket-klant-naam').textContent = option.dataset.name || '-';
+      document.getElementById('pakket-klant-email').textContent = option.dataset.email || '-';
+      document.getElementById('pakket-klant-phone').textContent = option.dataset.phone || '-';
+      document.getElementById('pakket-klant-adult').textContent = option.dataset.adult || '0';
+      document.getElementById('pakket-klant-child').textContent = option.dataset.child || '0';
+      document.getElementById('pakket-klant-baby').textContent = option.dataset.baby || '0';
+
+      klantInfo.style.display = 'block';
+      composeSection.style.display = 'block';
+      
+      // Wis vorige selectie
+      selections.clear();
+      updateOverview();
+    });
+
+    // ===== PRODUCT SELECTIE =====
     let selectedCustomerId = null;
 
     // ===== KLANT ZOEKEN =====
@@ -272,24 +344,30 @@
 
     const updateOverview = () => {
       if (!listEl || !emptyEl || !totalEl) return;
+      if (!listEl || !emptyEl || !totalEl) return;
 
       listEl.innerHTML = '';
       let total = 0;
 
       products.forEach((card) => {
+      products.forEach((card) => {
         const key = getKey(card);
         const qty = selections.get(key) || 0;
         
+        
         if (!qty) {
+          card.classList.remove('pakket__product--selected');
           card.classList.remove('pakket__product--selected');
           return;
         }
 
         total += qty;
         card.classList.add('pakket__product--selected');
+        card.classList.add('pakket__product--selected');
 
         const name = card.getAttribute('data-name') || 'Product';
         const li = document.createElement('li');
+        li.className = 'pakket__overview-item';
         li.className = 'pakket__overview-item';
         li.textContent = `${name} (${qty})`;
         listEl.appendChild(li);
@@ -298,8 +376,21 @@
       emptyEl.hidden = total > 0;
       if (summaryEl) summaryEl.style.display = total > 0 ? 'block' : 'none';
       totalEl.textContent = total;
+      if (summaryEl) summaryEl.style.display = total > 0 ? 'block' : 'none';
+      totalEl.textContent = total;
     };
 
+    products.forEach((card) => {
+      const addButton = card.querySelector('.pakket__product-add');
+      const removeButton = card.querySelector('.pakket__product-remove');
+
+      if (addButton) {
+        addButton.addEventListener('click', () => {
+          const key = getKey(card);
+          if (!key) return;
+
+          const stock = parseInt(card.getAttribute('data-stock'), 10) || 0;
+          const current = selections.get(key) || 0;
     products.forEach((card) => {
       const addButton = card.querySelector('.pakket__product-add');
       const removeButton = card.querySelector('.pakket__product-remove');
@@ -316,7 +407,16 @@
             if (messageEl) messageEl.textContent = 'Niet genoeg voorraad beschikbaar.';
             return;
           }
+          if (current + 1 > stock) {
+            if (messageEl) messageEl.textContent = 'Niet genoeg voorraad beschikbaar.';
+            return;
+          }
 
+          selections.set(key, current + 1);
+          if (messageEl) messageEl.textContent = '';
+          updateOverview();
+        });
+      }
           selections.set(key, current + 1);
           if (messageEl) messageEl.textContent = '';
           updateOverview();
@@ -326,6 +426,8 @@
       if (removeButton) {
         removeButton.addEventListener('click', () => {
           const key = getKey(card);
+          if (!key) return;
+
           if (!key) return;
 
           const current = selections.get(key) || 0;
@@ -350,11 +452,18 @@
         }
 
         const items = products
+        if (!selectedCustomerId) {
+          if (messageEl) messageEl.textContent = 'Selecteer eerst een klant.';
+          return;
+        }
+
+        const items = products
           .map((card) => {
             const key = getKey(card);
             return {
               name: card.getAttribute('data-name') || '',
               qty: selections.get(key) || 0,
+              entryId: card.getAttribute('data-entry-id') || '',
               entryId: card.getAttribute('data-entry-id') || '',
             };
           })
@@ -407,6 +516,7 @@
             throw new Error('Formulier niet gevonden');
           }
         } catch (error) {
+          if (messageEl) messageEl.textContent = '✗ Fout bij opslaan.';
           if (messageEl) messageEl.textContent = '✗ Fout bij opslaan.';
         }
       });
