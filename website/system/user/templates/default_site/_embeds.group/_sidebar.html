@@ -1,6 +1,7 @@
 <aside class="sidebar">
 	<div class="sidebar__inner">
 		<nav class="sidebar__nav" aria-label="Hoofdmenu">
+			{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6")}
 			<a class="sidebar__link {if segment_2 == "dashboard"}sidebar__link--active{/if}" href="{path='_site/dashboard'}">
 				<span class="sidebar__icon" aria-hidden="true">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
@@ -9,7 +10,9 @@
 				</span>
 				<span class="sidebar__label">Dashboard</span>
 			</a>
+			{/if}
 
+			{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6")}
 			<a class="sidebar__link {if segment_2 == "customers"}sidebar__link--active{/if}" href="{path='_site/customers'}">
 				<span class="sidebar__icon" aria-hidden="true">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" fill="currentColor">
@@ -18,7 +21,9 @@
 				</span>
 				<span class="sidebar__label">Klanten</span>
 			</a>
+			{/if}
 
+			{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "7" OR logged_in_group_id == "8")}
 			<a class="sidebar__link {if segment_2 == "voorraad"}sidebar__link--active{/if}" href="{path='_site/voorraad'}">
 				<span class="sidebar__icon" aria-hidden="true">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048" fill="currentColor">
@@ -27,7 +32,9 @@
 				</span>
 				<span class="sidebar__label">Voorraad</span>
 			</a>
+			{/if}
 
+			{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6")}
 			<a class="sidebar__link {if segment_2 == "leveranciers"}sidebar__link--active{/if}" href="{path='_site/leveranciers'}">
 				<span class="sidebar__icon" aria-hidden="true">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
@@ -36,7 +43,9 @@
 				</span>
 				<span class="sidebar__label">Leveranciers</span>
 			</a>
+			{/if}
 
+			{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "7")}
 			<a class="sidebar__link {if segment_2 == "pakket-samenstellen"}sidebar__link--active{/if}" href="{path='_site/pakket-samenstellen'}">
 				<span class="sidebar__icon" aria-hidden="true">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -46,7 +55,9 @@
 				</span>
 				<span class="sidebar__label">Pakket samenstellen</span>
 			</a>
+			{/if}
 
+			{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6")}
 			<a class="sidebar__link {if segment_2 == "pakket-uitgifte"}sidebar__link--active{/if}" href="{path='_site/pakket-uitgifte'}">
 				<span class="sidebar__icon" aria-hidden="true">
 					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
@@ -55,7 +66,9 @@
 				</span>
 				<span class="sidebar__label">Pakket uitgifte</span>
 			</a>
+			{/if}
 
+			{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6")}
 			<a class="sidebar__link {if segment_2 == "rapportages"}sidebar__link--active{/if}" href="{path='_site/rapportages'}">
 				<span class="sidebar__icon" aria-hidden="true">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14" fill="none">
@@ -64,7 +77,9 @@
 				</span>
 				<span class="sidebar__label">Rapportages</span>
 			</a>
+			{/if}
 
+			{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6")}
 			<a class="sidebar__link" href="https://voedselbankexamenproject.ddev.site/cms.php" target="_blank" rel="noopener">
 				<span class="sidebar__icon" aria-hidden="true">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
@@ -73,6 +88,7 @@
 				</span>
 				<span class="sidebar__label">Portaal</span>
 			</a>
+			{/if}
 
 		</nav>
 

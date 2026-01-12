@@ -1,1 +1,5 @@
-{embed="_embeds/voorraad"}
+{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "7" OR logged_in_group_id == "8")}
+    {embed="_embeds/voorraad"}
+{if:else}
+    {redirect="_site/home"}
+{/if}

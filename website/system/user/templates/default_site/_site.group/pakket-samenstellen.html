@@ -1,2 +1,6 @@
 {layout="_layouts/.main"}
-    {embed="_embeds/pakket-samenstellen"}
+    {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "7")}
+        {embed="_embeds/pakket-samenstellen"}
+    {if:else}
+        {redirect="_site/home"}
+    {/if}
