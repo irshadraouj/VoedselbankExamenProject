@@ -1,162 +1,269 @@
-// Customers component - Simple EE7 integration
-import './customers.scss';
+/**
+ * CUSTOMERS COMPONENT - EE7 Integration
+ * Manages customer creation, viewing and archiving
+ * 
+ * Features:
+ * - Tab navigation between list, add, and archive views
+ * - Auto-generate unique identifiers for new customers
+ * - Archive/unarchive customers instead of permanent deletion
+ * - Edit functionality uses native EE7 CMS editor (opened in new tab)
+ */
 
 (() => {
   const init = () => {
     const root = document.querySelector('.customers');
     if (!root) return;
 
-    // ============================================
+    // ================================================
     // TAB SWITCHING
-    // ============================================
+    // ================================================
+    // switching between list and add tabs
+    // Updates active button state and shows/hides corresponding content sections
+    
     const tabButtons = root.querySelectorAll('[data-tab]');
     const tabPanels = root.querySelectorAll('.customers__section');
 
     const switchTab = (tabName) => {
-      // Update buttons
+      // Update button active state
       tabButtons.forEach((btn) => {
         btn.classList.toggle('customers__tab--active', btn.dataset.tab === tabName);
       });
 
-      // Update panels
+      // Show/hide corresponding panel
       tabPanels.forEach((panel) => {
         const panelTabName = panel.id.replace('tab-', '');
         panel.style.display = panelTabName === tabName ? '' : 'none';
       });
     };
 
+    // Add click handlers to tab buttons
     tabButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
         switchTab(btn.dataset.tab);
       });
     });
 
-    // ============================================
-    // ADD FORM - Auto-populate title/url_title
-    // ============================================
+    // ================================================
+    // FILTER - Customers list
+    // ================================================
+    // Filter customers by active/inactive/all status and by search term
+    
+    const filterButtons = root.querySelectorAll('[data-filter]');
+    const tableRows = root.querySelectorAll('.customers__row');
+    const searchInput = root.querySelector('#customers-search');
+
+    // Get summary elements
+    const totalElement = root.querySelector('.customers__summary-card:nth-child(1) .customers__summary-value');
+    const activeElement = root.querySelector('.customers__summary-card:nth-child(2) .customers__summary-value');
+    const inactiveElement = root.querySelector('.customers__summary-card:nth-child(3) .customers__summary-value');
+
+    let currentFilter = 'all';
+    let currentSearchTerm = '';
+
+    const updateCounts = () => {
+      let total = 0;
+      let active = 0;
+      let inactive = 0;
+
+      tableRows.forEach((row) => {
+        // Count ALL rows, regardless of current filters
+        const accountBan = row.dataset.accountBan;
+        const isBanned = accountBan === 'yes';
+        
+        total++;
+        if (isBanned) {
+          inactive++;
+        } else {
+          active++;
+        }
+      });
+
+      // Update summary cards
+      if (totalElement) totalElement.textContent = total;
+      if (activeElement) activeElement.textContent = active;
+      if (inactiveElement) inactiveElement.textContent = inactive;
+    };
+
+    const applyFilter = (filterType, searchTerm = currentSearchTerm) => {
+      currentFilter = filterType;
+      
+      // Update active filter button
+      filterButtons.forEach((btn) => {
+        btn.classList.toggle('customers__filter-btn--active', btn.dataset.filter === filterType);
+      });
+
+      // Filter table rows based on both status AND search term
+      tableRows.forEach((row) => {
+        const accountBan = row.dataset.accountBan;
+        const isBanned = accountBan === 'yes';
+        
+        // Check status filter
+        let statusMatch = false;
+        if (filterType === 'all') {
+          statusMatch = true;
+        } else if (filterType === 'active') {
+          statusMatch = !isBanned;
+        } else if (filterType === 'inactive') {
+          statusMatch = isBanned;
+        }
+
+        // Check search filter
+        let searchMatch = true;
+        if (searchTerm.trim()) {
+          const searchLower = searchTerm.toLowerCase();
+          const nameCell = row.querySelector('td:nth-child(1)');
+          const emailCell = row.querySelector('td:nth-child(2)');
+          
+          const name = nameCell ? nameCell.textContent.toLowerCase() : '';
+          const email = emailCell ? emailCell.textContent.toLowerCase() : '';
+          
+          searchMatch = name.includes(searchLower) || email.includes(searchLower);
+        }
+
+        // Show row only if both filters match
+        row.style.display = (statusMatch && searchMatch) ? '' : 'none';
+      });
+
+      // Update counts
+      updateCounts();
+    };
+
+    // Add click handlers to filter buttons
+    filterButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        applyFilter(btn.dataset.filter, currentSearchTerm);
+      });
+    });
+
+    // Add search input handler for live filtering
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        currentSearchTerm = e.target.value;
+        applyFilter(currentFilter, currentSearchTerm);
+      });
+    }
+
+    // Initialize counts on page load
+    updateCounts();
+
+    // default filter to 'all'
+    applyFilter('all');
+
+
+
+
+
+
+    // ================================================
+    // ADD FORM - Generate unique identifiers
+    // ================================================
+    // When adding a new customer, automatically generate:
+    // - title: Customer name (for EE7 entry title)
+    // - url_title: URL-friendly slug with timestamp (ensures uniqueness)
+    
     const addForm = root.querySelector('#customers-add-form');
     if (addForm) {
       const nameInput = addForm.querySelector('#add-name');
       const titleInput = addForm.querySelector('#form-title');
       const urlTitleInput = addForm.querySelector('#form-url-title');
 
-      // Auto-populate title and url_title from name
-      nameInput.addEventListener('input', (e) => {
+      nameInput?.addEventListener('input', (e) => {
         const name = e.target.value.trim();
+        
+        // Set title to the customer name
         titleInput.value = name;
-        // Make url_title unique by adding timestamp
+        
+        // Generate unique url_title: convert name to slug + add timestamp
+        // This ensures the url_title is always unique (preventing duplicates)
         const timestamp = Date.now();
-        urlTitleInput.value = name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '') + '-' + timestamp;
+        const slug = name
+          .toLowerCase()
+          .replace(/\s+/g, '-')           // Replace spaces with hyphens
+          .replace(/[^\w-]/g, '');        // Remove special characters
+        
+        urlTitleInput.value = `${slug}-${timestamp}`;
       });
     }
 
-    // ============================================
-    // EDIT FORM - Load customer data when selected
-    // ============================================
-    const editSelect = root.querySelector('#edit-select');
-    const editFormContainer = root.querySelector('#edit-form-container');
-    const editForm = root.querySelector('#customers-edit-form');
-    const editCancel = root.querySelector('#edit-cancel');
+    // ================================================
+    // MODAL - CMS Editor in iframe
+    // ================================================
+    // Opens the EE7 CMS editor in an iframe modal within the same page
+    
+    const modal = root.querySelector('#cms-editor-modal');
+    const modalOverlay = root.querySelector('.customers__modal-overlay');
+    const modalClose = root.querySelector('#cms-editor-close');
+    const cmsIframe = root.querySelector('#cms-editor-iframe');
+    const cmsTitle = root.querySelector('#cms-editor-title');
 
-    if (editSelect) {
-      editSelect.addEventListener('change', (e) => {
-        const entryId = e.target.value;
-        
-        if (!entryId) {
-          if (editFormContainer) editFormContainer.style.display = 'none';
-          return;
-        }
-
-        // Show form container
-        if (editFormContainer) editFormContainer.style.display = '';
-
-        // Get customer data from selected option
-        const option = e.target.options[e.target.selectedIndex];
-        
-        // Fill in the form fields
-        if (editForm) {
-          const entryIdField = editForm.querySelector('#edit-entry-id');
-          if (entryIdField) entryIdField.value = option.dataset.entryId || '';
-          
-          const nameField = editForm.querySelector('#edit-name');
-          if (nameField) nameField.value = option.dataset.name || '';
-          
-          const emailField = editForm.querySelector('#edit-email');
-          if (emailField) emailField.value = option.dataset.email || '';
-          
-          const phoneField = editForm.querySelector('#edit-phone');
-          if (phoneField) phoneField.value = option.dataset.phone || '';
-          
-          const streetField = editForm.querySelector('#edit-street');
-          if (streetField) streetField.value = option.dataset.street || '';
-          
-          const zipField = editForm.querySelector('#edit-zip');
-          if (zipField) zipField.value = option.dataset.zip || '';
-          
-          const regionField = editForm.querySelector('#edit-region');
-          if (regionField) regionField.value = option.dataset.region || '';
-          
-          const adultField = editForm.querySelector('#edit-adults');
-          if (adultField) adultField.value = option.dataset.adult || '0';
-          
-          const childField = editForm.querySelector('#edit-children');
-          if (childField) childField.value = option.dataset.child || '0';
-          
-          const babyField = editForm.querySelector('#edit-babies');
-          if (babyField) babyField.value = option.dataset.baby || '0';
-          
-          const bsnField = editForm.querySelector('#edit-bsn');
-          if (bsnField) bsnField.value = option.dataset.bsn || '';
-          
-          // Also update title/url_title hidden fields
-          const titleField = editForm.querySelector('#edit-form-title');
-          if (titleField) titleField.value = option.dataset.name || '';
-          
-          const urlTitleField = editForm.querySelector('#edit-form-url-title');
-          if (urlTitleField) urlTitleField.value = (option.dataset.name || '').toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
-        }
-      });
-    }
-
-    // Update title/url_title when edit form name changes
-    if (editForm) {
-      const editNameField = editForm.querySelector('#edit-name');
-      const editTitleField = editForm.querySelector('#edit-form-title');
-      const editUrlTitleField = editForm.querySelector('#edit-form-url-title');
+    // Open modal
+    const openEditorModal = (entryId, entryName) => {
+      if (!modal || !cmsIframe) return;
       
-      if (editNameField && editTitleField && editUrlTitleField) {
-        editNameField.addEventListener('input', (e) => {
-          const name = e.target.value.trim();
-          editTitleField.value = name;
-          editUrlTitleField.value = name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
-        });
+      cmsIframe.src = `/cms.php?/cp/publish/edit/entry/${entryId}`;
+      if (cmsTitle) cmsTitle.textContent = `Bewerken: ${entryName}`;
+      
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+
+      // Hide sidebar after iframe loads
+      cmsIframe.onload = () => {
+        try {
+          const iframeDoc = cmsIframe.contentDocument || cmsIframe.contentWindow.document;
+          if (!iframeDoc) return;
+
+          // Hide the sidebar
+          const sidebar = iframeDoc.querySelector('.ee-sidebar');
+          if (sidebar) {
+            sidebar.style.display = 'none';
+          }
+
+          // Hide the main header
+          const mainHeader = iframeDoc.querySelector('.ee-main-header.entries');
+          if (mainHeader) {
+            mainHeader.style.display = 'none';
+          }
+
+          // Make main content full width
+          const mainContent = iframeDoc.querySelector('.ee-main');
+          if (mainContent) {
+            mainContent.style.marginLeft = '0';
+            mainContent.style.width = '100%';
+          }
+        } catch (e) {
+          console.log('Could not hide sidebar:', e);
+        }
+      };
+    };
+
+    // Close modal
+    const closeEditorModal = () => {
+      if (!modal) return;
+      modal.style.display = 'none';
+      cmsIframe.src = '';
+      document.body.style.overflow = '';
+      
+      // Refresh the page to update customer data
+      location.reload();
+    };
+
+    // Event listeners
+    modalClose?.addEventListener('click', closeEditorModal);
+    modalOverlay?.addEventListener('click', closeEditorModal);
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
+        closeEditorModal();
       }
-    }
+    });
 
-    // Cancel button - reset form
-    if (editCancel) {
-      editCancel.addEventListener('click', () => {
-        if (editSelect) editSelect.value = '';
-        if (editFormContainer) editFormContainer.style.display = 'none';
-        if (editForm) editForm.reset();
-      });
-    }
-
-    // ============================================
-    // TABLE ACTIONS
-    // ============================================
-    const editButtons = root.querySelectorAll('[data-action="edit"]');
-    editButtons.forEach((btn) => {
+    // Edit modal button
+    const editModalButtons = root.querySelectorAll('[data-action="edit-modal"]');
+    editModalButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
         const entryId = btn.dataset.entryId;
-        if (entryId && editSelect) {
-          // Set select value to this entry
-          editSelect.value = entryId;
-          // Trigger change event
-          editSelect.dispatchEvent(new Event('change', { bubbles: true }));
-          // Switch to edit tab
-          switchTab('edit');
-        }
+        const entryName = btn.dataset.entryName;
+        if (entryId) openEditorModal(entryId, entryName);
       });
     });
   };
