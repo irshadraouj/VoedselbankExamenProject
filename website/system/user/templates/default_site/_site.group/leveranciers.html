@@ -1,0 +1,80 @@
+{layout="_layouts/.main"}
+
+<div class="leveranciers">
+    <div class="leveranciers__wrap">
+        <header class="leveranciers__header">
+            <div>
+                <h1 class="leveranciers__title">Leveranciersoverzicht</h1>
+                <p class="leveranciers__subtitle">Beheer leveranciers en leveringen</p>
+            </div>
+        </header>
+
+        <section class="leveranciers__panel">
+            <div class="leveranciers__panel-actions">
+                <a class="leveranciers__secondary leveranciers__link" href="{path='_site/leveringen'}">
+                    Naar leveringen
+                </a>
+                <button class="leveranciers__primary" type="button" data-action="add">
+                    Nieuwe leverancier
+                </button>
+            </div>
+
+            <div class="leveranciers__table-wrap">
+                <table class="leveranciers__table">
+                    <thead>
+                        <tr>
+                            <th>Bedrijfsnaam</th>
+                            <th>Contactpersoon</th>
+                            <th>Telefoonnummer</th>
+                            <th>E-mailadres</th>
+                            <th>Eerstvolgende levering</th>
+                            <th class="leveranciers__col-actions">Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leveranciers-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <div class="leveranciers__modal" id="leveranciers-modal" aria-hidden="true" role="dialog" aria-modal="true">
+        <div class="leveranciers__modal-overlay" data-action="close"></div>
+        <div class="leveranciers__modal-content" role="document">
+            <div class="leveranciers__modal-header">
+                <h2 class="leveranciers__modal-title" id="leveranciers-modal-title">Nieuwe leverancier</h2>
+                <button class="leveranciers__modal-close" type="button" data-action="close" aria-label="Sluiten">X</button>
+            </div>
+            <form class="leveranciers__form" id="leveranciers-form">
+                <div class="leveranciers__field">
+                    <label for="leverancier-bedrijf">Bedrijfsnaam *</label>
+                    <input id="leverancier-bedrijf" name="bedrijf" type="text" required />
+                </div>
+                <div class="leveranciers__field">
+                    <label for="leverancier-contact">Contactpersoon *</label>
+                    <input id="leverancier-contact" name="contact" type="text" required />
+                </div>
+                <div class="leveranciers__field">
+                    <label for="leverancier-telefoon">Telefoonnummer *</label>
+                    <input id="leverancier-telefoon" name="telefoon" type="tel" required />
+                </div>
+                <div class="leveranciers__field">
+                    <label for="leverancier-email">E-mailadres *</label>
+                    <input id="leverancier-email" name="email" type="email" required />
+                </div>
+                <div class="leveranciers__field">
+                    <label for="leverancier-levering">Eerstvolgende levering *</label>
+                    <input id="leverancier-levering" name="levering" type="date" required />
+                </div>
+
+                <div class="leveranciers__form-actions">
+                    <button class="leveranciers__primary" type="submit" id="leveranciers-save">
+                        Opslaan
+                    </button>
+                    <button class="leveranciers__secondary" type="button" data-action="close">
+                        Annuleren
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
