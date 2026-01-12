@@ -11,6 +11,7 @@
 
         <nav class="leveranciers__tabs customers__tabs">
             <button class="leveranciers__tab leveranciers__tab--active customers__tab customers__tab--active" data-tab="list">Leveranciers</button>
+            <button class="leveranciers__tab customers__tab" data-tab="deliveries">Leveringen</button>
         </nav>
 
         <section class="leveranciers__panel customers__section" id="tab-list" role="tabpanel">
@@ -92,10 +93,6 @@
                     <h3>Leveringsgegevens</h3>
                     <div class="customers__form-row">
                         <div class="customers__form-field">
-                            <label for="supplier-date">Eerstvolgende levering</label>
-                            <input id="supplier-date" name="supplier_deliverdate" type="date" />
-                        </div>
-                        <div class="customers__form-field">
                             <label for="supplier-ctc">KVK nummer</label>
                             <input id="supplier-ctc" name="supplier_kvk" type="text" maxlength="9" pattern="[0-9]{1,9}" />
                         </div>
@@ -107,6 +104,29 @@
                     <button class="customers__button customers__button--secondary" type="reset">Wissen</button>
                 </div>
             {/exp:channel:form}
+        </section>
+
+        <section class="leveranciers__panel customers__section" id="tab-deliveries" role="tabpanel" style="display: none;">
+            <h2 class="customers__section-title">Leveringen</h2>
+
+            <div class="leveranciers__table-wrap customers__table-wrap">
+                <table class="leveranciers__table customers__table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Leverancier</th>
+                            <th>Producten</th>
+                            <th>Totaal aantal</th>
+                            <th>Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leveringen-table-body">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 24px; color: #999;">Geen leveringen geregistreerd</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
         <div id="cms-editor-modal" class="customers__modal" style="display: none;">
