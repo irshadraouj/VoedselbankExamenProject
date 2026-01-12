@@ -9,8 +9,6 @@ window.Alpine = Alpine;
 import '@components/customers/customers.js';
 import '@components/dashboardTiles/dashboard_tiles.js';
 import '@components/login/login.js';
-import '@components/sidebar/sidebar.js';
-import '@components/topbar/topbar.js';
 // ===== End Auto-Generated Imports =====
 
 Alpine.start();
