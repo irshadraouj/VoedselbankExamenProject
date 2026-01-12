@@ -104,6 +104,7 @@
     </section>
   </div>
 </main>
+{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "8")}
 <section class="voorraad__add-product">
   <h2 class="voorraad__add-title">Product toevoegen</h2>
   <form id="add-product-form" action="/api/add-product" method="post">
@@ -142,9 +143,9 @@
     <button type="submit">Product toevoegen</button>
     <p class="voorraad__message" id="add-product-message"></p>
   </form>
-</section>
+ </section>
 
-<script>
+ <script>
   document.getElementById('add-product-form').addEventListener('submit', function(event) {
     event.preventDefault();
 
@@ -172,7 +173,8 @@
       messageEl.style.color = 'red';
     });
   });
-</script>
+ </script>
+{/if}
 
 <script>
   (() => {
