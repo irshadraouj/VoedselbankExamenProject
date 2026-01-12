@@ -1,0 +1,55 @@
+<main class="login">
+  <div class="login__wrap">
+    <div class="login__card">
+      <header class="login__header">
+        <div>
+          <p class="login__eyebrow">Wachtwoord vergeten</p>
+          <h1 class="login__title">Wachtwoord wijzigen</h1>
+          <p class="login__subtitle">Vul je gebruikersnaam of e-mail in en kies een nieuw wachtwoord.</p>
+        </div>
+      </header>
+
+      {exp:password_reset:form return="/_site/home" form_class="login__form" form_id="password-reset-form"}
+        <div class="login__field">
+          <label class="login__label" for="reset-identifier">E-mail of gebruikersnaam</label>
+          <input
+            class="login__input"
+            type="text"
+            id="reset-identifier"
+            name="identifier"
+            autocomplete="off"
+            required
+          />
+        </div>
+        <div class="login__field">
+          <label class="login__label" for="reset-password">Nieuw wachtwoord</label>
+          <input
+            class="login__input"
+            type="password"
+            id="reset-password"
+            name="password"
+            autocomplete="off"
+            required
+          />
+        </div>
+        <div class="login__field">
+          <label class="login__label" for="reset-password-confirm">Herhaal wachtwoord</label>
+          <input
+            class="login__input"
+            type="password"
+            id="reset-password-confirm"
+            name="password_confirm"
+            autocomplete="off"
+            required
+          />
+        </div>
+        <div class="login__actions">
+          <button class="login__submit" type="submit">
+            Wachtwoord opslaan
+          </button>
+          <a class="login__change" href="/_site/home">Terug naar login</a>
+        </div>
+      {/exp:password_reset:form}
+    </div>
+  </div>
+</main>

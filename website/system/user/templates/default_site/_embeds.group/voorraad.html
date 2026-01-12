@@ -54,6 +54,15 @@
           <option value="desc">Hoog naar laag</option>
         </select>
       </div>
+
+      <div class="voorraad__field">
+        <label class="voorraad__label" for="voorraad-expiration-sort">Houdbaarheidsdatum sorteren</label>
+        <select class="voorraad__input" id="voorraad-expiration-sort" name="expiration_date_sort">
+          <option value="">Geen sortering</option>
+          <option value="asc">Oud naar nieuw</option>
+          <option value="desc">Nieuw naar oud</option>
+        </select>
+      </div>
     </form>
 
     <section class="voorraad__table-wrap" aria-label="Producten">
@@ -64,6 +73,7 @@
             <th>Categorie</th>
             <th>EAN-nummer</th>
             <th>Voorraad</th>
+            <th>Houdbaarheidsdatum</th>
           </tr>
         </thead>
         <tbody>
@@ -81,10 +91,11 @@
               </td>
               <td>{product_ean}</td>
               <td>{product_amount}</td>
+              <td data-expiration="{expiration_date}">{expiration_date format="%d-%m-%Y"}</td>
             </tr>
             {if no_results}
               <tr>
-                <td colspan="4">Geen producten gevonden.</td>
+                <td colspan="5">Geen producten gevonden.</td>
               </tr>
             {/if}
           {/exp:channel:entries}
@@ -93,6 +104,76 @@
     </section>
   </div>
 </main>
+<section class="voorraad__add-product">
+  <h2 class="voorraad__add-title">Product toevoegen</h2>
+  <form id="add-product-form" action="/api/add-product" method="post">
+    <div class="voorraad__field">
+      <label class="voorraad__label" for="add-product-name">Productnaam</label>
+      <input type="text" id="add-product-name" name="product_name" required />
+    </div>
+    <div class="voorraad__field">
+      <label class="voorraad__label" for="add-product-category">Categorie</label>
+      <select id="add-product-category" name="product_category" required>
+        <option value="">-Selecteer een categorie-</option>
+        <option value="categorie1"> 1. Aardappelen, groente, fruit</option>
+        <option value="categorie2"> 2. Kaas, vleeswaren</option>
+        <option value="categorie3"> 3. Zuivel, plantaardig en eieren</option>
+        <option value="categorie1"> 4. Bakkerij en banket</option>
+        <option value="categorie2"> 5. Frisdrank, sappen, koffie en thee</option>
+        <option value="categorie3"> 6. Pasta, rijst en wereldkeuken</option>
+        <option value="categorie1"> 7. Soepen, sauzen, kruiden en olie</option>
+        <option value="categorie2"> 8. Snoep, koek, chips en chocolade</option>
+        <option value="categorie3"> 9. Baby, verzorging en hygiëne</option>
+             
+      </select>
+    </div>
+    <div class="voorraad__field">
+      <label class="voorraad__label" for="add-product-ean">EAN</label>
+      <input type="text" id="add-product-ean" name="product_ean" pattern="^\d{13}$" required />
+    </div>
+    <div class="voorraad__field">
+      <label class="voorraad__label" for="add-product-amount">Aantal</label>
+      <input type="number" id="add-product-amount" name="product_amount" min="1" required />
+    </div>
+    <div class="voorraad__field">
+      <label class="voorraad__label" for="add-product-expiration">Houdbaarheidsdatum</label>
+      <input type="date" id="add-product-expiration" name="expiration_date" required />
+    </div>
+    <button type="submit">Product toevoegen</button>
+    <p class="voorraad__message" id="add-product-message"></p>
+  </form>
+</section>
+
+<script>
+  document.getElementById('add-product-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const formData = new FormData(this);
+    const messageEl = document.getElementById('add-product-message');
+
+    fetch(this.action, {
+      method: 'POST',
+      body: formData,
+    })
+    .then(response => {
+      if (response.ok) {
+        messageEl.textContent = 'Product succesvol toegevoegd!';
+        messageEl.style.color = 'green';
+        this.reset();
+      } else {
+        return response.json().then(error => {
+          messageEl.textContent = error.message;
+          messageEl.style.color = 'red';
+        });
+      }
+    })
+    .catch(error => {
+      messageEl.textContent = 'Er is een fout opgetreden: ' + error.message;
+      messageEl.style.color = 'red';
+    });
+  });
+</script>
+
 <script>
   (() => {
     const form = document.querySelector('.voorraad__filters');
@@ -105,6 +186,7 @@
     const categorySelect = document.getElementById('voorraad-category');
     const eanInput = document.getElementById('voorraad-ean');
     const amountSort = document.getElementById('voorraad-sort');
+    const expirationSort = document.getElementById('voorraad-expiration-sort');
     const rows = Array.from(table.querySelectorAll('tbody tr'));
     const tbody = table.querySelector('tbody');
     const countEl = document.getElementById('voorraad-count');
@@ -139,7 +221,7 @@
       let visibleCount = 0;
       rows.forEach((row) => {
         const cells = row.querySelectorAll('td');
-        if (cells.length < 4) {
+        if (cells.length < 5) {
           return;
         }
 
@@ -167,16 +249,80 @@
         return;
       }
 
-      const order = (amountSort?.value || '').trim();
-      if (!order) {
+      const amountOrder = (amountSort?.value || '').trim();
+      const expirationOrder = (expirationSort?.value || '').trim();
+      if (!amountOrder && !expirationOrder) {
         return;
       }
 
       const visibleRows = rows.filter((row) => !row.hidden);
+
+      const parseDateValue = (cell) => {
+        if (!cell) {
+          return 0;
+        }
+
+        const dataValue = (cell.getAttribute('data-expiration') || '').trim();
+        if (dataValue) {
+          const numeric = Number(dataValue);
+          return Number.isNaN(numeric) ? 0 : numeric * 1000;
+        }
+
+        const trimmed = (cell.textContent || '').trim();
+        if (!trimmed) {
+          return 0;
+        }
+
+        const isoParsed = Date.parse(trimmed);
+        if (!Number.isNaN(isoParsed)) {
+          return isoParsed;
+        }
+
+        const parts = trimmed.split(/[./-]/).map((part) => part.trim());
+        if (parts.length !== 3) {
+          return 0;
+        }
+
+        const [part1, part2, part3] = parts;
+        if (part3.length === 4) {
+          const day = parseInt(part1, 10);
+          const month = parseInt(part2, 10);
+          const year = parseInt(part3, 10);
+          if (!Number.isNaN(day) && !Number.isNaN(month) && !Number.isNaN(year)) {
+            return new Date(year, month - 1, day).getTime();
+          }
+        }
+
+        if (part1.length === 4) {
+          const year = parseInt(part1, 10);
+          const month = parseInt(part2, 10);
+          const day = parseInt(part3, 10);
+          if (!Number.isNaN(day) && !Number.isNaN(month) && !Number.isNaN(year)) {
+            return new Date(year, month - 1, day).getTime();
+          }
+        }
+
+        return 0;
+      };
+
       visibleRows.sort((a, b) => {
-        const aValue = parseFloat((a.querySelectorAll('td')[3]?.textContent || '').trim()) || 0;
-        const bValue = parseFloat((b.querySelectorAll('td')[3]?.textContent || '').trim()) || 0;
-        return order === 'asc' ? aValue - bValue : bValue - aValue;
+        if (amountOrder) {
+          const aValue = parseFloat((a.querySelectorAll('td')[3]?.textContent || '').trim()) || 0;
+          const bValue = parseFloat((b.querySelectorAll('td')[3]?.textContent || '').trim()) || 0;
+          if (aValue !== bValue) {
+            return amountOrder === 'asc' ? aValue - bValue : bValue - aValue;
+          }
+        }
+
+        if (expirationOrder) {
+          const aDate = parseDateValue(a.querySelectorAll('td')[4]);
+          const bDate = parseDateValue(b.querySelectorAll('td')[4]);
+          if (aDate !== bDate) {
+            return expirationOrder === 'asc' ? aDate - bDate : bDate - aDate;
+          }
+        }
+
+        return 0;
       });
 
       visibleRows.forEach((row) => {
@@ -184,7 +330,7 @@
       });
     };
 
-    [nameInput, categorySelect, eanInput, amountSort].forEach((el) => {
+    [nameInput, categorySelect, eanInput, amountSort, expirationSort].forEach((el) => {
       if (!el) {
         return;
       }
