@@ -69,6 +69,11 @@
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
+  &__link {
+    text-decoration: none;
+    display: inline-block;
+  }
+
   &__primary {
     background: var(--leveranciers-action);
     color: var(--white);
