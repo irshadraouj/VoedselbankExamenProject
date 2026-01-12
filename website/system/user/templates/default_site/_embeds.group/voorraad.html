@@ -74,7 +74,7 @@
             <th>EAN-nummer</th>
             <th>Voorraad</th>
             <th>Houdbaarheidsdatum</th>
-            {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "8")}
+            {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "7" OR logged_in_group_id == "8")}
               <th>Acties</th>
             {/if}
           </tr>
@@ -95,7 +95,7 @@
               <td>{product_ean}</td>
               <td>{product_amount}</td>
               <td data-expiration="{expiration_date}">{expiration_date format="%d-%m-%Y"}</td>
-              {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "8")}
+              {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "7" OR logged_in_group_id == "8")}
                 <td>
                   <button class="voorraad__edit-toggle" type="button" data-edit-toggle="product-{entry_id}">
                     Bewerken
@@ -103,42 +103,49 @@
                 </td>
               {/if}
             </tr>
-            {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "8")}
+            {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "7" OR logged_in_group_id == "8")}
               <tr class="voorraad__edit-row" data-edit-row="product-{entry_id}" hidden>
                 <td colspan="6">
                   {exp:channel:form channel="producten" entry_id="{entry_id}" return="_site/voorraad" class="voorraad__edit-form"}
                     <div class="voorraad__edit-grid">
-                      <div class="voorraad__field">
-                        <label class="voorraad__label" for="edit-name-{entry_id}">Productnaam</label>
-                        <input type="text" id="edit-name-{entry_id}" name="product_name" value="{product_name}" required />
-                      </div>
-                      <div class="voorraad__field">
-                        <label class="voorraad__label" for="edit-ean-{entry_id}">EAN</label>
-                        <input type="text" id="edit-ean-{entry_id}" name="product_ean" value="{product_ean}" pattern="^\\d{13}$" required />
-                      </div>
-                      <div class="voorraad__field">
-                        <label class="voorraad__label" for="edit-category-{entry_id}">Categorie</label>
-                        <select id="edit-category-{entry_id}" name="product_cat" required>
-                          <option value="">-Selecteer een categorie-</option>
-                          <option value="categorie1" {if "{product_cat}{item:value}{/product_cat}" == "categorie1"}selected{/if}>1. Aardappelen, groente, fruit</option>
-                          <option value="categorie2" {if "{product_cat}{item:value}{/product_cat}" == "categorie2"}selected{/if}>2. Kaas, vleeswaren</option>
-                          <option value="categorie3" {if "{product_cat}{item:value}{/product_cat}" == "categorie3"}selected{/if}>3. Zuivel, plantaardig en eieren</option>
-                          <option value="categorie1" {if "{product_cat}{item:value}{/product_cat}" == "categorie1"}selected{/if}>4. Bakkerij en banket</option>
-                          <option value="categorie2" {if "{product_cat}{item:value}{/product_cat}" == "categorie2"}selected{/if}>5. Frisdrank, sappen, koffie en thee</option>
-                          <option value="categorie3" {if "{product_cat}{item:value}{/product_cat}" == "categorie3"}selected{/if}>6. Pasta, rijst en wereldkeuken</option>
-                          <option value="categorie1" {if "{product_cat}{item:value}{/product_cat}" == "categorie1"}selected{/if}>7. Soepen, sauzen, kruiden en olie</option>
-                          <option value="categorie2" {if "{product_cat}{item:value}{/product_cat}" == "categorie2"}selected{/if}>8. Snoep, koek, chips en chocolade</option>
-                          <option value="categorie3" {if "{product_cat}{item:value}{/product_cat}" == "categorie3"}selected{/if}>9. Baby, verzorging en hygiA®ne</option>
-                        </select>
-                      </div>
-                      <div class="voorraad__field">
-                        <label class="voorraad__label" for="edit-amount-{entry_id}">Aantal</label>
-                        <input type="number" id="edit-amount-{entry_id}" name="product_amount" value="{product_amount}" min="0" required />
-                      </div>
-                      <div class="voorraad__field">
-                        <label class="voorraad__label" for="edit-expiration-{entry_id}">Houdbaarheidsdatum</label>
-                        <input type="date" id="edit-expiration-{entry_id}" name="expiration_date" value="{expiration_date format="%Y-%m-%d"}" required />
-                      </div>
+                      {if logged_in_group_id == "7"}
+                        <div class="voorraad__field">
+                          <label class="voorraad__label" for="edit-amount-{entry_id}">Aantal</label>
+                          <input type="number" id="edit-amount-{entry_id}" name="product_amount" value="{product_amount}" min="0" required />
+                        </div>
+                      {if:else}
+                        <div class="voorraad__field">
+                          <label class="voorraad__label" for="edit-name-{entry_id}">Productnaam</label>
+                          <input type="text" id="edit-name-{entry_id}" name="product_name" value="{product_name}" required />
+                        </div>
+                        <div class="voorraad__field">
+                          <label class="voorraad__label" for="edit-ean-{entry_id}">EAN</label>
+                          <input type="text" id="edit-ean-{entry_id}" name="product_ean" value="{product_ean}" pattern="^\\d{13}$" required />
+                        </div>
+                        <div class="voorraad__field">
+                          <label class="voorraad__label" for="edit-category-{entry_id}">Categorie</label>
+                          <select id="edit-category-{entry_id}" name="product_cat" required>
+                            <option value="">-Selecteer een categorie-</option>
+                            <option value="categorie1" {if "{product_cat}{item:value}{/product_cat}" == "categorie1"}selected{/if}>1. Aardappelen, groente, fruit</option>
+                            <option value="categorie2" {if "{product_cat}{item:value}{/product_cat}" == "categorie2"}selected{/if}>2. Kaas, vleeswaren</option>
+                            <option value="categorie3" {if "{product_cat}{item:value}{/product_cat}" == "categorie3"}selected{/if}>3. Zuivel, plantaardig en eieren</option>
+                            <option value="categorie1" {if "{product_cat}{item:value}{/product_cat}" == "categorie1"}selected{/if}>4. Bakkerij en banket</option>
+                            <option value="categorie2" {if "{product_cat}{item:value}{/product_cat}" == "categorie2"}selected{/if}>5. Frisdrank, sappen, koffie en thee</option>
+                            <option value="categorie3" {if "{product_cat}{item:value}{/product_cat}" == "categorie3"}selected{/if}>6. Pasta, rijst en wereldkeuken</option>
+                            <option value="categorie1" {if "{product_cat}{item:value}{/product_cat}" == "categorie1"}selected{/if}>7. Soepen, sauzen, kruiden en olie</option>
+                            <option value="categorie2" {if "{product_cat}{item:value}{/product_cat}" == "categorie2"}selected{/if}>8. Snoep, koek, chips en chocolade</option>
+                            <option value="categorie3" {if "{product_cat}{item:value}{/product_cat}" == "categorie3"}selected{/if}>9. Baby, verzorging en hygiA®ne</option>
+                          </select>
+                        </div>
+                        <div class="voorraad__field">
+                          <label class="voorraad__label" for="edit-amount-{entry_id}">Aantal</label>
+                          <input type="number" id="edit-amount-{entry_id}" name="product_amount" value="{product_amount}" min="0" required />
+                        </div>
+                        <div class="voorraad__field">
+                          <label class="voorraad__label" for="edit-expiration-{entry_id}">Houdbaarheidsdatum</label>
+                          <input type="date" id="edit-expiration-{entry_id}" name="expiration_date" value="{expiration_date format="%Y-%m-%d"}" required />
+                        </div>
+                      {/if}
                     </div>
                     <input type="hidden" name="title" value="{product_name}" data-title-sync="product-{entry_id}" />
                     <button type="submit">Opslaan</button>
@@ -148,7 +155,7 @@
             {/if}
             {if no_results}
               <tr>
-                <td colspan="{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "8")}6{if:else}5{/if}">Geen producten gevonden.</td>
+                <td colspan="{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "7" OR logged_in_group_id == "8")}6{if:else}5{/if}">Geen producten gevonden.</td>
               </tr>
             {/if}
           {/exp:channel:entries}
@@ -183,7 +190,7 @@
     </div>
     <div class="voorraad__field">
       <label class="voorraad__label" for="add-product-ean">EAN</label>
-      <input type="text" id="add-product-ean" name="product_ean" required />
+      <input type="text" id="add-product-ean" name="product_ean" pattern="^\d{13}$" required />
     </div>
     <div class="voorraad__field">
       <label class="voorraad__label" for="add-product-amount">Aantal</label>

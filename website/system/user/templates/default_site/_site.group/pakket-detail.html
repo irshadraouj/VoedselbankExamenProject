@@ -1,0 +1,58 @@
+{layout="_layouts/.main"}
+{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "7")}
+<div class="pakket">
+  <div class="pakket__screen">
+    <a class="pakket__button pakket__button--secondary" href="{path='_site/pakketten'}">Terug naar overzicht</a>
+
+    {exp:channel:entries channel="createdorders" dynamic="no" url_title="{segment_3}" disable="categories|member_data"}
+      <section class="pakket__card">
+        <h1 class="pakket__card-title">Pakket details</h1>
+        <div class="pakket__card-divider"></div>
+
+        <div class="pakket__info">
+          <div class="pakket__info-group">
+            <span class="pakket__info-label">Klant</span>
+            <span class="pakket__info-value">{order_name}</span>
+          </div>
+          <div class="pakket__info-group">
+            <span class="pakket__info-label">Aangemaakt</span>
+            <span class="pakket__info-value">{entry_date format="%d-%m-%Y"}</span>
+          </div>
+          <div class="pakket__info-group">
+            <span class="pakket__info-label">Uitgiftedatum</span>
+            <span class="pakket__info-value">{expiration_date format="%d-%m-%Y"}</span>
+          </div>
+          {if order_items:total_rows}
+            <div class="pakket__info-group">
+              <span class="pakket__info-label">Aantal producten</span>
+              <span class="pakket__info-value">{order_items:total_rows}</span>
+            </div>
+          {/if}
+        </div>
+      </section>
+
+      <section class="pakket__card">
+        <h2 class="pakket__card-title">Producten in pakket</h2>
+        <div class="pakket__card-divider"></div>
+        {if order_items:total_rows}
+          <ul class="pakket__saved-item-products">
+            {order_items}
+              <li class="pakket__saved-item-product">{order_items:order_item_name} ({order_items:order_item_total}x)</li>
+            {/order_items}
+          </ul>
+        {if:else}
+          <p class="pakket__saved-item-empty">Geen producten geregistreerd voor dit pakket.</p>
+        {/if}
+      </section>
+    {if no_results}
+      <section class="pakket__card">
+        <h1 class="pakket__card-title">Pakket niet gevonden</h1>
+        <p>Controleer de URL of ga terug naar het overzicht.</p>
+      </section>
+    {/if}
+    {/exp:channel:entries}
+  </div>
+</div>
+{if:else}
+  {redirect="_site/home"}
+{/if}
