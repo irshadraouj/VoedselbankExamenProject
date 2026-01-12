@@ -60,7 +60,12 @@
                             <h2>Leveranciers</h2>
                             <p>Beheer leveranciers en leveringen</p>
                             <div class="dashboard__meta">
-                                <span class="dashboard__meta-value">8 leveranciers</span>
+                                
+                                <span class="dashboard__meta-value">
+                                    {exp:channel:entries channel="supplier" dynamic="no" status="open" limit="999"}
+                                        {if count == total_results}{total_results}{/if}
+                                    {/exp:channel:entries} leveranciers
+                                </span>
                                 <span class="dashboard__meta-arrow">→</span>
                             </div>
                         </a>

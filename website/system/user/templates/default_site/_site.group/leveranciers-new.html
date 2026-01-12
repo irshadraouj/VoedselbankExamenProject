@@ -44,7 +44,6 @@
                             <th>Contactpersoon</th>
                             <th>Telefoonnummer</th>
                             <th>E-mailadres</th>
-                            <th>Eerstvolgende levering</th>
                             <th>KVK-nummer</th>
                             <th>Acties</th>
                         </tr>
@@ -58,7 +57,6 @@
                                 <td>{supplier_name}</td>
                                 <td>{supplier_phone}</td>
                                 <td><a href="mailto:{supplier_email}">{supplier_email}</a></td>
-                                <td class="supplier-next-delivery">{if supplier_deliverdate}{supplier_deliverdate format="%d-%m-%Y"}{if:else}n.v.t{/if}</td>
                                 <td>{supplier_kvk}</td>
                                 <td>
                                     <button class="leveranciers__button leveranciers__button--small customers__button customers__button--small" data-action="edit-modal" data-entry-id="{entry_id}" data-entry-name="{title}" type="button">Bewerken</button>
@@ -108,10 +106,6 @@
                 <div class="customers__form-group">
                     <h3>Leveringsgegevens</h3>
                     <div class="customers__form-row">
-                        <div class="customers__form-field">
-                            <label for="supplier-date">Eerstvolgende levering</label>
-                            <input id="supplier-date" name="supplier_deliverdate" type="date" />
-                        </div>
                         <div class="customers__form-field">
                             <label for="supplier-ctc">KVK nummer</label>
                             <input id="supplier-ctc" name="supplier_kvk" type="text" maxlength="9" pattern="[0-9]{1,9}" />
