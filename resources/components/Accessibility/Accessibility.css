@@ -1,0 +1,10 @@
+.dyslexia-font {
+    font-family: 'Open Dyslexic', Arial, sans-serif;
+    line-height: 1.5;
+    font-size: 18px; /* Adjust as needed */
+}
+
+.dyslexia-background {
+    background-color: #f0e68c; /* Light yellow background */
+    color: #000; /* Dark text color */
+}
