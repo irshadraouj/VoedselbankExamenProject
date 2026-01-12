@@ -84,7 +84,7 @@
   &__input {
     appearance: none;
     border-radius: 10px;
-    border: 1px solid var(--border-color);
+    border: 1px solid black!important;
     padding: 12px 14px;
     font-size: 14px;
     background: var(--login-surface);
@@ -102,7 +102,7 @@
     position: relative;
 
     .login__input {
-      padding-right: 78px;
+      width: 100%;
     }
   }
 
