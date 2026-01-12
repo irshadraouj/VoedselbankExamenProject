@@ -1,14 +1,3 @@
-/**
- * CUSTOMERS COMPONENT - EE7 Integration
- * Manages customer creation, viewing and archiving
- * 
- * Features:
- * - Tab navigation between list, add, and archive views
- * - Auto-generate unique identifiers for new customers
- * - Archive/unarchive customers instead of permanent deletion
- * - Edit functionality uses native EE7 CMS editor (opened in new tab)
- */
-
 (() => {
   const init = () => {
     const root = document.querySelector('.customers');
@@ -66,7 +55,7 @@
       let inactive = 0;
 
       tableRows.forEach((row) => {
-        // Count ALL rows, regardless of current filters
+        // Telt alle rijen
         const accountBan = row.dataset.accountBan;
         const isBanned = accountBan === 'yes';
         
@@ -78,7 +67,7 @@
         }
       });
 
-      // Update summary cards
+      // Update kaarten
       if (totalElement) totalElement.textContent = total;
       if (activeElement) activeElement.textContent = active;
       if (inactiveElement) inactiveElement.textContent = inactive;
