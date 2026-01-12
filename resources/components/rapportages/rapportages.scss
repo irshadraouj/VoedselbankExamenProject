@@ -1,0 +1,150 @@
+.rapportages {
+  --rapportages-bg: var(--light-grey);
+  --rapportages-surface: var(--white);
+  --rapportages-ink: #1f2937;
+  --rapportages-muted: #6b7280;
+  --rapportages-border: var(--border-color);
+  --rapportages-track: #e5e7eb;
+  --rapportages-bar: #1f2937;
+
+  min-height: 100vh;
+  padding: clamp(24px, 4vw, 56px);
+  color: var(--rapportages-ink);
+  font-family: var(--font-family-primary);
+  background: var(--rapportages-bg);
+  margin-left: 80px;
+
+  @media (min-width: 1200px) {
+    margin-left: 260px;
+  }
+
+  &__wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    gap: 24px;
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  &__eyebrow {
+    margin: 0 0 8px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: var(--rapportages-muted);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--rapportages-ink);
+  }
+
+  &__subtitle {
+    margin: 8px 0 0;
+    color: var(--rapportages-muted);
+    max-width: 520px;
+    font-size: 16px;
+  }
+
+  &__panel {
+    background: var(--rapportages-surface);
+    border-radius: 12px;
+    border: 1px solid var(--rapportages-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 24px;
+  }
+
+  &__panel-header {
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    margin-bottom: 16px;
+  }
+
+  &__panel-title {
+    margin: 0;
+    font-size: 18px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  &__table-wrap {
+    overflow-x: auto;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 720px;
+
+    th,
+    td {
+      text-align: left;
+      padding: 12px 14px;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      font-size: 14px;
+    }
+
+    th {
+      background: #e6e7ea;
+      color: #111827;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+  }
+
+  &__table--products {
+    min-width: 820px;
+  }
+
+  &__col-index {
+    width: 60px;
+  }
+
+  &__progress-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 220px;
+  }
+
+  &__progress {
+    flex: 1;
+    height: 22px;
+    background: var(--rapportages-track);
+    border: 1px solid #d1d5db;
+    display: block;
+    position: relative;
+    overflow: hidden;
+  }
+
+  &__progress-fill {
+    display: block;
+    height: 100%;
+    background: var(--rapportages-bar);
+  }
+
+  &__progress-value {
+    font-weight: 600;
+    color: #111827;
+    min-width: 56px;
+    text-align: right;
+  }
+
+  @media (max-width: 900px) {
+    &__header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}
