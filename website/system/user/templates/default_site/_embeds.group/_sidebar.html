@@ -34,7 +34,7 @@
 			</a>
 			{/if}
 
-			{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6")}
+			{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "8")}
 			<a class="sidebar__link {if segment_2 == "leveranciers"}sidebar__link--active{/if}" href="{path='_site/leveranciers'}">
 				<span class="sidebar__icon" aria-hidden="true">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
@@ -54,6 +54,17 @@
 					</svg>
 				</span>
 				<span class="sidebar__label">Pakket samenstellen</span>
+			</a>
+			{/if}
+
+			{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "7")}
+			<a class="sidebar__link {if segment_2 == "pakketten"}sidebar__link--active{/if}" href="{path='_site/pakketten'}">
+				<span class="sidebar__icon" aria-hidden="true">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M4 4.5h16a1.5 1.5 0 0 1 1.5 1.5v12A1.5 1.5 0 0 1 20 19.5H4A1.5 1.5 0 0 1 2.5 18V6A1.5 1.5 0 0 1 4 4.5zm0 1.5v12h16V6H4zm2.5 2.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1 0-1zm0 3.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1 0-1zm0 3.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1 0-1z"/>
+					</svg>
+				</span>
+				<span class="sidebar__label">Pakketten</span>
 			</a>
 			{/if}
 

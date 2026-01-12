@@ -1,0 +1,172 @@
+{layout="_layouts/.main"}
+{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "7")}
+<div class="pakket">
+  <div class="pakket__screen">
+    <h1 class="pakket__title">Pakket uitgifte</h1>
+    <p class="pakket__subtitle">Registreer uitgegeven pakketten</p>
+
+    <section class="pakket__card">
+      <div class="pakket__compose-grid">
+        <div>
+          <h2 class="pakket__card-title">Te leveren pakketten</h2>
+          <div class="pakket__card-divider"></div>
+          <div id="pakket-delivery-list">
+            {exp:channel:entries channel="createdorders" dynamic="no" disable="categories|member_data" sort="asc" orderby="expiration_date" status="open"}
+              {if expiration_date >= current_time}
+                <article
+                  class="pakket__saved-item pakket__delivery-item"
+                  data-delivery-select
+                  data-order="{url_title}"
+                  data-customer="{order_name}"
+                  data-created="{entry_date format="%d-%m-%Y"}"
+                  data-expiration="{expiration_date format="%d-%m-%Y"}"
+                >
+                  <div class="pakket__saved-item-dates flex justify-between">
+                    <div>
+                      <h4 class="pakket__saved-item-customer">{order_name}</h4>
+                      <span class="pakket__saved-item-date">{order_items:total_rows} producten</span>
+                    </div>
+                    <span class="pakket__saved-item-date">{expiration_date format="%d-%m-%Y"}</span>
+                  </div>
+                  <div class="pakket__actions">
+                    {exp:channel:form channel="createdorders" entry_id="{entry_id}" return="_site/pakket-uitgifte" class="pakket__delivery-form"}
+                      <input type="hidden" name="status" value="closed" />
+                      <input type="hidden" name="title" value="{title}" />
+                      <input type="hidden" name="url_title" value="{url_title}" />
+                      <input type="hidden" name="order_name" value="{order_name}" />
+                      <input type="hidden" name="expiration_date" value="{expiration_date format="%Y-%m-%d"}" />
+                      <button class="pakket__button pakket__button--primary" type="submit">Uitgeven</button>
+                    {/exp:channel:form}
+                  </div>
+                  <div class="pakket__delivery-items" hidden>
+                    {if order_items:total_rows}
+                      <ul class="pakket__saved-item-products">
+                        {order_items}
+                          <li class="pakket__saved-item-product">{order_items:order_item_name} ({order_items:order_item_total}x)</li>
+                        {/order_items}
+                      </ul>
+                    {if:else}
+                      <p class="pakket__saved-item-empty">Geen producten geregistreerd voor dit pakket.</p>
+                    {/if}
+                  </div>
+                </article>
+              {/if}
+              {if no_results}
+                <p class="pakket__saved-list-empty">Nog geen pakketten opgeslagen.</p>
+              {/if}
+            {/exp:channel:entries}
+          </div>
+          <p class="pakket__message" id="pakket-delivery-count" role="status" aria-live="polite"></p>
+        </div>
+
+        <div>
+          <h2 class="pakket__card-title">Pakket details</h2>
+          <div class="pakket__card-divider"></div>
+          <div class="pakket__overview" id="pakket-delivery-details">
+            <p class="pakket__overview-empty" id="pakket-delivery-empty">Selecteer een pakket om details te bekijken</p>
+            <div class="pakket__info" id="pakket-delivery-info" style="display: none;">
+              <div class="pakket__info-group">
+                <span class="pakket__info-label">Klant</span>
+                <span class="pakket__info-value" id="pakket-detail-customer">-</span>
+              </div>
+              <div class="pakket__info-group">
+                <span class="pakket__info-label">Aangemaakt</span>
+                <span class="pakket__info-value" id="pakket-detail-created">-</span>
+              </div>
+              <div class="pakket__info-group">
+                <span class="pakket__info-label">Uitgiftedatum</span>
+                <span class="pakket__info-value" id="pakket-detail-expiration">-</span>
+              </div>
+            </div>
+            <div id="pakket-detail-items"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pakket__card">
+      <h2 class="pakket__card-title">Recent uitgegeven</h2>
+      <div class="pakket__card-divider"></div>
+      <div id="pakket-recent-list">
+        {exp:channel:entries channel="createdorders" dynamic="no" disable="categories|member_data" sort="desc" orderby="expiration_date" limit="5" status="closed"}
+          <article class="pakket__saved-item">
+            <div class="pakket__saved-item-dates flex justify-between">
+              <div>
+                <h4 class="pakket__saved-item-customer">{order_name}</h4>
+                <span class="pakket__saved-item-date">{order_items:total_rows} producten</span>
+              </div>
+              <span class="pakket__saved-item-date">{expiration_date format="%d-%m-%Y"}</span>
+            </div>
+          </article>
+          {if no_results}
+            <p class="pakket__saved-list-empty">Nog geen uitgegeven pakketten.</p>
+          {/if}
+        {/exp:channel:entries}
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const list = document.getElementById('pakket-delivery-list');
+    const detailItems = document.getElementById('pakket-detail-items');
+    const detailInfo = document.getElementById('pakket-delivery-info');
+    const detailEmpty = document.getElementById('pakket-delivery-empty');
+    const countEl = document.getElementById('pakket-delivery-count');
+    const customerEl = document.getElementById('pakket-detail-customer');
+    const createdEl = document.getElementById('pakket-detail-created');
+    const expirationEl = document.getElementById('pakket-detail-expiration');
+
+    if (!list) return;
+
+    const items = Array.from(list.querySelectorAll('[data-delivery-select]'));
+    if (countEl) {
+      countEl.textContent = `${items.length} pakket(ten) klaar voor uitgifte`;
+    }
+
+    const setActive = (target) => {
+      items.forEach((item) => item.classList.remove('pakket__product--selected'));
+      if (target) {
+        target.classList.add('pakket__product--selected');
+      }
+    };
+
+    const showDetails = (item) => {
+      if (!item) return;
+      const customer = item.getAttribute('data-customer') || '-';
+      const created = item.getAttribute('data-created') || '-';
+      const expiration = item.getAttribute('data-expiration') || '-';
+      const products = item.querySelector('.pakket__delivery-items');
+
+      if (customerEl) customerEl.textContent = customer;
+      if (createdEl) createdEl.textContent = created;
+      if (expirationEl) expirationEl.textContent = expiration;
+      if (detailItems && products) {
+        detailItems.innerHTML = products.innerHTML;
+      }
+
+      if (detailInfo) detailInfo.style.display = 'grid';
+      if (detailEmpty) detailEmpty.style.display = 'none';
+    };
+
+    list.addEventListener('click', (event) => {
+      if (event.target.closest('form')) {
+        return;
+      }
+
+      const button = event.target.closest('[data-delivery-select]');
+      if (!button) return;
+      setActive(button);
+      showDetails(button);
+    });
+
+    if (items.length) {
+      setActive(items[0]);
+      showDetails(items[0]);
+    }
+  })();
+</script>
+{if:else}
+  {redirect="_site/home"}
+{/if}

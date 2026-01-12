@@ -1,0 +1,151 @@
+{layout="_layouts/.main"}
+{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "7")}
+<div class="pakket">
+  <div class="pakket__screen">
+    <h1 class="pakket__title">Pakketten overzicht</h1>
+
+    <section class="pakket__card">
+      <h2 class="pakket__card-title">Filters</h2>
+      <div class="pakket__card-divider"></div>
+      <div class="pakket__select-group">
+        <div>
+          <label class="pakket__label" for="pakketten-klant-filter">Klant</label>
+          <input
+            type="text"
+            id="pakketten-klant-filter"
+            class="pakket__search-input"
+            placeholder="Zoek op klantnaam..."
+          />
+        </div>
+        <div>
+          <label class="pakket__label" for="pakketten-date-from">Uitgiftedatum vanaf</label>
+          <input type="date" id="pakketten-date-from" class="pakket__date-input" />
+        </div>
+        <div>
+          <label class="pakket__label" for="pakketten-date-to">Uitgiftedatum tot</label>
+          <input type="date" id="pakketten-date-to" class="pakket__date-input" />
+        </div>
+      </div>
+      <p class="pakket__message" id="pakketten-filter-count" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="pakket__card">
+      <h2 class="pakket__card-title">Gemaakte pakketten</h2>
+      {exp:channel:entries channel="createdorders" dynamic="no" disable="categories|member_data" sort="desc" orderby="entry_date"}
+        <article
+          class="pakket__saved-item"
+          data-customer="{order_name}"
+          data-expiration="{expiration_date format="%Y-%m-%d"}"
+        >
+          <div class="pakket__saved-item-dates flex justify-between">
+            <h4 class="pakket__saved-item-customer">{order_name}</h4>
+            <div class="div">
+              <span class="pakket__saved-item-date">Aangemaakt: {entry_date format="%d-%m-%Y"}</span>
+              <span class="pakket__saved-item-date">Uitgifte: {expiration_date format="%d-%m-%Y"}</span>
+            </div>
+          </div>
+          {if order_items:total_rows}
+            <ul class="pakket__saved-item-products">
+              {order_items}
+                {if order_items:count <= 3}
+                  <li class="pakket__saved-item-product">{order_items:order_item_name} ({order_items:order_item_total}x)</li>
+                {if:else}
+                  <li class="pakket__saved-item-product pakket__saved-item-product--extra" style="display:none;">{order_items:order_item_name} ({order_items:order_item_total}x)</li>
+                {/if}
+              {/order_items}
+            </ul>
+            {if order_items:total_rows > 3}
+              <button type="button" class="pakket__saved-item-toggle">Toon alle producten</button>
+            {/if}
+          {if:else}
+            <p class="pakket__saved-item-empty">Geen producten geregistreerd voor dit pakket.</p>
+          {/if}
+          <div class="pakket__actions">
+            <a class="pakket__button pakket__button--secondary" href="{path='_site/pakket-detail/{url_title}'}">Bekijk details</a>
+          </div>
+        </article>
+      {if no_results}
+        <p class="pakket__saved-list-empty">Nog geen pakketten opgeslagen.</p>
+      {/if}
+      {/exp:channel:entries}
+    </section>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const filterInput = document.getElementById('pakketten-klant-filter');
+    const dateFrom = document.getElementById('pakketten-date-from');
+    const dateTo = document.getElementById('pakketten-date-to');
+    const countEl = document.getElementById('pakketten-filter-count');
+    const items = Array.from(document.querySelectorAll('.pakket__saved-item'));
+
+    if (!items.length) return;
+
+    const normalize = (value) => (value || '').toLowerCase().trim();
+
+    const applyFilter = () => {
+      const nameFilter = normalize(filterInput?.value);
+      const fromValue = dateFrom?.value || '';
+      const toValue = dateTo?.value || '';
+      let visible = 0;
+
+      items.forEach((item) => {
+        const customer = normalize(item.getAttribute('data-customer'));
+        const expDate = item.getAttribute('data-expiration') || '';
+
+        let matches = true;
+        if (nameFilter && !customer.includes(nameFilter)) {
+          matches = false;
+        }
+        if (fromValue && expDate && expDate < fromValue) {
+          matches = false;
+        }
+        if (toValue && expDate && expDate > toValue) {
+          matches = false;
+        }
+
+        item.style.display = matches ? '' : 'none';
+        if (matches) visible += 1;
+      });
+
+      if (countEl) {
+        countEl.textContent = `${visible} pakket(ten) gevonden`;
+      }
+    };
+
+    [filterInput, dateFrom, dateTo].forEach((input) => {
+      if (!input) return;
+      input.addEventListener('input', applyFilter);
+      input.addEventListener('change', applyFilter);
+    });
+
+    applyFilter();
+  })();
+</script>
+<script>
+  (() => {
+    const root = document.querySelector('.pakket');
+    if (!root) return;
+
+    root.addEventListener('click', (event) => {
+      const toggleBtn = event.target.closest('.pakket__saved-item-toggle');
+      if (!toggleBtn) return;
+
+      const container = toggleBtn.closest('.pakket__saved-item');
+      if (!container) return;
+
+      const extraItems = container.querySelectorAll('.pakket__saved-item-product--extra');
+      const isHidden = extraItems.length && extraItems[0].style.display === 'none';
+
+      extraItems.forEach((item) => {
+        item.style.display = isHidden ? '' : 'none';
+      });
+
+      toggleBtn.textContent = isHidden ? 'Verberg extra producten' : 'Toon alle producten';
+    });
+  })();
+</script>
+{if:else}
+  {redirect="_site/home"}
+{/if}
