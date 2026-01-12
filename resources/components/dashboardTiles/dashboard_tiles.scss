@@ -48,7 +48,7 @@
       height: 56px;
       border-radius: 12px;
       background: var(--tile-icon-color, #6366f1);
-      color: white;
+      color: var(--white);
       font-size: 28px;
       flex-shrink: 0;
       transition: all 0.3s ease;
@@ -69,11 +69,11 @@
         --tile-icon-color-shadow: rgba(168, 85, 247, 0.3);
       }
       &--pakketsamenstellen {
-        --tile-icon-color: #10b981;
+        --tile-icon-color: #b98c10;
         --tile-icon-color-shadow: rgba(16, 185, 129, 0.3);
       }
       &--pakketuitgifte {
-        --tile-icon-color: #6366f1;
+        --tile-icon-color: #63cdf1;
         --tile-icon-color-shadow: rgba(99, 102, 241, 0.3);
       }
       &--rapportage {
@@ -86,7 +86,6 @@
     h2 {
       font-size: 18px;
       font-weight: 600;
-      color: #1f2937;
       margin: 0 0 8px 0;
       line-height: 1.2;
     }
@@ -94,7 +93,7 @@
     // Description
     p {
       font-size: 14px;
-      color: #6b7280;
+      color: var(--color-light-grey);
       margin: 0 0 16px 0;
       line-height: 1.4;
     }

@@ -1,0 +1,237 @@
+{layout="_layouts/.main"}
+
+<div class="customers">
+    <div class="customers__wrap">
+        <!-- Header Section -->
+        <div class="customers__header">
+            <div>
+                <p class="customers__eyebrow">Klantbeheer</p>
+                <h1 class="customers__title">Klantenoverzicht</h1>
+                <p class="customers__subtitle">Voeg klanten toe, beheer hun gegevens en leg gezinssamenstelling vast.</p>
+            </div>
+            <div class="customers__summary">
+                <div class="customers__summary-grid">
+                    <div class="customers__summary-card">
+                        <span class="customers__summary-label">Totaal klanten</span>
+                        <span class="customers__summary-value">
+                            {exp:channel:entries channel="customers" dynamic="no" status="open" limit="999"}
+                                {if count == total_results}{total_results}{/if}
+                            {/exp:channel:entries}
+                        </span>
+                    </div>
+                    <div class="customers__summary-card">
+                        <span class="customers__summary-label">Actieve klanten</span>
+                        <span class="customers__summary-value">
+                            {exp:channel:entries channel="customers" dynamic="no" status="open" limit="999"}
+                                {if account_ban != "yes"}{if count == total_results}{total_results}{/if}{/if}
+                            {/exp:channel:entries}
+                        </span>
+                    </div>
+                    <div class="customers__summary-card">
+                        <span class="customers__summary-label">Gearchiveerd klanten</span>
+                        <span class="customers__summary-value">
+                            {exp:channel:entries channel="customers" dynamic="no" status="open" limit="999"}
+                                {if account_ban == "yes"}{if count == total_results}{total_results}{/if}{/if}
+                            {/exp:channel:entries}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div class="customers__alert customers__alert--success" id="customers-alert-success">
+            <span id="customers-alert-message"></span>
+        </div>
+
+        <!-- Tab Navigation -->
+        <nav class="customers__tabs">
+            <button class="customers__tab customers__tab--active" data-tab="list">Klanten bekijken</button>
+            <button class="customers__tab" data-tab="add">Klant toevoegen</button>
+        </nav>
+
+        <!-- TAB 1: KLANTEN BEKIJKEN (LIST) -->
+        <section class="customers__section" id="tab-list" role="tabpanel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 class="customers__section-title" style="margin: 0;">Klanten</h2>
+                
+                <!-- Filter Group -->
+                <div class="customers__filter-group">
+                    <input 
+                        type="text" 
+                        id="customers-search" 
+                        class="customers__search-input"
+                        placeholder="Zoeken op naam of email..."
+                        aria-label="Zoeken op naam of email"
+                    />
+                    <button class="customers__filter-btn customers__filter-btn--active" data-filter="all">Alle klanten</button>
+                    <button class="customers__filter-btn" data-filter="active">Actieve klanten</button>
+                    <button class="customers__filter-btn" data-filter="inactive">Gearchiveerde klanten</button>
+                </div>
+            </div>
+            
+            <div class="customers__table-wrap">
+                <table class="customers__table">
+                    <thead>
+                        <tr>
+                            <th>Naam</th>
+                            <th>Email</th>
+                            <th>Telefoon</th>
+                            <th>Adres</th>
+                            <th>Gezinssamenstelling</th>
+                            <th>Status</th>
+                            <th>Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customers-table-body">
+                        {exp:channel:entries channel="customers" dynamic="no" disable="categories|member_data" status="open" limit="100"}
+                            <tr class="customers__row" data-account-ban="{if account_ban}yes{if:else}no{/if}">
+                                <td>{customers_name}</td>
+                                <td>{customers_email}</td>
+                                <td>{customers_phone}</td>
+                                <td>
+                                    {customers_address_street}<br>
+                                    {customers_address_zip} {customers_address_region}
+                                </td>
+                                <td>
+                                    {if customers_adult || customers_child || customers_baby}
+                                        {if customers_adult}{customers_adult} volwassenen{/if}
+                                        {if customers_child}{if customers_adult}, {/if}{customers_child} kinderen{/if}
+                                        {if customers_baby}{if customers_adult || customers_child}, {/if}{customers_baby} baby's{/if}
+                                    {if:else}
+                                        —
+                                    {/if}
+                                </td>
+                                <td>
+                                    {if account_ban}
+                                        <span style="background: #fee; color: #c62828; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 600;">Gearchiveerd</span>
+                                    {if:else}
+                                        <span style="background: #e8f5e9; color: #2e7d32; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 600;">Actief</span>
+                                    {/if}
+                                </td>
+                                <td>
+                                    <button class="customers__button customers__button--small" data-action="edit-modal" data-entry-id="{entry_id}" data-entry-name="{customers_name}" type="button">
+                                        Bewerken
+                                    </button>
+                                </td>
+                            </tr>
+                        {/exp:channel:entries}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- TAB 2: KLANT TOEVOEGEN (ADD) -->
+        <section class="customers__section" id="tab-add" role="tabpanel" style="display: none;">
+            <h2 class="customers__section-title">Klant toevoegen</h2>
+            
+            {exp:channel:form channel="customers" return="_site/customers" id="customers-add-form" multipart="yes"}
+                <input type="hidden" name="title" id="form-title" />
+                <input type="hidden" name="url_title" id="form-url-title" />
+
+                <div class="customers__form-group">
+                    <h3>Basisgegevens</h3>
+                    
+                    <div class="customers__form-row">
+                        <div class="customers__form-field">
+                            <label for="add-name">Volledige naam *</label>
+                            <input type="text" id="add-name" name="customers_name" placeholder="Jan de Vries" required />
+                        </div>
+                        <div class="customers__form-field">
+                            <label for="add-email">E-mail *</label>
+                            <input type="email" id="add-email" name="customers_email" placeholder="jan@example.com" required />
+                        </div>
+                    </div>
+
+                    <div class="customers__form-row">
+                        <div class="customers__form-field">
+                            <label for="add-phone">Telefoonnummer *</label>
+                            <input type="tel" id="add-phone" name="customers_phone" placeholder="06-12345678" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="customers__form-group">
+                    <h3>Adres</h3>
+                    
+                    <div class="customers__form-row">
+                        <div class="customers__form-field" style="grid-column: 1 / -1;">
+                            <label for="add-street">Straat en huisnummer *</label>
+                            <input type="text" id="add-street" name="customers_address_street" placeholder="Kerkstraat 42" required />
+                        </div>
+                    </div>
+
+                    <div class="customers__form-row">
+                        <div class="customers__form-field">
+                            <label for="add-zip">Postcode *</label>
+                            <input type="text" id="add-zip" name="customers_address_zip" placeholder="1012AB" required />
+                        </div>
+                        <div class="customers__form-field">
+                            <label for="add-region">Regio/Plaats *</label>
+                            <input type="text" id="add-region" name="customers_address_region" placeholder="Amsterdam" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="customers__form-group">
+                    <h3>Gezinssamenstelling</h3>
+                    <p style="font-size: 13px; color: #666;">Dit helpt bij het samenstellen van passende pakketten.</p>
+                    
+                    <div class="customers__form-row">
+                        <div class="customers__form-field">
+                            <label for="add-adults">Volwassenen (>18 jaar)</label>
+                            <input type="number" id="add-adults" name="customers_adult" min="0" max="20" value="0" />
+                        </div>
+                        <div class="customers__form-field">
+                            <label for="add-children">Kinderen (2-18 jaar)</label>
+                            <input type="number" id="add-children" name="customers_child" min="0" max="20" value="0" />
+                        </div>
+                        <div class="customers__form-field">
+                            <label for="add-babies">Baby's (≤2 jaar)</label>
+                            <input type="number" id="add-babies" name="customers_baby" min="0" max="20" value="0" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="customers__form-group">
+                    <h3>Identificatie</h3>
+                    
+                    <div class="customers__form-row">
+                        <div class="customers__form-field">
+                            <label for="add-bsn">BSN *</label>
+                            <input type="text" id="add-bsn" name="customers_bsn" placeholder="123456789" maxlength="9" pattern="[0-9]{1,9}" inputmode="numeric" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="customers__form-actions">
+                    <button type="submit" class="customers__button customers__button--primary">
+                        Klant opslaan
+                    </button>
+                    <button type="reset" class="customers__button customers__button--secondary">
+                        Wissen
+                    </button>
+                </div>
+            {/exp:channel:form}
+        </section>
+
+    <!-- MODAL: CMS EDITOR IFRAME -->
+    <div id="cms-editor-modal" class="customers__modal" style="display: none;">
+        <div class="customers__modal-overlay"></div>
+        <div class="customers__modal-content">
+            <div class="customers__modal-header">
+                <h2 id="cms-editor-title">Klant bewerken</h2>
+                <button id="cms-editor-close" class="customers__modal-close" type="button" aria-label="Sluiten">×</button>
+            </div>
+            <iframe 
+                id="cms-editor-iframe" 
+                src="" 
+                width="100%" 
+                height="600px" 
+                frameborder="0"
+                style="border: none; border-radius: 4px;"
+            ></iframe>
+        </div>
+    </div>
+
+</div>
