@@ -1,79 +1,144 @@
 {layout="_layouts/.main"}
 {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6")}
 
-<div class="leveringen">
+<div class="leveringen" data-server-rendered="true">
     <div class="leveringen__wrap">
         <header class="leveringen__header">
             <div>
-                <h1 class="leveringen__title">Leveringen deze maand</h1>
-                <p class="leveringen__subtitle">Wat komt er deze maand binnen voor de planning</p>
+                <h1 class="leveringen__title">Leveringen</h1>
+                <p class="leveringen__subtitle">Accepteer leveringen om voorraad bij te werken.</p>
             </div>
-            <span class="leveringen__month" id="leveringen-month-label"></span>
         </header>
 
         <section class="leveringen__panel">
-            <div class="leveringen__panel-actions">
-                <button class="leveringen__primary" type="button" data-action="add">
-                    Nieuwe levering
-                </button>
-            </div>
-
+            <h2 style="margin: 0 0 12px;">Actieve leveringen</h2>
             <div class="leveringen__table-wrap">
                 <table class="leveringen__table">
                     <thead>
                         <tr>
                             <th>Datum</th>
-                            <th>Leverancier</th>
+                            <th>Levering</th>
                             <th>Producten</th>
                             <th>Totaal aantal</th>
                             <th class="leveringen__col-actions">Acties</th>
                         </tr>
                     </thead>
-                    <tbody id="leveringen-table-body"></tbody>
+                    <tbody>
+                        {exp:channel:entries
+                            channel="suppliers_order"
+                            dynamic="no"
+                            disable="categories|member_data|pagination"
+                            orderby="delivery_date"
+                            sort="desc"
+                            search:delivery_status="pending|approved"
+                        }
+                            <tr>
+                                <td>{if delivery_date}{delivery_date format="%d-%m-%Y"}{if:else}-{/if}</td>
+                                <td>
+                                    <strong>{title}</strong><br>
+                                    <small>Status: {delivery_status}</small>
+                                </td>
+                                <td>
+                                    <div class="leveringen__items-listing">
+                                        {products}
+                                            <span class="js-delivered-amount" data-delivery-entry-id="{entry_id}" data-amount="{delivered_amount}" hidden></span>
+                                            {if product_name}{product_name}{if:else}{product_ean}{/if} ({delivered_amount})<br>
+                                        {/products}
+                                    </div>
+                                </td>
+                                <td><span class="js-total" data-total-for="{entry_id}">-</span></td>
+                                <td>
+                                    <div class="leveringen__actions">
+                                        {if delivery_status == "pending"}
+                                            {if delivery_date}
+                                                <form method="post" action="{exp:delivery_manager:action_url}" style="display:inline;">
+                                                    <input type="hidden" name="entry_id" value="{entry_id}">
+                                                    {csrf_token}
+                                                    <button class="leveringen__action-btn" type="submit">Levering accepteren</button>
+                                                </form>
+                                            {if:else}
+                                                <button class="leveringen__action-btn" type="button" disabled title="Vul eerst een leverdatum in">Levering accepteren</button>
+                                            {/if}
+                                        {if:else}
+                                            <span style="font-size: 13px; color: #666;">Niet accepteerbaar</span>
+                                        {/if}
+                                    </div>
+                                </td>
+                            </tr>
+                            {if no_results}
+                                <tr><td colspan="5" class="leveringen__empty">Geen actieve leveringen.</td></tr>
+                            {/if}
+                        {/exp:channel:entries}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="leveringen__panel" style="margin-top: 28px;">
+            <h2 style="margin: 0 0 12px;">Archief</h2>
+            <div class="leveringen__table-wrap">
+                <table class="leveringen__table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Levering</th>
+                            <th>Producten</th>
+                            <th>Totaal aantal</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {exp:channel:entries
+                            channel="suppliers_order"
+                            dynamic="no"
+                            disable="categories|member_data|pagination"
+                            orderby="delivery_date"
+                            sort="desc"
+                            search:delivery_status="received|archived"
+                        }
+                            <tr>
+                                <td>{if delivery_date}{delivery_date format="%d-%m-%Y"}{if:else}-{/if}</td>
+                                <td>
+                                    <strong>{title}</strong><br>
+                                    <small>Ontvangen: {if received_at}{received_at format="%d-%m-%Y %H:%i"}{if:else}-{/if}</small>
+                                </td>
+                                <td>
+                                    <div class="leveringen__items-listing">
+                                        {products}
+                                            <span class="js-delivered-amount" data-delivery-entry-id="{entry_id}" data-amount="{delivered_amount}" hidden></span>
+                                            {if product_name}{product_name}{if:else}{product_ean}{/if} ({delivered_amount})<br>
+                                        {/products}
+                                    </div>
+                                </td>
+                                <td><span class="js-total" data-total-for="{entry_id}">-</span></td>
+                                <td>{delivery_status}</td>
+                            </tr>
+                            {if no_results}
+                                <tr><td colspan="5" class="leveringen__empty">Geen archief leveringen.</td></tr>
+                            {/if}
+                        {/exp:channel:entries}
+                    </tbody>
                 </table>
             </div>
         </section>
     </div>
-
-    <div class="leveringen__modal" id="leveringen-modal" aria-hidden="true" role="dialog" aria-modal="true">
-        <div class="leveringen__modal-overlay" data-action="close"></div>
-        <div class="leveringen__modal-content" role="document">
-            <div class="leveringen__modal-header">
-                <h2 class="leveringen__modal-title" id="leveringen-modal-title">Nieuwe levering</h2>
-                <button class="leveringen__modal-close" type="button" data-action="close" aria-label="Sluiten">X</button>
-            </div>
-            <form class="leveringen__form" id="leveringen-form">
-                <div class="leveringen__field">
-                    <label for="leveringen-datum">Datum *</label>
-                    <input id="leveringen-datum" name="datum" type="date" required />
-                </div>
-                <div class="leveringen__field">
-                    <label for="leveringen-leverancier">Leverancier *</label>
-                    <input id="leveringen-leverancier" name="leverancier" type="text" required />
-                </div>
-
-                <div class="leveringen__items">
-                    <div class="leveringen__items-header">
-                        <span>Producten</span>
-                        <button class="leveringen__secondary" type="button" data-action="add-item">
-                            Product toevoegen
-                        </button>
-                    </div>
-                    <div class="leveringen__items-list" id="leveringen-items-list"></div>
-                </div>
-
-                <div class="leveringen__form-actions">
-                    <button class="leveringen__primary" type="submit" id="leveringen-save">
-                        Opslaan
-                    </button>
-                    <button class="leveringen__secondary" type="button" data-action="close">
-                        Annuleren
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 </div>
+
+<script>
+  (() => {
+    const totals = new Map();
+    document.querySelectorAll('.js-delivered-amount').forEach((el) => {
+      const id = el.getAttribute('data-delivery-entry-id');
+      const amt = Number(el.getAttribute('data-amount') || 0);
+      totals.set(id, (totals.get(id) || 0) + amt);
+    });
+
+    document.querySelectorAll('.js-total').forEach((el) => {
+      const id = el.getAttribute('data-total-for');
+      el.textContent = String(totals.get(id) || 0);
+    });
+  })();
+</script>
 {if:else}
     {redirect="_site/home"}
 {/if}

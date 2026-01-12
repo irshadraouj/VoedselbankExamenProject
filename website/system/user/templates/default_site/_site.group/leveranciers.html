@@ -1,27 +1,41 @@
 {layout="_layouts/.main"}
 {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6")}
 
-<div class="leveranciers">
-    <div class="leveranciers__wrap">
-        <header class="leveranciers__header">
+<div class="leveranciers customers">
+    <div class="leveranciers__wrap customers__wrap">
+        <div class="customers__header">
             <div>
-                <h1 class="leveranciers__title">Leveranciersoverzicht</h1>
-                <p class="leveranciers__subtitle">Beheer leveranciers en leveringen</p>
+                <p class="customers__eyebrow">Leveranciersbeheer</p>
+                <h1 class="customers__title">Leveranciersoverzicht</h1>
+                <p class="customers__subtitle">Beheer leveranciers en leveringen.</p>
             </div>
-        </header>
+            <div class="customers__summary">
+                <div class="customers__summary-grid">
+                    <div class="customers__summary-card">
+                        <span class="customers__summary-label">Totaal leveranciers</span>
+                        <span class="customers__summary-value">
+                            {exp:channel:entries channel="supplier" dynamic="no" status="open" limit="999"}
+                                {if count == total_results}{total_results}{/if}
+                            {/exp:channel:entries}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <section class="leveranciers__panel">
-            <div class="leveranciers__panel-actions">
-                <a class="leveranciers__secondary leveranciers__link" href="{path='_site/leveringen'}">
-                    Naar leveringen
-                </a>
-                <button class="leveranciers__primary" type="button" data-open="leveranciers-adder">
-                    Nieuwe leverancier
-                </button>
+        <nav class="customers__tabs">
+            <button class="customers__tab customers__tab--active" data-tab="list">Leveranciers bekijken</button>
+            <button class="customers__tab" data-tab="add">Leverancier toevoegen</button>
+            <a class="customers__tab" href="{path='_site/leveringen'}">Leveringen</a>
+        </nav>
+
+        <section class="customers__section" id="tab-list" role="tabpanel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 class="customers__section-title" style="margin: 0;">Leveranciers</h2>
             </div>
 
-            <div class="leveranciers__table-wrap">
-                <table class="leveranciers__table">
+            <div class="customers__table-wrap">
+                <table class="customers__table">
                     <thead>
                         <tr>
                             <th>Bedrijfsnaam</th>
@@ -29,27 +43,28 @@
                             <th>Telefoonnummer</th>
                             <th>E-mailadres</th>
                             <th>Eerstvolgende levering</th>
-                            <th>Contactpersoon</th>
+                            <th>KVK-nummer</th>
+                            <th>Acties</th>
                         </tr>
                     </thead>
                     <tbody>
                         {exp:channel:entries channel="supplier" dynamic="no" disable="categories|member_data" status="open"}
-                            <tr>
-                                <td>
-                                    <strong>{title}</strong>
-                                    <div class="leveranciers__meta">
-                                        <a href="{path='/entry/{url_title}'}">Bekijk</a>
-                                    </div>
-                                </td>
+                            <tr class="customers__row" data-entry-id="{entry_id}" data-entry-name="{title}">
+                                <td><strong>{title}</strong></td>
                                 <td>{supplier_name}</td>
                                 <td>{supplier_phone}</td>
                                 <td><a href="mailto:{supplier_email}">{supplier_email}</a></td>
-                                <td>{supplier_deliverdate format="%F %d %Y"}</td>
-                                <td>{supplier_ctc_person}</td>
+                                <td>{if supplier_deliverdate}{supplier_deliverdate format="%d-%m-%Y"}{if:else}n.v.t{/if}</td>
+                                <td>{supplier_kvk}</td>
+                                <td>
+                                    <button class="customers__button customers__button--small" data-action="edit-modal" data-entry-id="{entry_id}" data-entry-name="{title}" type="button">
+                                        Bewerken
+                                    </button>
+                                </td>
                             </tr>
                         {if no_results}
                             <tr>
-                                <td colspan="6" class="leveranciers__empty">Er zijn nog geen leveranciers geregistreerd.</td>
+                                <td colspan="7" class="customers__empty">Er zijn nog geen leveranciers geregistreerd.</td>
                             </tr>
                         {/if}
                         {/exp:channel:entries}
@@ -58,57 +73,56 @@
             </div>
         </section>
 
-        <section class="leveranciers__panel leveranciers__panel--form" id="leveranciers-adder" hidden>
-            <h2>Nieuwe leverancier toevoegen</h2>
-            {exp:channel:form channel="supplier" return="_site/leveranciers" id="leveranciers-channel-form" allow_guest_posts="no"}
-                <div class="leveranciers__field">
-                    <label for="supplier-title">Naam bedrijf *</label>
-                    <input id="supplier-title" name="title" type="text" required>
+        <section class="customers__section" id="tab-add" role="tabpanel" style="display: none;">
+            <h2 class="customers__section-title">Nieuwe leverancier toevoegen</h2>
+            {exp:channel:form channel="supplier" return="_site/leveranciers" id="leveranciers-add-form" multipart="yes"}
+                <input type="hidden" name="title" id="form-title" />
+                <input type="hidden" name="url_title" id="form-url-title" />
+
+                <div class="customers__form-group">
+                    <h3>Basisgegevens</h3>
+                    <div class="customers__form-row">
+                        <div class="customers__form-field">
+                            <label for="supplier-name">Naam bedrijf *</label>
+                            <input id="supplier-name" name="title" type="text" required />
+                        </div>
+                        <div class="customers__form-field">
+                            <label for="supplier-contact">Contactpersoon *</label>
+                            <input id="supplier-contact" name="supplier_name" type="text" required />
+                        </div>
+                    </div>
+                    <div class="customers__form-row">
+                        <div class="customers__form-field">
+                            <label for="supplier-phone">Telefoonnummer *</label>
+                            <input id="supplier-phone" name="supplier_phone" type="tel" required />
+                        </div>
+                        <div class="customers__form-field">
+                            <label for="supplier-email">E-mailadres *</label>
+                            <input id="supplier-email" name="supplier_email" type="email" required />
+                        </div>
+                    </div>
                 </div>
-                <div class="leveranciers__field">
-                    <label for="supplier-name">Contactpersoon *</label>
-                    <input id="supplier-name" name="supplier_name" type="text" required>
+
+                <div class="customers__form-group">
+                    <h3>Leveringsgegevens</h3>
+                    <div class="customers__form-row">
+                        <div class="customers__form-field">
+                            <label for="supplier-date">Eerstvolgende levering</label>
+                            <input id="supplier-date" name="supplier_deliverdate" type="date" />
+                        </div>
+                        <div class="customers__form-field">
+                            <label for="supplier-kvk">KVK-nummer</label>
+                            <input id="supplier-kvk" name="supplier_kvk" type="text" maxlength="9" pattern="[0-9]{1,9}" />
+                        </div>
+                    </div>
                 </div>
-                <div class="leveranciers__field">
-                    <label for="supplier-phone">Telefoonnummer *</label>
-                    <input id="supplier-phone" name="supplier_phone" type="tel" required>
-                </div>
-                <div class="leveranciers__field">
-                    <label for="supplier-email">E-mailadres *</label>
-                    <input id="supplier-email" name="supplier_email" type="email" required>
-                </div>
-                <div class="leveranciers__field">
-                    <label for="supplier-date">Eerstvolgende levering *</label>
-                    <input id="supplier-date" name="supplier_deliverdate" type="date" required>
-                </div>
-                <div class="leveranciers__field">
-                    <label for="supplier-ctc">Contactpersoon telefonisch</label>
-                    <input id="supplier-ctc" name="supplier_ctc_person" type="text">
-                </div>
-                <div class="leveranciers__form-actions">
-                    <button class="leveranciers__primary" type="submit">Opslaan</button>
-                    <button class="leveranciers__secondary" type="button" data-close="leveranciers-adder">Annuleren</button>
+
+                <div class="customers__form-actions">
+                    <button class="customers__button customers__button--primary" type="submit">Opslaan</button>
+                    <button class="customers__button customers__button--secondary" type="reset">Wissen</button>
                 </div>
             {/exp:channel:form}
         </section>
-    </div>
-
-    </div>
-    <script>
-        (() => {
-            const toggle = document.querySelector('[data-open="leveranciers-adder"]');
-            const closeButtons = document.querySelectorAll('[data-close="leveranciers-adder"]');
-            const formSection = document.getElementById('leveranciers-adder');
-
-            const toggleSection = (show) => {
-                if (!formSection) return;
-                formSection.hidden = !show;
-            };
-
-            toggle?.addEventListener('click', () => toggleSection(true));
-            closeButtons.forEach(button => button.addEventListener('click', () => toggleSection(false)));
-        })();
-    </script>
     </div>
 </div>
 {if:else}

@@ -2,17 +2,30 @@
 
 <div class="leveranciers customers">
     <div class="leveranciers__wrap customers__wrap">
-        <header class="leveranciers__header">
+        <div class="customers__header">
             <div>
-                <h1 class="leveranciers__title">Leveranciersoverzicht</h1>
-                <p class="leveranciers__subtitle">Beheer leveranciers en leveringen</p>
+                <p class="customers__eyebrow">Leveranciersbeheer</p>
+                <h1 class="customers__title">Leveranciersoverzicht</h1>
+                <p class="customers__subtitle">Beheer leveranciers en leveringen.</p>
             </div>
-        </header>
+            <div class="customers__summary">
+                <div class="customers__summary-grid">
+                    <div class="customers__summary-card">
+                        <span class="customers__summary-label">Totaal leveranciers</span>
+                        <span class="customers__summary-value">
+                            {exp:channel:entries channel="supplier" dynamic="no" status="open" limit="999"}
+                                {if count == total_results}{total_results}{/if}
+                            {/exp:channel:entries}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <nav class="leveranciers__tabs customers__tabs">
-            <button class="leveranciers__tab leveranciers__tab--active customers__tab customers__tab--active" data-tab="list">Leveranciers</button>
-            <button class="leveranciers__tab customers__tab" data-tab="add">Nieuwe leverancier</button>
-            <button class="leveranciers__tab customers__tab" data-tab="deliveries">Leveringen</button>
+        <nav class="customers__tabs">
+            <button class="customers__tab customers__tab--active" data-tab="list">Leveranciers bekijken</button>
+            <button class="customers__tab" data-tab="add">Leverancier toevoegen</button>
+            <button class="customers__tab" data-tab="deliveries">Leveringen</button>
         </nav>
 
         <section class="leveranciers__panel customers__section" id="tab-list" role="tabpanel">
@@ -32,7 +45,7 @@
                             <th>Telefoonnummer</th>
                             <th>E-mailadres</th>
                             <th>Eerstvolgende levering</th>
-                            <th>KVK</th>
+                            <th>KVK-nummer</th>
                             <th>Acties</th>
                         </tr>
                     </thead>
