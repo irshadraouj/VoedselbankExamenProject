@@ -23,8 +23,9 @@
         <div class="dashboard__intro my-15">
             <div class="container">
                 <h1>Dashboard</h1>
-                <p>Welkom terug {if logged_in}{logged_in_screen_name}{if:else}Gast{/if}</p>
-                <button id="dyslexia-toggle">Toggle Dyslexia Mode</button>
+                <p>Welkom terug {if logged_in}{logged_in_screen_name}{if:else}Gast{/if}</p>                            
+                  {embed="_embeds/_bannerAlert"}
+                <!-- <button id="dyslexia-toggle">Toggle Dyslexia Mode</button> -->
             </div>
         </div>
         <div class="container mt-15">
