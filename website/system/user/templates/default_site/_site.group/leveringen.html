@@ -1,0 +1,79 @@
+{layout="_layouts/.main"}
+{if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "8")}
+
+<div class="leveringen">
+    <div class="leveringen__wrap">
+        <header class="leveringen__header">
+            <div>
+                <h1 class="leveringen__title">Leveringen deze maand</h1>
+                <p class="leveringen__subtitle">Wat komt er deze maand binnen voor de planning</p>
+            </div>
+            <span class="leveringen__month" id="leveringen-month-label"></span>
+        </header>
+
+        <section class="leveringen__panel">
+            <div class="leveringen__panel-actions">
+                <button class="leveringen__primary" type="button" data-action="add">
+                    Nieuwe levering
+                </button>
+            </div>
+
+            <div class="leveringen__table-wrap">
+                <table class="leveringen__table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Leverancier</th>
+                            <th>Producten</th>
+                            <th>Totaal aantal</th>
+                            <th class="leveringen__col-actions">Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leveringen-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <div class="leveringen__modal" id="leveringen-modal" aria-hidden="true" role="dialog" aria-modal="true">
+        <div class="leveringen__modal-overlay" data-action="close"></div>
+        <div class="leveringen__modal-content" role="document">
+            <div class="leveringen__modal-header">
+                <h2 class="leveringen__modal-title" id="leveringen-modal-title">Nieuwe levering</h2>
+                <button class="leveringen__modal-close" type="button" data-action="close" aria-label="Sluiten">X</button>
+            </div>
+            <form class="leveringen__form" id="leveringen-form">
+                <div class="leveringen__field">
+                    <label for="leveringen-datum">Datum *</label>
+                    <input id="leveringen-datum" name="datum" type="date" required />
+                </div>
+                <div class="leveringen__field">
+                    <label for="leveringen-leverancier">Leverancier *</label>
+                    <input id="leveringen-leverancier" name="leverancier" type="text" required />
+                </div>
+
+                <div class="leveringen__items">
+                    <div class="leveringen__items-header">
+                        <span>Producten</span>
+                        <button class="leveringen__secondary" type="button" data-action="add-item">
+                            Product toevoegen
+                        </button>
+                    </div>
+                    <div class="leveringen__items-list" id="leveringen-items-list"></div>
+                </div>
+
+                <div class="leveringen__form-actions">
+                    <button class="leveringen__primary" type="submit" id="leveringen-save">
+                        Opslaan
+                    </button>
+                    <button class="leveringen__secondary" type="button" data-action="close">
+                        Annuleren
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{if:else}
+    {redirect="_site/home"}
+{/if}

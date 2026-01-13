@@ -28,17 +28,7 @@ const inputFiles = [...JSInputFiles, ...SCSSInputFiles, ...CSSInputFiles];
 
 
 export default defineConfig(({ mode }) => {
-
-  // Define input files
   const URL = process.env.DDEV_PRIMARY_URL;
-  const HOST = process.env.DDEV_HOSTNAME;
-
-  
-  console.log(`
-Running in ${mode} mode
-Primary URL: ${URL}
-Hostname: ${HOST}\n`
-  );
 
   return {
     css: {
@@ -59,9 +49,6 @@ Hostname: ${HOST}\n`
         "@functions": path.resolve(__dirname, "resources/_functions"),
         "/resources": path.resolve(__dirname, "resources"),
       },
-    },
-    optimizeDeps: {
-      include: ["resources/**/*.pug"],
     },
     plugins: [
       faviconsPlugin({
@@ -91,29 +78,19 @@ Hostname: ${HOST}\n`
         output: {
           chunkFileNames: "assets/js/[name]-[hash].[ext]",
           entryFileNames: "assets/js/[name]-[hash].js",
-          // chunkFileNames: "assets/js/[name].js",
-          // entryFileNames: "assets/js/[name].js",
           assetFileNames: (assetInfo) => {
             if (/\.(gif|jpe?g|png|svg|webp)$/.test(assetInfo.name ?? "")) {
-              // return "assets/images/[name][extname]";
               return "assets/images/[name][extname]";
             }
-
             if (/\.css$/.test(assetInfo.name ?? "")) {
-              // return "assets/css/[name][extname]";
               return "assets/css/[name]-[hash][extname]";
             }
             if (/\.ico$/.test(assetInfo.name ?? "")) {
-              // return "assets/css/[name][extname]";
               return "[name][extname]";
             }
             if (/\.(woff|woff2|ttf|eot)$/.test(assetInfo.name ?? "")) {
-              // return "assets/fonts/[name][extname]";
               return "assets/fonts/[name]-[hash][extname]";
             }
-            // default value
-            // ref: https://rollupjs.org/guide/en/#outputassetfilenames
-            // return "assets/[name][extname]";
             return "assets/[name]-[hash][extname]";
           },
         },

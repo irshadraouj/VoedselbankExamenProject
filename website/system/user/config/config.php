@@ -1,5 +1,6 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+$config['enable_devlog_alerts'] = 'n';
 $config['site_license_key'] = '';
 // ExpressionEngine Config Items
 // Find more configs and overrides at

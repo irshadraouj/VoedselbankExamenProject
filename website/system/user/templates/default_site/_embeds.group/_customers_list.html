@@ -1,0 +1,96 @@
+{layout="_layouts/.main"}
+
+{!-- Permission check --}
+{if logged_in == "FALSE"}
+    {redirect="login"}
+{/if}
+
+<div class="customers">
+    <div class="customers__wrap">
+        <div class="customers__header">
+            <div>
+                <p class="customers__eyebrow">Klantbeheer</p>
+                <h1 class="customers__title">Klantenoverzicht</h1>
+                <p class="customers__subtitle">Beheer klanten, voeg toe of wijzig gegevens.</p>
+            </div>
+        </div>
+
+        {!-- Summary boxes --}
+        <div class="customers__summary">
+            <div>
+                <span class="customers__summary-label">Totaal klanten</span>
+                <span class="customers__summary-value">
+                    {exp:channel:entries channel="customers" dynamic="no" status="open|closed" limit="999"}
+                        {if count == total_results}{total_results}{/if}
+                    {/exp:channel:entries} klanten
+                </span>
+            </div>
+            <div>
+                <span class="customers__summary-label">Actieve klanten</span>
+                <span class="customers__summary-value">
+                    {exp:channel:entries channel="customers" dynamic="no" status="open" limit="999"}
+                        {if count == total_results}{total_results}{/if}
+                    {/exp:channel:entries} klanten
+                </span>
+            </div>
+        </div>
+
+        {!-- Action buttons --}
+        {if logged_in_group_id == "1" OR logged_in_group_id == "3"}
+            <a href="{path='_site/customers'}/add" class="customers__button customers__button--primary">+ Klant toevoegen</a>
+        {/if}
+
+        {!-- Klanten tabel --}
+        <section class="customers__section">
+            <h2 class="customers__section-title">Klanten</h2>
+            
+            <div class="customers__table-wrap">
+                <table class="customers__table">
+                    <thead>
+                        <tr>
+                            <th>Naam</th>
+                            <th>Email</th>
+                            <th>Telefoon</th>
+                            <th>Adres</th>
+                            <th>Gezinssamenstelling</th>
+                            <th>Status</th>
+                            <th>Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {exp:channel:entries channel="customers" dynamic="no" disable="categories|member_data" status="open|closed" limit="100"}
+                            <tr>
+                                <td>{customers_name}</td>
+                                <td>{customers_email}</td>
+                                <td>{customers_phone}</td>
+                                <td>
+                                    {customers_address_street}<br>
+                                    {customers_address_zip} {customers_address_region}
+                                </td>
+                                <td>
+                                    {if customers_adult || customers_child || customers_baby}
+                                        {if customers_adult}{customers_adult}a{/if}
+                                        {if customers_child}{if customers_adult} {/if}{customers_child}k{/if}
+                                        {if customers_baby}{if customers_adult || customers_child} {/if}{customers_baby}b{/if}
+                                    {if:else}—{/if}
+                                </td>
+                                <td>
+                                    {if status == "closed"}
+                                        <span style="color: var(--customers-error); font-weight: 500;">Gesloten</span>
+                                    {if:else}
+                                        <span style="color: var(--customers-success); font-weight: 500;">Open</span>
+                                    {/if}
+                                </td>
+                                <td>
+                                    {if logged_in_group_id == "1" OR logged_in_group_id == "3"}
+                                        <a href="{path='_site/customers'}/edit/{entry_id}" class="customers__button customers__button--small">Wijzigen</a>
+                                    {/if}
+                                </td>
+                            </tr>
+                        {/exp:channel:entries}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>

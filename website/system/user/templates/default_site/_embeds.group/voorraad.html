@@ -14,56 +14,40 @@
     </header>
 
     <form class="voorraad__filters" action="" method="get" aria-label="Filters voorraadoverzicht">
-      <div class="voorraad__field voorraad__field--span">
-        <label class="voorraad__label" for="voorraad-search">Productnaam</label>
-        <input
-          class="voorraad__input"
-          type="search"
-          id="voorraad-search"
-          name="product_name"
-          placeholder="Bijv. melk (1L)"
-          {if get:product_name}value="{get:product_name}"{/if}
-        />
-      </div>
-
-      <div class="voorraad__field">
-        <label class="voorraad__label" for="voorraad-category">Categorie</label>
-        <select class="voorraad__input" id="voorraad-category" name="product_category">
-          <option value="">Alle categorieen</option>
-        </select>
-      </div>
-
-      <div class="voorraad__field">
-        <label class="voorraad__label" for="voorraad-ean">EAN</label>
-        <input
-          class="voorraad__input"
-          type="text"
-          id="voorraad-ean"
-          name="product_ean"
-          inputmode="numeric"
-          placeholder="Bijv. 8712345678901"
-          {if get:product_ean}value="{get:product_ean}"{/if}
-        />
-      </div>
-
-      <div class="voorraad__field">
-        <label class="voorraad__label" for="voorraad-sort">Voorraad sorteren</label>
-        <select class="voorraad__input" id="voorraad-sort" name="product_amount_sort">
-          <option value="">Geen sortering</option>
-          <option value="asc">Laag naar hoog</option>
-          <option value="desc">Hoog naar laag</option>
-        </select>
-      </div>
-
-      <div class="voorraad__field">
-        <label class="voorraad__label" for="voorraad-expiration-sort">Houdbaarheidsdatum sorteren</label>
-        <select class="voorraad__input" id="voorraad-expiration-sort" name="expiration_date_sort">
-          <option value="">Geen sortering</option>
-          <option value="asc">Oud naar nieuw</option>
-          <option value="desc">Nieuw naar oud</option>
-        </select>
-      </div>
-    </form>
+      <!-- Existing filters -->
+       <form class="voorraad__filters" action="" method="get" aria-label="Filters voorraadoverzicht">
+  <div class="voorraad__field">
+    <label for="voorraad-search">Zoek op naam:</label>
+    <input type="text" id="voorraad-search" name="search" placeholder="Product naam" />
+  </div>
+  <div class="voorraad__field">
+    <label for="voorraad-category">Categorie:</label>
+    <select id="voorraad-category" name="category">
+      <option value="">- Alle categorieën -</option>
+      <!-- Dynamically populated options will be here -->
+    </select>
+  </div>
+  <div class="voorraad__field">
+    <label for="voorraad-ean">EAN:</label>
+    <input type="text" id="voorraad-ean" name="ean" placeholder="EAN-nummer" />
+  </div>
+  <div class="voorraad__field">
+    <label for="voorraad-sort">Sorteer op aantal:</label>
+    <select id="voorraad-sort" name="sort-amount">
+      <option value="">- Geen sortering -</option>
+      <option value="asc">Oplopend</option>
+      <option value="desc">Aflopend</option>
+    </select>
+  </div>
+  <div class="voorraad__field">
+    <label for="voorraad-expiration-sort">Sorteer op houdbaarheidsdatum:</label>
+    <select id="voorraad-expiration-sort" name="sort-expiration">
+      <option value="">- Geen sortering -</option>
+      <option value="asc">Oplopend</option>
+      <option value="desc">Aflopend</option>
+    </select>
+  </div>
+</form>
 
     <section class="voorraad__table-wrap" aria-label="Producten">
       <table class="voorraad__table">
@@ -77,11 +61,7 @@
           </tr>
         </thead>
         <tbody>
-          {exp:channel:entries
-            channel="producten"
-            dynamic="no"
-            disable="categories|member_data|pagination"
-          }
+          {exp:channel:entries channel="producten" dynamic="no" disable="categories|member_data|pagination"}
             <tr>
               <td>{product_name}</td>
               <td>
@@ -104,9 +84,11 @@
     </section>
   </div>
 </main>
+
 <section class="voorraad__add-product">
   <h2 class="voorraad__add-title">Product toevoegen</h2>
-  <form id="add-product-form" action="/api/add-product" method="post">
+  <button id="show-add-product-form">Product toevoegen</button>
+  <form id="add-product-form" action="/api/add-product" method="post" style="display: none;">
     <div class="voorraad__field">
       <label class="voorraad__label" for="add-product-name">Productnaam</label>
       <input type="text" id="add-product-name" name="product_name" required />
@@ -124,7 +106,6 @@
         <option value="categorie1"> 7. Soepen, sauzen, kruiden en olie</option>
         <option value="categorie2"> 8. Snoep, koek, chips en chocolade</option>
         <option value="categorie3"> 9. Baby, verzorging en hygiëne</option>
-             
       </select>
     </div>
     <div class="voorraad__field">
@@ -139,12 +120,18 @@
       <label class="voorraad__label" for="add-product-expiration">Houdbaarheidsdatum</label>
       <input type="date" id="add-product-expiration" name="expiration_date" required />
     </div>
-    <button type="submit">Product toevoegen</button>
+    <button type="submit">Bevestigen</button>
     <p class="voorraad__message" id="add-product-message"></p>
   </form>
 </section>
 
 <script>
+  const addButton = document.getElementById('show-add-product-form');
+  addButton.addEventListener('click', function() {
+    const form = document.getElementById('add-product-form');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  });
+
   document.getElementById('add-product-form').addEventListener('submit', function(event) {
     event.preventDefault();
 
@@ -160,6 +147,7 @@
         messageEl.textContent = 'Product succesvol toegevoegd!';
         messageEl.style.color = 'green';
         this.reset();
+        // Optional: Logic to refresh the product list dynamically could be added here
       } else {
         return response.json().then(error => {
           messageEl.textContent = error.message;
