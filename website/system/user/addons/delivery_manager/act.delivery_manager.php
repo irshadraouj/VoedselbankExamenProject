@@ -55,6 +55,62 @@ class Delivery_manager_act
             return $this->error_redirect('Channel "producten" niet gevonden.');
         }
 
+        $product_fields = $products_channel->getAllCustomFields();
+        $field_exists = function (string $name) use ($product_fields): bool {
+            return $product_fields->filter('field_name', $name)->count() > 0;
+        };
+
+        $has_product_name_field = $field_exists('product_name');
+        $has_product_ean_field = $field_exists('product_ean');
+        $has_product_cat_field = $field_exists('product_cat');
+        $has_product_amount_field = $field_exists('product_amount');
+
+        if (! $has_product_amount_field) {
+            return $this->error_redirect('Channel "producten" mist het veld "product_amount".');
+        }
+
+        $set_product_field = function ($entry, string $field, $value) use (
+            $has_product_name_field,
+            $has_product_ean_field,
+            $has_product_cat_field,
+            $has_product_amount_field
+        ): void {
+            if ($value === '' || $value === null) {
+                return;
+            }
+
+            $exists = false;
+            switch ($field) {
+                case 'product_name':
+                    $exists = $has_product_name_field;
+                    break;
+                case 'product_ean':
+                    $exists = $has_product_ean_field;
+                    break;
+                case 'product_cat':
+                    $exists = $has_product_cat_field;
+                    break;
+                case 'product_amount':
+                    $exists = $has_product_amount_field;
+                    break;
+            }
+
+            if (! $exists) {
+                if ($field === 'product_name') {
+                    $entry->title = (string) $value;
+                }
+                return;
+            }
+
+            try {
+                $entry->set([$field => $value]);
+            } catch (Throwable $e) {
+                if ($field === 'product_name') {
+                    $entry->title = (string) $value;
+                }
+            }
+        };
+
         $products_grid_field = ee('Model')->get('ChannelField')->filter('field_name', 'products')->first();
         if (! $products_grid_field) {
             return $this->error_redirect('Grid field "products" niet gevonden.');
@@ -86,7 +142,7 @@ class Delivery_manager_act
 
                 // 2) Try EAN
                 $ean = trim((string) ($row['product_ean'] ?? ''));
-                if (! $product_entry && $ean !== '') {
+                if (! $product_entry && $ean !== '' && $has_product_ean_field) {
                     $product_entry = ee('Model')
                         ->get('ChannelEntry')
                         ->filter('channel_id', (int) $products_channel->channel_id)
@@ -112,17 +168,17 @@ class Delivery_manager_act
                     $product_entry->status = 'open';
 
                     if ($name !== '') {
-                        $product_entry->set(['product_name' => $name]);
+                        $set_product_field($product_entry, 'product_name', $name);
                     }
                     if ($ean !== '') {
-                        $product_entry->set(['product_ean' => $ean]);
+                        $set_product_field($product_entry, 'product_ean', $ean);
                     }
                     if ($cat !== '' && $cat !== null) {
-                        $product_entry->set(['product_cat' => $cat]);
+                        $set_product_field($product_entry, 'product_cat', $cat);
                     }
 
                     // Start voorraad at 0; we'll add delivered_amount below
-                    $product_entry->set(['product_amount' => 0]);
+                    $set_product_field($product_entry, 'product_amount', 0);
 
                     $product_entry->save();
                 }
@@ -130,7 +186,7 @@ class Delivery_manager_act
                 $current_amount = (int) ($product_entry->product_amount ?? 0);
                 $new_amount = $current_amount + $delivered_amount;
 
-                $product_entry->set(['product_amount' => $new_amount]);
+                $set_product_field($product_entry, 'product_amount', $new_amount);
                 $product_entry->save();
             }
 
@@ -234,6 +290,62 @@ class Delivery_manager_act
             return $this->error_redirect('Channel "producten" niet gevonden.');
         }
 
+            $product_fields = $products_channel->getAllCustomFields();
+            $field_exists = function (string $name) use ($product_fields): bool {
+                return $product_fields->filter('field_name', $name)->count() > 0;
+            };
+
+            $has_product_name_field = $field_exists('product_name');
+            $has_product_ean_field = $field_exists('product_ean');
+            $has_product_cat_field = $field_exists('product_cat');
+            $has_product_amount_field = $field_exists('product_amount');
+
+            if (! $has_product_amount_field) {
+                return $this->error_redirect('Channel "producten" mist het veld "product_amount".');
+            }
+
+            $set_product_field = function ($entry, string $field, $value) use (
+                $has_product_name_field,
+                $has_product_ean_field,
+                $has_product_cat_field,
+                $has_product_amount_field
+            ): void {
+                if ($value === '' || $value === null) {
+                    return;
+                }
+
+                $exists = false;
+                switch ($field) {
+                    case 'product_name':
+                        $exists = $has_product_name_field;
+                        break;
+                    case 'product_ean':
+                        $exists = $has_product_ean_field;
+                        break;
+                    case 'product_cat':
+                        $exists = $has_product_cat_field;
+                        break;
+                    case 'product_amount':
+                        $exists = $has_product_amount_field;
+                        break;
+                }
+
+                if (! $exists) {
+                    if ($field === 'product_name') {
+                        $entry->title = (string) $value;
+                    }
+                    return;
+                }
+
+                try {
+                    $entry->set([$field => $value]);
+                } catch (Throwable $e) {
+                    if ($field === 'product_name') {
+                        $entry->title = (string) $value;
+                    }
+                }
+            };
+
         $now = ee()->localize->now;
 
         ee()->db->trans_begin();
@@ -272,10 +384,10 @@ class Delivery_manager_act
                 $product_cat = trim((string) ($item['product_cat'] ?? ''));
 
                 // If no relationship was selected, create/resolve a product NOW so it appears in Producten.
-                if (! $product_rel && ($product_ean !== '' || $product_name !== '')) {
+                    if (! $product_rel && ($product_ean !== '' || $product_name !== '') && ($has_product_ean_field || $has_product_name_field)) {
                     $existing_product = null;
 
-                    if ($product_ean !== '') {
+                        if ($product_ean !== '' && $has_product_ean_field) {
                         $existing_product = ee('Model')
                             ->get('ChannelEntry')
                             ->filter('channel_id', (int) $products_channel->channel_id)
@@ -283,13 +395,17 @@ class Delivery_manager_act
                             ->first();
                     }
 
-                    if (! $existing_product && $product_name !== '') {
-                        // best-effort match on name
-                        $existing_product = ee('Model')
-                            ->get('ChannelEntry')
-                            ->filter('channel_id', (int) $products_channel->channel_id)
-                            ->filter('product_name', $product_name)
-                            ->first();
+                        if (! $existing_product && $product_name !== '' && $has_product_name_field) {
+                            // best-effort match on name
+                            try {
+                                $existing_product = ee('Model')
+                                    ->get('ChannelEntry')
+                                    ->filter('channel_id', (int) $products_channel->channel_id)
+                                    ->filter('product_name', $product_name)
+                                    ->first();
+                            } catch (Throwable $e) {
+                                $existing_product = null;
+                            }
                     }
 
                     if ($existing_product) {
@@ -306,18 +422,18 @@ class Delivery_manager_act
                         $new_product->url_title = $new_url_title;
                         $new_product->status = 'open';
 
-                        if ($product_name !== '') {
-                            $new_product->set(['product_name' => $product_name]);
-                        }
-                        if ($product_ean !== '') {
-                            $new_product->set(['product_ean' => $product_ean]);
-                        }
-                        if ($product_cat !== '') {
-                            $new_product->set(['product_cat' => $product_cat]);
-                        }
+                            if ($product_name !== '') {
+                                $set_product_field($new_product, 'product_name', $product_name);
+                            }
+                            if ($product_ean !== '') {
+                                $set_product_field($new_product, 'product_ean', $product_ean);
+                            }
+                            if ($product_cat !== '') {
+                                $set_product_field($new_product, 'product_cat', $product_cat);
+                            }
 
                         // Start at 0; stock is updated only on accept_delivery.
-                        $new_product->set(['product_amount' => 0]);
+                            $set_product_field($new_product, 'product_amount', 0);
                         $new_product->save();
 
                         $product_rel = (int) $new_product->entry_id;
