@@ -1,5 +1,11 @@
 {if logged_in}
-  {redirect="_site/dashboard"}
+  {if logged_in_group_id == "8"}
+    {redirect="_site/voorraad"}
+  {if:elseif logged_in_group_id == "7"}
+    {redirect="_site/pakket-samenstellen"}
+  {if:else}
+    {redirect="_site/dashboard"}
+  {/if}
 {/if}
 <main class="login" data-login>
   <div class="login__wrap">
@@ -12,7 +18,7 @@
       </div>
     </header>
 
-    {exp:member:login_form return="/_site/dashboard" form_class="login__form" form_id="login-form"}
+    {exp:member:login_form return="/_site/home" form_class="login__form" form_id="login-form"}
       <div class="login__field">
         <label class="login__label" for="login-username">E-mail of gebruikersnaam</label>
         <input

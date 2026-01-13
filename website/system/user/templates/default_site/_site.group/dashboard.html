@@ -1,5 +1,5 @@
 {layout="_layouts/.main"}
-    {if logged_in}
+    {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6")}
     <div class="dashboard mt-10">
         <div class="dashboard__intro my-15">
             <div class="container">
@@ -12,7 +12,6 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                     <!-- Rij 1: Klanten, Producten, Leveranciers -->
-                    {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6")}
                     <div class="dashboard__tile">
                         <a href="{path='_site/customers'}">
                             <div class="dashboard__icon dashboard__icon--klanten">
@@ -28,12 +27,10 @@
                                         {if count == total_results}{total_results}{/if}
                                     {/exp:channel:entries} actieve klanten
                                 </span>
-                                <span class="dashboard__meta-arrow">?+'</span>
+                                <span class="dashboard__meta-arrow">→</span>
                             </div>
                         </a>
                     </div>
-                    {/if}
-                    {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "7" OR logged_in_group_id == "8")}
                     <div class="dashboard__tile">
                         <a href="{path='_site/voorraad'}">
                             <div class="dashboard__icon dashboard__icon--producten">
@@ -49,12 +46,10 @@
                                         {if count == total_results}{total_results}{/if}
                                     {/exp:channel:entries} producten in voorraad
                                 </span>
-                                <span class="dashboard__meta-arrow">?+'</span>
+                                <span class="dashboard__meta-arrow">→</span>
                             </div>
                         </a>
                     </div>
-                    {/if}
-                    {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "8")}
                     <div class="dashboard__tile">
                         <a href="{path='_site/leveranciers'}">
                             <div class="dashboard__icon dashboard__icon--leveranciers">
@@ -65,19 +60,18 @@
                             <h2>Leveranciers</h2>
                             <p>Beheer leveranciers en leveringen</p>
                             <div class="dashboard__meta">
+                                
                                 <span class="dashboard__meta-value">
                                     {exp:channel:entries channel="supplier" dynamic="no" status="open" limit="999"}
                                         {if count == total_results}{total_results}{/if}
                                     {/exp:channel:entries} leveranciers
                                 </span>
-                                <span class="dashboard__meta-arrow">?+'</span>
+                                <span class="dashboard__meta-arrow">→</span>
                             </div>
                         </a>
                     </div>
-                    {/if}
-
+    
                     <!-- Rij 2: Pakketsamenstellen, Pakket Uitgifte, Raportage -->
-                    {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "7")}
                     <div class="dashboard__tile">
                         <a href="{path='_site/pakket-samenstellen'}">
                             <div class="dashboard__icon dashboard__icon--pakketsamenstellen">
@@ -90,12 +84,10 @@
                             <p>Stel voedelpakketten samen</p>
                             <div class="dashboard__meta">
                                 <span class="dashboard__meta-value">Samenstellen op donderdag</span>
-                                <span class="dashboard__meta-arrow">?+'</span>
+                                <span class="dashboard__meta-arrow">→</span>
                             </div>
                         </a>
                     </div>
-                    {/if}
-                    {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6")}
                     <div class="dashboard__tile">
                         <a href="{path='_site/pakket-uitgifte'}">
                             <div class="dashboard__icon dashboard__icon--pakketuitgifte">
@@ -107,12 +99,10 @@
                             <p>Registreer uitgegeven pakketten</p>
                             <div class="dashboard__meta">
                                 <span class="dashboard__meta-value">Uitgifte op vrijdag</span>
-                                <span class="dashboard__meta-arrow">?+'</span>
+                                <span class="dashboard__meta-arrow">→</span>
                             </div>
                         </a>
                     </div>
-                    {/if}
-                    {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6")}
                     <div class="dashboard__tile">
                         <a href="{path='_site/rapportages'}">
                             <div class="dashboard__icon dashboard__icon--rapportage">
@@ -124,18 +114,16 @@
                             <p>Bekijk statistieken en trends</p>
                             <div class="dashboard__meta">
                                 <span class="dashboard__meta-value">245 pakketten deze maand</span>
-                                <span class="dashboard__meta-arrow">?+'</span>
+                                <span class="dashboard__meta-arrow">→</span>
                             </div>
                         </a>
                     </div>
-                    {/if}
-                    {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "7")}
                     <div class="dashboard__tile">
                         <a href="{path='_site/pakketten'}">
                             <div class="dashboard__icon dashboard__icon--rapportage">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M4 4.5h16a1.5 1.5 0 0 1 1.5 1.5v12A1.5 1.5 0 0 1 20 19.5H4A1.5 1.5 0 0 1 2.5 18V6A1.5 1.5 0 0 1 4 4.5zm0 1.5v12h16V6H4zm2.5 2.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1 0-1zm0 3.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1 0-1zm0 3.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1 0-1z"/>
-                                </svg>
+				<span class="sidebar__icon" aria-hidden="true">
+					<img src="https://img.icons8.com/wired/64/package.png" alt="Package icon" width="24" height="24">
+				</span>
                             </div>
                             <h2>Pakketen</h2>
                             <p>Bekijk gemaakte pakketen</p>
@@ -144,12 +132,10 @@
                                     {exp:channel:entries channel="supplier" dynamic="no" status="open" limit="999"}
                                         {if count == total_results}{total_results}{/if}
                                     {/exp:channel:entries} leveranciers</span>
-                                <span class="dashboard__meta-arrow">?+'</span>
+                                <span class="dashboard__meta-arrow">→</span>
                             </div>
                         </a>
                     </div>
-                    {/if}
-
                 </div>
             </div>
         </div>

@@ -161,14 +161,104 @@ class Delivery_manager
         }
 
         $supplie_date = $order->supplie_date ?? null;
+
+        if (empty($supplie_date) || $supplie_date === '0' || $supplie_date === 0) {
+            $fallback = $order->delivery_date ?? ($order->deliverydate ?? null);
+            if ($fallback) {
+                $supplie_date = (int) $fallback;
+            }
+        }
+
+        if (empty($supplie_date) || $supplie_date === '0' || $supplie_date === 0) {
+            $date_field = ee('Model')->get('ChannelField')->filter('field_name', 'supplie_date')->first();
+            if ($date_field) {
+                $date_table = ee()->db->dbprefix('channel_data_field_' . (int) $date_field->field_id);
+                $row = ee()->db
+                    ->select('field_id_' . (int) $date_field->field_id . ' AS val')
+                    ->from($date_table)
+                    ->where('entry_id', (int) $order->entry_id)
+                    ->get()
+                    ->row_array();
+
+                if ($row && isset($row['val'])) {
+                    $supplie_date = (int) $row['val'];
+                }
+            }
+        }
+
+        if (empty($supplie_date) || $supplie_date === '0' || $supplie_date === 0) {
+            $supplie_date = (int) ($order->entry_date ?? 0);
+        }
+
         if (empty($supplie_date) || $supplie_date === '0' || $supplie_date === 0) {
             return $this->error_redirect('Leveringsdatum ontbreekt.');
+        }
+
+        if (empty($order->supplie_date) && $supplie_date) {
+            $order->set(['supplie_date' => $supplie_date]);
         }
 
         $products_channel = ee('Model')->get('Channel')->filter('channel_name', 'producten')->first();
         if (! $products_channel) {
             return $this->error_redirect('Channel "producten" niet gevonden.');
         }
+
+        $product_fields = $products_channel->getAllCustomFields();
+        $field_exists = function (string $name) use ($product_fields): bool {
+            return $product_fields->filter('field_name', $name)->count() > 0;
+        };
+
+        $has_product_name_field = $field_exists('product_name');
+        $has_product_ean_field = $field_exists('product_ean');
+        $has_product_cat_field = $field_exists('product_cat');
+        $has_product_amount_field = $field_exists('product_amount');
+
+        if (! $has_product_amount_field) {
+            return $this->error_redirect('Channel "producten" mist het veld "product_amount".');
+        }
+
+        $set_product_field = function ($entry, string $field, $value) use (
+            $has_product_name_field,
+            $has_product_ean_field,
+            $has_product_cat_field,
+            $has_product_amount_field
+        ): void {
+            if ($value === '' || $value === null) {
+                return;
+            }
+
+            $exists = false;
+            switch ($field) {
+                case 'product_name':
+                    $exists = $has_product_name_field;
+                    break;
+                case 'product_ean':
+                    $exists = $has_product_ean_field;
+                    break;
+                case 'product_cat':
+                    $exists = $has_product_cat_field;
+                    break;
+                case 'product_amount':
+                    $exists = $has_product_amount_field;
+                    break;
+            }
+
+            if (! $exists) {
+                if ($field === 'product_name') {
+                    // Fall back to title when the custom name field is missing.
+                    $entry->title = (string) $value;
+                }
+                return;
+            }
+
+            try {
+                $entry->set([$field => $value]);
+            } catch (Throwable $e) {
+                if ($field === 'product_name') {
+                    $entry->title = (string) $value;
+                }
+            }
+        };
 
         $now = (int) ee()->localize->now;
 
@@ -190,10 +280,19 @@ class Delivery_manager
                 }
 
                 $product_entry = null;
+                $name = trim((string) ($row['product_name'] ?? ''));
+                $cat = $row['product_cat'] ?? '';
 
-                // 2) Try EAN
+                $rel_id = $this->parse_relationship_id($row['product_rel'] ?? null);
+                if ($rel_id) {
+                    $candidate = ee('Model')->get('ChannelEntry')->filter('entry_id', $rel_id)->first();
+                    if ($candidate && (int) $candidate->channel_id === (int) $products_channel->channel_id) {
+                        $product_entry = $candidate;
+                    }
+                }
+
                 $ean = trim((string) ($row['product_ean'] ?? ''));
-                if (! $product_entry && $ean !== '') {
+                if (! $product_entry && $ean !== '' && $has_product_ean_field) {
                     $product_entry = ee('Model')
                         ->get('ChannelEntry')
                         ->filter('channel_id', (int) $products_channel->channel_id)
@@ -201,11 +300,30 @@ class Delivery_manager
                         ->first();
                 }
 
+                if (! $product_entry && $name !== '') {
+                    if ($has_product_name_field) {
+                        try {
+                            $product_entry = ee('Model')
+                                ->get('ChannelEntry')
+                                ->filter('channel_id', (int) $products_channel->channel_id)
+                                ->filter('product_name', $name)
+                                ->first();
+                        } catch (Throwable $e) {
+                            $product_entry = null; // product_name not available on this channel
+                        }
+                    }
+
+                    if (! $product_entry) {
+                        $product_entry = ee('Model')
+                            ->get('ChannelEntry')
+                            ->filter('channel_id', (int) $products_channel->channel_id)
+                            ->filter('title', $name)
+                            ->first();
+                    }
+                }
+
                 // 3) Create product if needed
                 if (! $product_entry) {
-                    $name = trim((string) ($row['product_name'] ?? ''));
-                    $cat = $row['product_cat'] ?? '';
-
                     $title = $name !== '' ? $name : ($ean !== '' ? $ean : 'Nieuw product');
                     $url_title = $this->slugify($title);
                     $url_title .= '-' . strtolower(substr(md5(uniqid('', true)), 0, 6));
@@ -221,18 +339,18 @@ class Delivery_manager
                     $product_entry->edit_date = $now;
 
                     if ($name !== '') {
-                        $product_entry->set(['product_name' => $name]);
+                        $set_product_field($product_entry, 'product_name', $name);
                     }
                     if ($ean !== '') {
-                        $product_entry->set(['product_ean' => $ean]);
+                        $set_product_field($product_entry, 'product_ean', $ean);
                     }
                     if ($cat !== '' && $cat !== null) {
                         // product_cat is a multi_select in this install; set as array for safety.
-                        $product_entry->set(['product_cat' => is_array($cat) ? $cat : [$cat]]);
+                        $set_product_field($product_entry, 'product_cat', is_array($cat) ? $cat : [$cat]);
                     }
 
                     // Start voorraad at 0; we'll add delivered_amount below
-                    $product_entry->set(['product_amount' => 0]);
+                    $set_product_field($product_entry, 'product_amount', 0);
 
                     $result = $product_entry->validate();
                     if (! $result->isValid()) {
@@ -254,7 +372,7 @@ class Delivery_manager
                 $current_amount = (int) ($product_entry->product_amount ?? 0);
                 $new_amount = $current_amount + $delivered_amount;
 
-                $product_entry->set(['product_amount' => $new_amount]);
+                $set_product_field($product_entry, 'product_amount', $new_amount);
                 $product_entry->save();
             }
 
@@ -380,6 +498,63 @@ class Delivery_manager
             return $this->error_redirect('Channel "producten" niet gevonden.');
         }
 
+        $product_fields = $products_channel->getAllCustomFields();
+        $field_exists = function (string $name) use ($product_fields): bool {
+            return $product_fields->filter('field_name', $name)->count() > 0;
+        };
+
+        $has_product_name_field = $field_exists('product_name');
+        $has_product_ean_field = $field_exists('product_ean');
+        $has_product_cat_field = $field_exists('product_cat');
+        $has_product_amount_field = $field_exists('product_amount');
+
+        if (! $has_product_amount_field) {
+            return $this->error_redirect('Channel "producten" mist het veld "product_amount".');
+        }
+
+        $set_product_field = function ($entry, string $field, $value) use (
+            $has_product_name_field,
+            $has_product_ean_field,
+            $has_product_cat_field,
+            $has_product_amount_field
+        ): void {
+            if ($value === '' || $value === null) {
+                return;
+            }
+
+            $exists = false;
+            switch ($field) {
+                case 'product_name':
+                    $exists = $has_product_name_field;
+                    break;
+                case 'product_ean':
+                    $exists = $has_product_ean_field;
+                    break;
+                case 'product_cat':
+                    $exists = $has_product_cat_field;
+                    break;
+                case 'product_amount':
+                    $exists = $has_product_amount_field;
+                    break;
+            }
+
+            if (! $exists) {
+                if ($field === 'product_name') {
+                    // Fall back to title when the custom name field is missing.
+                    $entry->title = (string) $value;
+                }
+                return;
+            }
+
+            try {
+                $entry->set([$field => $value]);
+            } catch (Throwable $e) {
+                if ($field === 'product_name') {
+                    $entry->title = (string) $value;
+                }
+            }
+        };
+
         ee()->db->trans_begin();
 
         try {
@@ -454,7 +629,15 @@ class Delivery_manager
                         ->first();
 
                     if ($selected) {
-                        $pn = trim((string) ($selected->product_name ?? ''));
+                        // Safely read optional custom fields; fall back to title if product_name is missing.
+                        $pn = '';
+                        if ($has_product_name_field) {
+                            try {
+                                $pn = trim((string) ($selected->product_name ?? ''));
+                            } catch (Throwable $e) {
+                                $pn = '';
+                            }
+                        }
                         if ($pn === '') {
                             $pn = trim((string) ($selected->title ?? ''));
                         }
@@ -462,21 +645,33 @@ class Delivery_manager
                             $product_name = $pn;
                         }
 
-                        $pe = trim((string) ($selected->product_ean ?? ''));
-                        if ($pe !== '') {
-                            $product_ean = $pe;
+                        if ($has_product_ean_field) {
+                            try {
+                                $pe = trim((string) ($selected->product_ean ?? ''));
+                                if ($pe !== '') {
+                                    $product_ean = $pe;
+                                }
+                            } catch (Throwable $e) {
+                                // ignore missing field
+                            }
                         }
 
-                        $pc = $selected->product_cat ?? '';
-                        if (is_array($pc)) {
-                            $first = trim((string) ($pc[0] ?? ''));
-                            if ($first !== '') {
-                                $product_cat = $first;
-                            }
-                        } else {
-                            $pcs = trim((string) $pc);
-                            if ($pcs !== '') {
-                                $product_cat = $pcs;
+                        if ($has_product_cat_field) {
+                            try {
+                                $pc = $selected->product_cat ?? '';
+                                if (is_array($pc)) {
+                                    $first = trim((string) ($pc[0] ?? ''));
+                                    if ($first !== '') {
+                                        $product_cat = $first;
+                                    }
+                                } else {
+                                    $pcs = trim((string) $pc);
+                                    if ($pcs !== '') {
+                                        $product_cat = $pcs;
+                                    }
+                                }
+                            } catch (Throwable $e) {
+                                // ignore missing field
                             }
                         }
                     }
@@ -503,7 +698,7 @@ class Delivery_manager
                 if (! $product_rel && ($product_ean !== '' || $product_name !== '')) {
                     $existing_product = null;
 
-                    if ($product_ean !== '') {
+                    if ($product_ean !== '' && $has_product_ean_field) {
                         $existing_product = ee('Model')
                             ->get('ChannelEntry')
                             ->filter('channel_id', (int) $products_channel->channel_id)
@@ -511,13 +706,17 @@ class Delivery_manager
                             ->first();
                     }
 
-                    if (! $existing_product && $product_name !== '') {
-                        // best-effort match on name
-                        $existing_product = ee('Model')
-                            ->get('ChannelEntry')
-                            ->filter('channel_id', (int) $products_channel->channel_id)
-                            ->filter('product_name', $product_name)
-                            ->first();
+                    if (! $existing_product && $product_name !== '' && $has_product_name_field) {
+                        // best-effort match on name, but swallow unknown field errors if the field is absent
+                        try {
+                            $existing_product = ee('Model')
+                                ->get('ChannelEntry')
+                                ->filter('channel_id', (int) $products_channel->channel_id)
+                                ->filter('product_name', $product_name)
+                                ->first();
+                        } catch (Throwable $e) {
+                            $existing_product = null;
+                        }
                     }
 
                     if ($existing_product) {
@@ -537,18 +736,18 @@ class Delivery_manager
                         $new_product->edit_date = $now;
 
                         if ($product_name !== '') {
-                            $new_product->set(['product_name' => $product_name]);
+                            $set_product_field($new_product, 'product_name', $product_name);
                         }
                         if ($product_ean !== '') {
-                            $new_product->set(['product_ean' => $product_ean]);
+                            $set_product_field($new_product, 'product_ean', $product_ean);
                         }
                         if ($product_cat !== '') {
                             // multi_select accepts array; safer than passing a raw string
-                            $new_product->set(['product_cat' => [$product_cat]]);
+                            $set_product_field($new_product, 'product_cat', [$product_cat]);
                         }
 
                         // Start at 0; stock is updated only on accept_delivery.
-                        $new_product->set(['product_amount' => 0]);
+                        $set_product_field($new_product, 'product_amount', 0);
 
                         $result = $new_product->validate();
                         if (! $result->isValid()) {
@@ -587,6 +786,7 @@ class Delivery_manager
                 $maybe_set('product_ean', $product_ean);
                 $maybe_set('product_cat', $product_cat);
                 $maybe_set('product_amount', $delivered_amount);
+                $maybe_set('product_rel', $product_rel ? (string) $product_rel : '');
 
                 ee()->db->insert($grid_table, $row);
                 $row_order++;
