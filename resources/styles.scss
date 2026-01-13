@@ -4,6 +4,8 @@
 @use "@fancyapps/ui/dist/fancybox/fancybox.css";
 
 /* ===== Auto-Generated Imports ===== */
+@use '@components/Accessibility/AccessibilityLOS.scss';
+@use '@components/banner_alert/banner_alert.scss';
 @use '@components/customers/customers.scss';
 @use '@components/dashboardTiles/dashboard_tiles.scss';
 @use '@components/login/login.scss';
