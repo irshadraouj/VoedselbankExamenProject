@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banner Alert Example</title>
+    <title>Banner Alert with Gradient</title>
     <style>
         .banner_alert {
-            border: 2px solid red; 
+            border: 2px solid rgb(106, 110, 110); 
             padding: 10px; 
-            background-color: #ffcccc; 
+            background: linear-gradient(to right, #1074df, #81aae9); 
             margin: 20px 0; 
             border-radius: 5px; 
+            color: white; 
         }
 
         .banner_alert__title h3 {
             margin: 0; 
-            color: darkred; 
+            color: white; 
         }
 
         .banner_alert__content p {
             margin: 5px 0 0; 
+            color: black
         }
     </style>
 </head>
@@ -27,10 +29,10 @@
 
 <div class="banner_alert">
     <div class="banner_alert__title">
-        <h3>Let op</h3>
+        <h3>Let op!</h3>
     </div>
     <div class="banner_alert__content">
-        <p><b>Diepvries- en alcoholproducten zijn niet beschikbaar.</b></p> 
+        <p><i>Diepvries- en alcoholproducten zijn niet beschikbaar.</i></p> 
     </div>
 </div>
 
