@@ -4,7 +4,7 @@ if (! defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class Delivery_manager
+class Delivery_manager_act
 {
     public function __construct()
     {
@@ -163,6 +163,210 @@ class Delivery_manager
         ee()->functions->redirect($return_url);
     }
 
+    public function create_delivery()
+    {
+        // Require login
+        $member_id = (int) ee()->session->userdata('member_id');
+        if (! $member_id) {
+            return $this->deny();
+        }
+
+        $suppliers_channel = ee('Model')->get('Channel')->filter('channel_name', 'suppliers_order')->first();
+        if (! $suppliers_channel) {
+            return $this->error_redirect('Channel "suppliers_order" niet gevonden.');
+        }
+
+        $products_grid_field = ee('Model')->get('ChannelField')->filter('field_name', 'products')->first();
+        if (! $products_grid_field) {
+            return $this->error_redirect('Grid field "products" niet gevonden.');
+        }
+
+        $delivery_date = (string) ee()->input->post('delivery_date');
+        if ($delivery_date === '') {
+            return $this->error_redirect('Leveringsdatum ontbreekt.');
+        }
+
+        $delivery_ts = strtotime($delivery_date . ' 00:00:00');
+        if (! $delivery_ts) {
+            return $this->error_redirect('Leveringsdatum is ongeldig.');
+        }
+
+        $supplier_title = trim((string) ee()->input->post('supplier_title'));
+        $custom_title = trim((string) ee()->input->post('title'));
+
+        $title = $custom_title !== '' ? $custom_title : ($supplier_title !== '' ? ('Levering - ' . $supplier_title) : 'Levering');
+        $url_title = $this->slugify($title) . '-' . strtolower(substr(md5(uniqid('', true)), 0, 6));
+
+        $items = ee()->input->post('items');
+        if (! is_array($items)) {
+            $items = [];
+        }
+
+        // Require at least 1 item with amount
+        $has_any = false;
+        foreach ($items as $item) {
+            if (is_array($item) && (int) ($item['delivered_amount'] ?? 0) > 0) {
+                $has_any = true;
+                break;
+            }
+        }
+        if (! $has_any) {
+            return $this->error_redirect('Voeg minimaal 1 product met een aantal toe.');
+        }
+
+        // Map grid columns by name -> col_id
+        $cols = ee()->db
+            ->select('col_id, col_name')
+            ->from('grid_columns')
+            ->where('field_id', (int) $products_grid_field->field_id)
+            ->get()
+            ->result_array();
+
+        $col_id_by_name = [];
+        foreach ($cols as $col) {
+            $col_id_by_name[(string) $col['col_name']] = (int) $col['col_id'];
+        }
+
+        $grid_table = ee()->db->dbprefix('channel_grid_field_' . (int) $products_grid_field->field_id);
+
+        $products_channel = ee('Model')->get('Channel')->filter('channel_name', 'producten')->first();
+        if (! $products_channel) {
+            return $this->error_redirect('Channel "producten" niet gevonden.');
+        }
+
+        $now = ee()->localize->now;
+
+        ee()->db->trans_begin();
+
+        try {
+            $entry = ee('Model')->make('ChannelEntry');
+            $entry->site_id = ee()->config->item('site_id');
+            $entry->channel_id = (int) $suppliers_channel->channel_id;
+            $entry->author_id = $member_id;
+            $entry->title = $title;
+            $entry->url_title = $url_title;
+            $entry->status = 'open';
+
+            $entry->set([
+                'delivery_status' => 'pending',
+                'delivery_date' => (int) $delivery_ts,
+            ]);
+
+            // Optional metadata: we set created time implicitly; don't set approved/received here
+            $entry->save();
+
+            $row_order = 1;
+            foreach ($items as $item) {
+                if (! is_array($item)) {
+                    continue;
+                }
+
+                $delivered_amount = (int) ($item['delivered_amount'] ?? 0);
+                if ($delivered_amount <= 0) {
+                    continue;
+                }
+
+                $product_rel = $this->parse_relationship_id($item['product_rel'] ?? null);
+                $product_name = trim((string) ($item['product_name'] ?? ''));
+                $product_ean = trim((string) ($item['product_ean'] ?? ''));
+                $product_cat = trim((string) ($item['product_cat'] ?? ''));
+
+                // If no relationship was selected, create/resolve a product NOW so it appears in Producten.
+                if (! $product_rel && ($product_ean !== '' || $product_name !== '')) {
+                    $existing_product = null;
+
+                    if ($product_ean !== '') {
+                        $existing_product = ee('Model')
+                            ->get('ChannelEntry')
+                            ->filter('channel_id', (int) $products_channel->channel_id)
+                            ->filter('product_ean', $product_ean)
+                            ->first();
+                    }
+
+                    if (! $existing_product && $product_name !== '') {
+                        // best-effort match on name
+                        $existing_product = ee('Model')
+                            ->get('ChannelEntry')
+                            ->filter('channel_id', (int) $products_channel->channel_id)
+                            ->filter('product_name', $product_name)
+                            ->first();
+                    }
+
+                    if ($existing_product) {
+                        $product_rel = (int) $existing_product->entry_id;
+                    } else {
+                        $title_for_product = $product_name !== '' ? $product_name : $product_ean;
+                        $new_url_title = $this->slugify($title_for_product) . '-' . strtolower(substr(md5(uniqid('', true)), 0, 6));
+
+                        $new_product = ee('Model')->make('ChannelEntry');
+                        $new_product->site_id = ee()->config->item('site_id');
+                        $new_product->channel_id = (int) $products_channel->channel_id;
+                        $new_product->author_id = $member_id;
+                        $new_product->title = $title_for_product;
+                        $new_product->url_title = $new_url_title;
+                        $new_product->status = 'open';
+
+                        if ($product_name !== '') {
+                            $new_product->set(['product_name' => $product_name]);
+                        }
+                        if ($product_ean !== '') {
+                            $new_product->set(['product_ean' => $product_ean]);
+                        }
+                        if ($product_cat !== '') {
+                            $new_product->set(['product_cat' => $product_cat]);
+                        }
+
+                        // Start at 0; stock is updated only on accept_delivery.
+                        $new_product->set(['product_amount' => 0]);
+                        $new_product->save();
+
+                        $product_rel = (int) $new_product->entry_id;
+                    }
+                }
+
+                $row = [
+                    'entry_id' => (int) $entry->entry_id,
+                    'row_order' => $row_order,
+                ];
+
+                $maybe_set = function (string $col_name, $value) use (&$row, $col_id_by_name): void {
+                    if (! array_key_exists($col_name, $col_id_by_name)) {
+                        return;
+                    }
+                    $col_id = $col_id_by_name[$col_name];
+                    $row['col_id_' . $col_id] = $value;
+                };
+
+                $maybe_set('product_rel', $product_rel ? (string) $product_rel : '');
+                $maybe_set('product_name', $product_name);
+                $maybe_set('product_ean', $product_ean);
+                $maybe_set('product_cat', $product_cat);
+                $maybe_set('delivered_amount', $delivered_amount);
+
+                ee()->db->insert($grid_table, $row);
+                $row_order++;
+            }
+
+            if (ee()->db->trans_status() === false) {
+                ee()->db->trans_rollback();
+                return $this->error_redirect('Opslaan mislukt.');
+            }
+
+            ee()->db->trans_commit();
+        } catch (Throwable $e) {
+            ee()->db->trans_rollback();
+            ee()->logger->developer('Delivery_manager create_delivery error: ' . $e->getMessage());
+            return $this->error_redirect('Er is iets misgegaan bij het aanmaken van de levering.');
+        }
+
+        $return_url = ee()->input->post('return_url');
+        if (! $return_url) {
+            $return_url = ee()->functions->form_backtrack('-1');
+        }
+
+        ee()->functions->redirect($return_url);
+    }
+
     private function get_grid_rows(int $field_id, int $entry_id): array
     {
         $cols = ee()->db
@@ -234,7 +438,7 @@ class Delivery_manager
     private function deny()
     {
         ee()->output->set_status_header(403);
-        return ee()->output->show_user_error('general', ['Je moet ingelogd zijn om een levering te accepteren.']);
+        return ee()->output->show_user_error('general', ['Je moet ingelogd zijn om dit te doen.']);
     }
 
     private function error_redirect(string $message)
