@@ -32,6 +32,12 @@
       });
     });
 
+    // Allow deep-linking to a specific tab via URL query (?tab=list|add|deliveries)
+    const initialTab = new URLSearchParams(window.location.search).get('tab');
+    if (initialTab && root.querySelector(`[data-tab="${initialTab}"]`)) {
+      switchTab(initialTab);
+    }
+
     // ================================================
     // FILTER - Customers list
     // ================================================

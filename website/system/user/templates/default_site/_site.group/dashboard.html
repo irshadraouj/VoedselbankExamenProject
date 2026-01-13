@@ -60,7 +60,12 @@
                             <h2>Leveranciers</h2>
                             <p>Beheer leveranciers en leveringen</p>
                             <div class="dashboard__meta">
-                                <span class="dashboard__meta-value">8 leveranciers</span>
+                                
+                                <span class="dashboard__meta-value">
+                                    {exp:channel:entries channel="supplier" dynamic="no" status="open" limit="999"}
+                                        {if count == total_results}{total_results}{/if}
+                                    {/exp:channel:entries} leveranciers
+                                </span>
                                 <span class="dashboard__meta-arrow">→</span>
                             </div>
                         </a>
@@ -109,6 +114,24 @@
                             <p>Bekijk statistieken en trends</p>
                             <div class="dashboard__meta">
                                 <span class="dashboard__meta-value">245 pakketten deze maand</span>
+                                <span class="dashboard__meta-arrow">→</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="dashboard__tile">
+                        <a href="{path='_site/pakketten'}">
+                            <div class="dashboard__icon dashboard__icon--rapportage">
+				<span class="sidebar__icon" aria-hidden="true">
+					<img src="https://img.icons8.com/wired/64/package.png" alt="Package icon" width="24" height="24">
+				</span>
+                            </div>
+                            <h2>Pakketen</h2>
+                            <p>Bekijk gemaakte pakketen</p>
+                            <div class="dashboard__meta">
+                                <span class="dashboard__meta-value"> 
+                                    {exp:channel:entries channel="supplier" dynamic="no" status="open" limit="999"}
+                                        {if count == total_results}{total_results}{/if}
+                                    {/exp:channel:entries} leveranciers</span>
                                 <span class="dashboard__meta-arrow">→</span>
                             </div>
                         </a>

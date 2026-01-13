@@ -1,55 +1,68 @@
 {layout="_layouts/.main"}
 {if logged_in && (logged_in_group_id == "1" OR logged_in_group_id == "6" OR logged_in_group_id == "8")}
 
-<div class="leveranciers">
-    <div class="leveranciers__wrap">
-        <header class="leveranciers__header">
+<div class="leveranciers customers">
+    <div class="leveranciers__wrap customers__wrap">
+        <div class="customers__header">
             <div>
-                <h1 class="leveranciers__title">Leveranciersoverzicht</h1>
-                <p class="leveranciers__subtitle">Beheer leveranciers en leveringen</p>
+                <p class="customers__eyebrow">Leveranciersbeheer</p>
+                <h1 class="customers__title">Leveranciersoverzicht</h1>
+                <p class="customers__subtitle">Beheer leveranciers en leveringen.</p>
             </div>
-        </header>
+        </div>
 
-        <section class="leveranciers__panel">
-            <div class="leveranciers__panel-actions">
-                <a class="leveranciers__secondary leveranciers__link" href="{path='_site/leveringen'}">
-                    Naar leveringen
-                </a>
-                <button class="leveranciers__primary" type="button" data-open="leveranciers-adder">
-                    Nieuwe leverancier
-                </button>
+        {if "{exp:delivery_manager:flash key='delivery_manager_error'}" != ""}
+            <div style="margin: 12px 0 18px; padding: 12px 14px; border-radius: 10px; border: 1px solid #fecaca; background: #fef2f2; color: #991b1b;">
+                {exp:delivery_manager:flash key='delivery_manager_error'}
+            </div>
+        {/if}
+
+        {if "{exp:delivery_manager:flash key='delivery_manager_success'}" != ""}
+            <div style="margin: 12px 0 18px; padding: 12px 14px; border-radius: 10px; border: 1px solid #bbf7d0; background: #f0fdf4; color: #166534;">
+                {exp:delivery_manager:flash key='delivery_manager_success'}
+            </div>
+        {/if}
+
+        <nav class="customers__tabs">
+            <button class="customers__tab customers__tab--active" data-tab="list">Leveranciers bekijken</button>
+            <button class="customers__tab" data-tab="deliveries" type="button">Leveringen</button>
+        </nav>
+
+        <section class="customers__section" id="tab-list" role="tabpanel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 class="customers__section-title" style="margin: 0;">Leveranciers</h2>
+                <button class="customers__button customers__button--primary" type="button" data-action="open-supplier-add">Leverancier toevoegen</button>
             </div>
 
-            <div class="leveranciers__table-wrap">
-                <table class="leveranciers__table">
+            <div class="customers__table-wrap">
+                <table class="customers__table">
                     <thead>
                         <tr>
                             <th>Bedrijfsnaam</th>
                             <th>Contactpersoon</th>
                             <th>Telefoonnummer</th>
                             <th>E-mailadres</th>
-                            <th>Eerstvolgende levering</th>
-                            <th>Contactpersoon</th>
+                            <th>KVK-nummer</th>
+                            <th>Acties</th>
                         </tr>
                     </thead>
                     <tbody>
                         {exp:channel:entries channel="supplier" dynamic="no" disable="categories|member_data" status="open"}
-                            <tr>
-                                <td>
-                                    <strong>{title}</strong>
-                                    <div class="leveranciers__meta">
-                                        <a href="{path='/entry/{url_title}'}">Bekijk</a>
-                                    </div>
-                                </td>
+                            <tr class="customers__row" data-entry-id="{entry_id}" data-entry-name="{title}">
+                                <td><strong>{title}</strong></td>
                                 <td>{supplier_name}</td>
                                 <td>{supplier_phone}</td>
                                 <td><a href="mailto:{supplier_email}">{supplier_email}</a></td>
-                                <td>{supplier_deliverdate format="%F %d %Y"}</td>
-                                <td>{supplier_ctc_person}</td>
+                                <td>{supplier_kvk}</td>
+                                <td>
+                                    <button class="customers__button customers__button--small" data-action="edit-modal" data-entry-id="{entry_id}" data-entry-name="{title}" type="button">
+                                        Bewerken
+                                    </button>
+                                </td>
                             </tr>
                         {if no_results}
                             <tr>
-                                <td colspan="6" class="leveranciers__empty">Er zijn nog geen leveranciers geregistreerd.</td>
+                                <td colspan="7" class="customers__empty">Er zijn nog geen leveranciers geregistreerd.</td>
                             </tr>
                         {/if}
                         {/exp:channel:entries}
@@ -58,59 +71,417 @@
             </div>
         </section>
 
-        <section class="leveranciers__panel leveranciers__panel--form" id="leveranciers-adder" hidden>
-            <h2>Nieuwe leverancier toevoegen</h2>
-            {exp:channel:form channel="supplier" return="_site/leveranciers" id="leveranciers-channel-form" allow_guest_posts="no"}
-                <div class="leveranciers__field">
-                    <label for="supplier-title">Naam bedrijf *</label>
-                    <input id="supplier-title" name="title" type="text" required>
-                </div>
-                <div class="leveranciers__field">
-                    <label for="supplier-name">Contactpersoon *</label>
-                    <input id="supplier-name" name="supplier_name" type="text" required>
-                </div>
-                <div class="leveranciers__field">
-                    <label for="supplier-phone">Telefoonnummer *</label>
-                    <input id="supplier-phone" name="supplier_phone" type="tel" required>
-                </div>
-                <div class="leveranciers__field">
-                    <label for="supplier-email">E-mailadres *</label>
-                    <input id="supplier-email" name="supplier_email" type="email" required>
-                </div>
-                <div class="leveranciers__field">
-                    <label for="supplier-date">Eerstvolgende levering *</label>
-                    <input id="supplier-date" name="supplier_deliverdate" type="date" required>
-                </div>
-                <div class="leveranciers__field">
-                    <label for="supplier-ctc">Contactpersoon telefonisch</label>
-                    <input id="supplier-ctc" name="supplier_ctc_person" type="text">
-                </div>
-                <div class="leveranciers__form-actions">
-                    <button class="leveranciers__primary" type="submit">Opslaan</button>
-                    <button class="leveranciers__secondary" type="button" data-close="leveranciers-adder">Annuleren</button>
-                </div>
-            {/exp:channel:form}
+        <section class="customers__section" id="tab-deliveries" role="tabpanel" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 class="customers__section-title" style="margin: 0;">Leveringen</h2>
+                <button class="customers__button customers__button--primary" type="button" data-action="open-delivery-create">Nieuwe levering</button>
+            </div>
+
+            <h3 style="margin: 0 0 12px;">Actieve leveringen</h3>
+            <div class="customers__table-wrap" style="margin-bottom: 28px;">
+                <table class="customers__table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Levering</th>
+                            <th>Producten</th>
+                            <th>Totaal aantal</th>
+                            <th>Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {exp:channel:entries
+                            channel="suppliers_order"
+                            dynamic="no"
+                            disable="categories|member_data|pagination"
+                            orderby="supplie_date"
+                            sort="desc"
+                            status="open"
+                        }
+                            <tr>
+                                <td>{if supplie_date}{supplie_date format="%d-%m-%Y"}{if:else}-{/if}</td>
+                                <td>
+                                    <strong>{title}</strong><br>
+                                    <small>Status: {status}</small>
+                                </td>
+                                <td>
+                                    {if products:total_rows}
+                                        {products}
+                                            <span class="js-delivered-amount" data-delivery-entry-id="{entry_id}" data-amount="{products:product_amount}" hidden></span>
+                                            {if products:product_name}{products:product_name}{if:else}{products:product_ean}{/if} ({products:product_amount})<br>
+                                        {/products}
+                                    {if:else}
+                                        -
+                                    {/if}
+                                </td>
+                                <td><span class="js-total" data-total-for="{entry_id}">-</span></td>
+                                <td>
+                                    {if supplie_date}
+                                        <form method="post" action="{exp:delivery_manager:action_url}" style="display:inline;">
+                                            <input type="hidden" name="entry_id" value="{entry_id}">
+                                            <input type="hidden" name="return_url" value="{path='_site/leveranciers'}?tab=deliveries">
+                                            <button class="customers__button customers__button--small" type="submit">Levering accepteren</button>
+                                        </form>
+                                    {if:else}
+                                        <button class="customers__button customers__button--small" type="button" disabled title="Vul eerst een leverdatum in">Levering accepteren</button>
+                                    {/if}
+                                </td>
+                            </tr>
+                            {if no_results}
+                                <tr>
+                                    <td colspan="5" class="customers__empty">Geen actieve leveringen.</td>
+                                </tr>
+                            {/if}
+                        {/exp:channel:entries}
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 style="margin: 0 0 12px;">Archief</h3>
+            <div class="customers__table-wrap">
+                <table class="customers__table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Levering</th>
+                            <th>Producten</th>
+                            <th>Totaal aantal</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {exp:channel:entries
+                            channel="suppliers_order"
+                            dynamic="no"
+                            disable="categories|member_data|pagination"
+                            orderby="supplie_date"
+                            sort="desc"
+                            status="closed"
+                        }
+                            <tr>
+                                <td>{if supplie_date}{supplie_date format="%d-%m-%Y"}{if:else}-{/if}</td>
+                                <td>
+                                    <strong>{title}</strong><br>
+                                    <small>Aangemaakt: {entry_date format="%d-%m-%Y %H:%i"}</small>
+                                </td>
+                                <td>
+                                    {if products:total_rows}
+                                        {products}
+                                            <span class="js-delivered-amount" data-delivery-entry-id="{entry_id}" data-amount="{products:product_amount}" hidden></span>
+                                            {if products:product_name}{products:product_name}{if:else}{products:product_ean}{/if} ({products:product_amount})<br>
+                                        {/products}
+                                    {if:else}
+                                        -
+                                    {/if}
+                                </td>
+                                <td><span class="js-total" data-total-for="{entry_id}">-</span></td>
+                                <td>{status}</td>
+                            </tr>
+                            {if no_results}
+                                <tr>
+                                    <td colspan="5" class="customers__empty">Geen archief leveringen.</td>
+                                </tr>
+                            {/if}
+                        {/exp:channel:entries}
+                    </tbody>
+                </table>
+            </div>
         </section>
-    </div>
 
-    </div>
-    <script>
-        (() => {
-            const toggle = document.querySelector('[data-open="leveranciers-adder"]');
-            const closeButtons = document.querySelectorAll('[data-close="leveranciers-adder"]');
-            const formSection = document.getElementById('leveranciers-adder');
+        <div id="cms-editor-modal" class="customers__modal" style="display: none;">
+            <div class="customers__modal-overlay"></div>
+            <div class="customers__modal-content">
+                <div class="customers__modal-header">
+                    <h2 id="cms-editor-title">Leverancier bewerken</h2>
+                    <button id="cms-editor-close" class="customers__modal-close" type="button" aria-label="Sluiten">×</button>
+                </div>
+                <iframe id="cms-editor-iframe" src="" width="100%" height="600px" frameborder="0" style="border: none; border-radius: 4px;"></iframe>
+            </div>
+        </div>
 
-            const toggleSection = (show) => {
-                if (!formSection) return;
-                formSection.hidden = !show;
-            };
+        <div id="supplier-add-modal" class="customers__modal" style="display: none;">
+            <div class="customers__modal-overlay" data-action="close-supplier-add"></div>
+            <div class="customers__modal-content">
+                <div class="customers__modal-header">
+                    <h2>Nieuwe leverancier toevoegen</h2>
+                    <button class="customers__modal-close" type="button" aria-label="Sluiten" data-action="close-supplier-add">×</button>
+                </div>
+                <div class="container my-10">
+                    {exp:channel:form channel="supplier" return="_site/leveranciers" id="leveranciers-add-form" multipart="yes"}
+                        <input type="hidden" name="url_title" id="supplier-url-title" />
+    
+                        <div class="customers__form-group">
+                            <h3>Basisgegevens</h3>
+                            <div class="customers__form-row">
+                                <div class="customers__form-field">
+                                    <label for="supplier-name">Naam bedrijf *</label>
+                                    <input id="supplier-name" name="title" type="text" required />
+                                </div>
+                                <div class="customers__form-field">
+                                    <label for="supplier-contact">Contactpersoon *</label>
+                                    <input id="supplier-contact" name="supplier_name" type="text" required />
+                                </div>
+                            </div>
+                            <div class="customers__form-row">
+                                <div class="customers__form-field">
+                                    <label for="supplier-phone">Telefoonnummer *</label>
+                                    <input id="supplier-phone" name="supplier_phone" type="tel" required />
+                                </div>
+                                <div class="customers__form-field">
+                                    <label for="supplier-email">E-mailadres *</label>
+                                    <input id="supplier-email" name="supplier_email" type="email" required />
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="customers__form-group">
+                            <h3>Leveringsgegevens</h3>
+                            <div class="customers__form-row">
+                                <div class="customers__form-field">
+                                    <label for="supplier-kvk">KVK-nummer</label>
+                                    <input id="supplier-kvk" name="supplier_kvk" type="text" maxlength="9" pattern="[0-9]{1,9}" />
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="customers__form-actions">
+                            <button class="customers__button customers__button--primary" type="submit">Opslaan</button>
+                            <button class="customers__button customers__button--secondary" type="reset">Wissen</button>
+                        </div>
+                    {/exp:channel:form}
+                </div>
+            </div>
+        </div>
 
-            toggle?.addEventListener('click', () => toggleSection(true));
-            closeButtons.forEach(button => button.addEventListener('click', () => toggleSection(false)));
-        })();
-    </script>
+        <div id="delivery-create-modal" class="customers__modal" style="display: none;">
+            <div class="customers__modal-overlay" data-action="close-delivery-create"></div>
+            <div class="customers__modal-content" style="max-height: 90vh; overflow: auto;">
+                <div class="customers__modal-header">
+                    <h2>Nieuwe levering aanmaken</h2>
+                    <button class="customers__modal-close" type="button" aria-label="Sluiten" data-action="close-delivery-create">×</button>
+                </div>
+
+                <div class="container my-10">
+                    <form method="post" action="{exp:delivery_manager:create_delivery_action_url}" id="delivery-create-form">
+                        <input type="hidden" name="return_url" value="{path='_site/leveranciers'}?tab=deliveries">
+
+                        <div class="customers__form-group">
+                            <h3>Levering</h3>
+                            <div class="customers__form-row">
+                                <div class="customers__form-field">
+                                    <label for="delivery-supplier">Leverancier (voor titel)</label>
+                                    <select id="delivery-supplier" name="supplier_title">
+                                        <option value="">-- Selecteer leverancier --</option>
+                                        {exp:channel:entries channel="supplier" dynamic="no" disable="categories|member_data" status="open"}
+                                            <option value="{title}">{title}</option>
+                                        {/exp:channel:entries}
+                                    </select>
+                                </div>
+                                <div class="customers__form-field">
+                                    <label for="delivery-date">Leverdatum *</label>
+                                    <input id="delivery-date" name="delivery_date" type="date" required />
+                                </div>
+                            </div>
+                            <div class="customers__form-row">
+                                <div class="customers__form-field" style="grid-column: 1 / -1;">
+                                    <label for="delivery-title">Titel (optioneel)</label>
+                                    <input id="delivery-title" name="title" type="text" placeholder="Bijv. Levering - Jumbo" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="customers__form-group">
+                            <h3>Producten</h3>
+                            <p style="margin-top: 0; color: #666; font-size: 14px;">Selecteer een bestaand product óf vul een nieuw product in. Bestaande producten worden alleen opgeslagen met aantal &gt; 0; nieuwe producten worden altijd aangemaakt (aantal mag 0 zijn).</p>
+
+                            <div id="delivery-items"></div>
+
+                            <button class="customers__button customers__button--secondary" type="button" data-action="add-delivery-item">Productregel toevoegen</button>
+                        </div>
+
+                        <div class="customers__form-actions">
+                            <button class="customers__button customers__button--primary" type="submit">Opslaan</button>
+                            <button class="customers__button customers__button--secondary" type="button" data-action="close-delivery-create">Annuleren</button>
+                        </div>
+                    </form>
+
+                    <template id="delivery-item-template">
+                        <div class="customers__form-group" style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+                            <div class="customers__form-row">
+                                <div class="customers__form-field">
+                                    <label>Bestaand product</label>
+                                    <select data-field="product_rel">
+                                        <option value="">-- Kies product --</option>
+                                        {exp:channel:entries channel="producten" dynamic="no" disable="categories|member_data|pagination"}
+                                            <option value="{entry_id}">{if product_name}{product_name}{if:else}{title}{/if}{if product_ean} ({product_ean}){/if}</option>
+                                        {/exp:channel:entries}
+                                    </select>
+                                </div>
+                                <div class="customers__form-field">
+                                    <label>Aantal *</label>
+                                    <input data-field="delivered_amount" type="number" min="0" step="1" value="0" required />
+                                </div>
+                            </div>
+                            <div class="customers__form-row">
+                                <div class="customers__form-field">
+                                    <label>Nieuw product naam</label>
+                                    <input data-field="product_name" type="text" />
+                                </div>
+                                <div class="customers__form-field">
+                                    <label>Nieuw product EAN</label>
+                                    <input data-field="product_ean" type="text" />
+                                </div>
+                            </div>
+                            <div class="customers__form-row">
+                                <div class="customers__form-field">
+                                    <label>Categorie</label>
+                                    <select data-field="product_cat">
+                                        <option value="">-Selecteer een categorie-</option>
+                                        {exp:delivery_manager:product_cat_options}
+                                    </select>
+                                </div>
+                                <div class="customers__form-field" style="display:flex; align-items:end;">
+                                    <button class="customers__button customers__button--secondary" type="button" data-action="remove-delivery-item">Verwijderen</button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+  (() => {
+    const root = document.querySelector('.leveranciers');
+    if (!root) return;
+
+        const supplierAddModal = root.querySelector('#supplier-add-modal');
+        const openSupplierAddBtn = root.querySelector('[data-action="open-supplier-add"]');
+        const closeSupplierAddEls = root.querySelectorAll('[data-action="close-supplier-add"]');
+
+        const openSupplierAddModal = () => {
+            if (!supplierAddModal) return;
+            supplierAddModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        };
+
+        const closeSupplierAddModal = () => {
+            if (!supplierAddModal) return;
+            supplierAddModal.style.display = 'none';
+            document.body.style.overflow = '';
+        };
+
+        openSupplierAddBtn?.addEventListener('click', openSupplierAddModal);
+        closeSupplierAddEls.forEach((el) => el.addEventListener('click', closeSupplierAddModal));
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && supplierAddModal && supplierAddModal.style.display === 'flex') {
+                closeSupplierAddModal();
+            }
+        });
+
+        // Ensure supplier url_title is always set (prevents EE validation errors)
+        const supplierAddForm = root.querySelector('#leveranciers-add-form');
+        const supplierNameInput = root.querySelector('#supplier-name');
+        const supplierUrlTitleInput = root.querySelector('#supplier-url-title');
+        if (supplierAddForm && supplierNameInput && supplierUrlTitleInput) {
+            const slugify = (value) => {
+                return String(value || '')
+                    .toLowerCase()
+                    .trim()
+                    .replace(/\s+/g, '-')
+                    .replace(/[^a-z0-9-]/g, '')
+                    .replace(/-+/g, '-')
+                    .replace(/^-|-$/g, '') || 'leverancier';
+            };
+
+            const updateSupplierUrlTitle = () => {
+                const name = supplierNameInput.value.trim();
+                const ts = Date.now();
+                supplierUrlTitleInput.value = `${slugify(name)}-${ts}`;
+            };
+
+            supplierNameInput.addEventListener('input', updateSupplierUrlTitle);
+            supplierAddForm.addEventListener('submit', (e) => {
+                if (!supplierUrlTitleInput.value) updateSupplierUrlTitle();
+            });
+        }
+
+        // Delivery create modal (frontend)
+        const deliveryCreateModal = root.querySelector('#delivery-create-modal');
+        const openDeliveryCreateBtn = root.querySelector('[data-action="open-delivery-create"]');
+        const closeDeliveryCreateEls = root.querySelectorAll('[data-action="close-delivery-create"]');
+        const itemsContainer = root.querySelector('#delivery-items');
+        const itemTemplate = root.querySelector('#delivery-item-template');
+        const addItemBtn = root.querySelector('[data-action="add-delivery-item"]');
+
+        const openDeliveryCreateModal = () => {
+            if (!deliveryCreateModal) return;
+            deliveryCreateModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            // Ensure at least 1 row
+            if (itemsContainer && itemsContainer.children.length === 0) {
+                addDeliveryItem();
+            }
+        };
+
+        const closeDeliveryCreateModal = () => {
+            if (!deliveryCreateModal) return;
+            deliveryCreateModal.style.display = 'none';
+            document.body.style.overflow = '';
+        };
+
+        const rebuildDeliveryItemNames = () => {
+            if (!itemsContainer) return;
+            const blocks = Array.from(itemsContainer.children);
+            blocks.forEach((block, index) => {
+                block.querySelectorAll('[data-field]').forEach((el) => {
+                    const field = el.getAttribute('data-field');
+                    el.setAttribute('name', `items[${index}][${field}]`);
+                });
+            });
+        };
+
+        const addDeliveryItem = () => {
+            if (!itemsContainer || !itemTemplate) return;
+            const tpl = itemTemplate.content.cloneNode(true);
+            const wrapper = tpl.firstElementChild;
+            if (!wrapper) return;
+
+            wrapper.querySelectorAll('[data-action="remove-delivery-item"]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    wrapper.remove();
+                    rebuildDeliveryItemNames();
+                });
+            });
+
+            itemsContainer.appendChild(wrapper);
+            rebuildDeliveryItemNames();
+        };
+
+        openDeliveryCreateBtn?.addEventListener('click', openDeliveryCreateModal);
+        closeDeliveryCreateEls.forEach((el) => el.addEventListener('click', closeDeliveryCreateModal));
+        addItemBtn?.addEventListener('click', addDeliveryItem);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && deliveryCreateModal && deliveryCreateModal.style.display === 'flex') {
+                closeDeliveryCreateModal();
+            }
+        });
+
+    const totals = new Map();
+    root.querySelectorAll('.js-delivered-amount').forEach((el) => {
+      const id = el.getAttribute('data-delivery-entry-id');
+      const amt = Number(el.getAttribute('data-amount') || 0);
+      totals.set(id, (totals.get(id) || 0) + amt);
+    });
+
+    root.querySelectorAll('.js-total').forEach((el) => {
+      const id = el.getAttribute('data-total-for');
+      el.textContent = String(totals.get(id) || 0);
+    });
+  })();
+</script>
 {if:else}
     {redirect="_site/home"}
 {/if}

@@ -94,7 +94,7 @@ const buildSeedData = () => {
 };
 
 const root = document.querySelector('.leveringen');
-if (root) {
+if (root && root.dataset.serverRendered !== 'true') {
   const tbody = root.querySelector('#leveringen-table-body');
   const modal = root.querySelector('#leveringen-modal');
   const form = root.querySelector('#leveringen-form');
